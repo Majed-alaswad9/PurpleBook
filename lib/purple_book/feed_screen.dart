@@ -1,5 +1,8 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -89,11 +92,11 @@ class FeedScreen extends StatelessWidget {
                     children: [
                       Row(
                         children: [
-                          const CircleAvatar(
+                           CircleAvatar(
                             radius: 25,
-                            backgroundImage: NetworkImage(
-                                'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
-                          ),
+                            backgroundImage: feed.posts![index].author!.imageMini!.data!.isNotEmpty? Image.memory(base64Decode(feed.posts![index].author!.imageMini!.data!)).image : const NetworkImage(
+                                'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
+                           ),
                           const SizedBox(
                             width: 10,
                           ),
@@ -255,10 +258,9 @@ class FeedScreen extends StatelessWidget {
                             height: 200,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
-                                image: const DecorationImage(
-                                  fit: BoxFit.cover,
-                                  image: NetworkImage(
-                                      'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
+                                image:  DecorationImage(
+                                  fit: BoxFit.fill,
+                                  image: Image.memory(base64Decode(feed.posts![index].image!.data!)).image
                                 )),
                           ),
                         ),

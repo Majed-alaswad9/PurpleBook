@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -74,10 +76,9 @@ class ViewPostScreen extends StatelessWidget {
                                 children: [
                                   Row(
                                     children: [
-                                      const CircleAvatar(
+                                       CircleAvatar(
                                         radius: 25,
-                                        backgroundImage: NetworkImage(
-                                            'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
+                                        backgroundImage: cubit.postView!.post!.author!.imageMini!=null?Image.memory(base64Decode(cubit.postView!.post!.author!.imageMini!.data!)).image:NetworkImage('https://student.valuxapps.com/storage/assets/defaults/user.jpg')
                                       ),
                                       const SizedBox(
                                         width: 10,
@@ -120,14 +121,13 @@ class ViewPostScreen extends StatelessWidget {
                                       .postView!.post!.image!.data!.isNotEmpty)
                                     Container(
                                       width: double.infinity,
-                                      height: 200,
+                                      height: 250,
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(5),
-                                          image: const DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: NetworkImage(
-                                                'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
+                                          image:  DecorationImage(
+                                            fit: BoxFit.fill,
+                                            image: Image.memory(base64Decode(cubit.postView!.post!.image!.data!)).image
                                           )),
                                     ),
                                   Padding(
@@ -161,43 +161,15 @@ class ViewPostScreen extends StatelessWidget {
                                                 const SizedBox(
                                                   width: 5,
                                                 ),
+                                                if(cubit.postView!.post!.likesCount!=0)
                                                 Text(
-                                                  '${cubit.likesCount![count]}',
+                                                  '${cubit.likesCount![count]} like',
                                                   style: Theme.of(context)
                                                       .textTheme
                                                       .caption!
                                                       .copyWith(
                                                           color: Colors.grey,
                                                           fontSize: 15),
-                                                )
-                                              ],
-                                            ),
-                                          ),
-                                        ),
-                                        Expanded(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 10.0),
-                                            child: Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: [
-                                                const Icon(
-                                                  Icons.chat_rounded,
-                                                  size: 20,
-                                                  color: Colors.grey,
-                                                ),
-                                                const SizedBox(
-                                                  width: 5,
-                                                ),
-                                                Text(
-                                                  'comment',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .caption!
-                                                      .copyWith(
-                                                          color: Colors.grey,
-                                                          fontSize: 17),
                                                 )
                                               ],
                                             ),

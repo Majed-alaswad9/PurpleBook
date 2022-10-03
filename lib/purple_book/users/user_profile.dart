@@ -1,5 +1,8 @@
 // ignore_for_file: must_be_immutable
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -229,8 +232,7 @@ class UserProfileScreen extends StatelessWidget {
                                       child: Text(
                                         'Posts',
                                         style: TextStyle(
-                                          color: indexWidget == 0
-                                              ? Colors.white
+                                          color: indexWidget == 0 ? Colors.white
                                               : Colors.black,
                                         ),
                                       ),
@@ -639,9 +641,7 @@ class UserProfileScreen extends StatelessWidget {
             color: HexColor("#6823D0"),
           )));
 
-  Widget buildUserPost(
-          UserPostsModule? user, int index, BuildContext context_1) =>
-      Card(
+  Widget buildUserPost(UserPostsModule? user, int index, BuildContext context_1) => Card(
           elevation: 10,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -689,6 +689,7 @@ class UserProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
+                const SizedBox(height: 10,),
                 if (user.posts![index].image!.data!.isNotEmpty)
                   InkWell(
                     onTap: () {
@@ -705,10 +706,9 @@ class UserProfileScreen extends StatelessWidget {
                       height: 200,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
-                          image: const DecorationImage(
-                            fit: BoxFit.cover,
-                            image: NetworkImage(
-                                'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
+                          image:  DecorationImage(
+                            fit: BoxFit.fill,
+                            image: Image.memory(base64Decode(user.posts![index].image!.data!)).image
                           )),
                     ),
                   ),
@@ -916,10 +916,9 @@ class UserProfileScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                const CircleAvatar(
+                 CircleAvatar(
                   radius: 25,
-                  backgroundImage: NetworkImage(
-                      'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
+                  backgroundImage:user.users![index].imageMini!.data!.data!.isNotEmpty? Image.memory(Uint8List.fromList(user.users![index].imageMini!.data!.data!)).image:null
                 ),
                 const SizedBox(
                   width: 10,

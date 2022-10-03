@@ -40,7 +40,7 @@ class AccountScreen extends StatelessWidget {
           else if(state is UpdateUserProfileErrorState){
             showMsg(msg: 'Update Failed', color: ColorMsg.error);
           }
-          
+
           if(state is DeleteUserSuccessState){
             Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginScreen()), (route) => false);
           }
@@ -66,18 +66,25 @@ class AccountScreen extends StatelessWidget {
                           child: Stack(
                             alignment: AlignmentDirectional.bottomEnd,
                             children: [
-                              // CircleAvatar(
-                              //   backgroundColor: HexColor("#6823D0"),
-                              //   radius: 90,
-                              //   child: CircleAvatar(
-                              //     radius: 85,
-                              //     backgroundImage:cubit.profileImage ==null ? 
-                              //         :Image(image: FileImage(cubit.profileImage!)).image ,
-                              //   ),
+                              CircleAvatar(
+                                backgroundColor: HexColor("#6823D0"),
+                                radius: 90,
+                                child: CircleAvatar(
+                                  radius: 85,
+                                  backgroundImage:cubit.profileImage ==null ? Image.memory(Uint8List.fromList(cubit.userProfile!.user!.imageFull!.data!.data!)).image:Image(image: FileImage(cubit.profileImage!)).image ,
+                                ),
+                              ),
+                              // Container(
+                              //   margin: const EdgeInsets.all(10),
+                              //   width: double.infinity,
+                              //   height: 300,
+                              //   decoration: BoxDecoration(
+                              //       borderRadius: BorderRadius.circular(5),
+                              //       image:  DecorationImage(
+                              //           fit: BoxFit.fill,
+                              //           image: Image.memory(Uint8List.fromList(cubit.userProfile!.user!.imageFull!.data!.data!)).image
+                              //       )),
                               // ),
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                  child: cubit.profileImage==null? Image.memory(Uint8List.fromList(cubit.userProfile!.user!.imageFull!.data!.data!)):Image(image: FileImage(cubit.profileImage!))),
                               CircleAvatar(
                                 backgroundColor: HexColor("#6823D0"),
                                 radius: 25,
