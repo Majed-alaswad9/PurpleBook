@@ -63,6 +63,10 @@ class GetCommentPostLoadingState extends PurpleBookState{}
 class GetCommentPostSuccessState extends PurpleBookState{}
 class GetCommentPostErrorState extends PurpleBookState{}
 
+class GetLikeCommentsLoadingState extends PurpleBookState{}
+class GetLikeCommentsSuccessState extends PurpleBookState{}
+class GetLikeCommentsErrorState extends PurpleBookState{}
+
 class LikeCommentPostLoadingState extends PurpleBookState{}
 
 class AddLikeCommentPostSuccessState extends PurpleBookState{}

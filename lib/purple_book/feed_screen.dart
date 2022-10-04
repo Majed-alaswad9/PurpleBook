@@ -1,4 +1,4 @@
-// ignore_for_file: must_be_immutable
+
 
 import 'dart:convert';
 import 'dart:typed_data';
@@ -14,8 +14,8 @@ import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
 
-import '../component/components.dart';
-import '../component/end_points.dart';
+import '../components/const.dart';
+import '../components/end_points.dart';
 
 class FeedScreen extends StatelessWidget {
   FeedScreen({Key? key}) : super(key: key);
@@ -94,8 +94,8 @@ class FeedScreen extends StatelessWidget {
                         children: [
                            CircleAvatar(
                             radius: 25,
-                            backgroundImage: feed.posts![index].author!.imageMini!.data!.isNotEmpty? Image.memory(base64Decode(feed.posts![index].author!.imageMini!.data!)).image : const NetworkImage(
-                                'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
+                            backgroundImage: feed.posts![index].author!.imageMini!.data!.isNotEmpty? Image.memory(base64Decode(feed.posts![index].author!.imageMini!.data!)).image
+                                :  const AssetImage('assets/image/user.jpg')
                            ),
                           const SizedBox(
                             width: 10,
@@ -121,14 +121,7 @@ class FeedScreen extends StatelessWidget {
                           if (userId == feed.posts![index].author!.sId || isAdmin==true)
                             PopupMenuButton(onSelected: (value) {
                               if (value == Constants.edit) {
-                                /* Navigator.push(
-                                conteext,
-                                MaterialPageRoute(
-                                    builder: (context) => EditPostScreen(
-                                        id: feed.posts![index].sId!,
-                                        post: feed.posts![index],
-                                        index: index)));*/
-                                contentController.text = feed.posts![index].content!;
+                                contentController.text = parseFragment(feed.posts![index].content!).text!;
                                 showDialog<String>(
                                     context: conteext,
                                     builder: (BuildContext context) =>
@@ -176,11 +169,9 @@ class FeedScreen extends StatelessWidget {
                                               ),
                                               TextButton(
                                                 onPressed: () {
-                                                  PurpleBookCubit.get(context)
-                                                      .editPosts(
+                                                  PurpleBookCubit.get(conteext).editPosts(
                                                       edit: contentController.text,
-                                                      id: feed.posts![index].sId!,
-                                                      index: index);
+                                                      id: feed.posts![index].sId!);
                                                   Navigator.pop(context,'OK');
                                                 },
                                                 child: Text('OK', style: TextStyle(
@@ -237,7 +228,7 @@ class FeedScreen extends StatelessWidget {
                         onTap: () {
                           Navigator.push(conteext, MaterialPageRoute(
                               builder: (context) => ViewPostScreen(
-                                id: feed.posts![index].sId!, count: index,)));
+                                id: feed.posts![index].sId!, count: index,isFocus: false,)));
                         },
                         child: Text(
                           '${parseFragment(feed.posts![index].content).text}',
@@ -246,12 +237,13 @@ class FeedScreen extends StatelessWidget {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 10,),
                       if (feed.posts![index].image!.data!.isNotEmpty)
                         InkWell(
                           onTap: () {
                             Navigator.push(conteext, MaterialPageRoute(
                                 builder: (context) => ViewPostScreen(
-                                  id: feed.posts![index].sId!, count: index,)));
+                                  id: feed.posts![index].sId!, count: index,isFocus: false,)));
                           },
                           child: Container(
                             width: double.infinity,
@@ -274,10 +266,8 @@ class FeedScreen extends StatelessWidget {
                                 child: InkWell(
                                   highlightColor: HexColor("#6823D0"),
                                   onTap: () {
-                                    showMsg(msg: 'Just a second',
-                                        color: ColorMsg.inCorrect);
-                                    PurpleBookCubit.get(conteext).getLikesPost(
-                                        id: feed.posts![index].sId!).then((value) {
+                                    showMsg(msg: 'Just a second', color: ColorMsg.inCorrect);
+                                    PurpleBookCubit.get(conteext).getLikesPost(id: feed.posts![index].sId!).then((value) {
                                       showModalBottomSheet(context: conteext,
                                         isScrollControlled: true,
                                         shape: const RoundedRectangleBorder(
@@ -286,20 +276,15 @@ class FeedScreen extends StatelessWidget {
                                         ),
                                         builder: (context) =>
                                             ConditionalBuilder(
-                                              condition: PurpleBookCubit
-                                                  .get(conteext)
-                                                  .getLikes!
-                                                  .users!
-                                                  .isNotEmpty,
-                                              builder: (context) =>
-                                                  ListView.separated(
+                                              condition: PurpleBookCubit.get(conteext).likeModule!.users!.isNotEmpty,
+                                              builder: (context) => ListView.separated(
                                                       shrinkWrap: true,
                                                       physics: const NeverScrollableScrollPhysics(),
                                                       itemBuilder: (context, index) =>
                                                           buildBottomSheet(
                                                               PurpleBookCubit
                                                                   .get(conteext)
-                                                                  .getLikes!, index),
+                                                                  .likeModule!, index),
                                                       separatorBuilder: (context,
                                                           index) =>
                                                       const SizedBox(
@@ -307,12 +292,10 @@ class FeedScreen extends StatelessWidget {
                                                       ),
                                                       itemCount: PurpleBookCubit
                                                           .get(conteext)
-                                                          .getLikes!
+                                                          .likeModule!
                                                           .users!
                                                           .length),
-                                              fallback: (context) =>
-                                              const Center(child: Text(
-                                                'Not Likes Yet',
+                                              fallback: (context) => const Center(child: Text('Not Likes Yet',
                                                 style: TextStyle(fontSize: 25),)),
                                             ),);
                                     });
@@ -353,7 +336,7 @@ class FeedScreen extends StatelessWidget {
                                       Navigator.push(conteext, MaterialPageRoute(
                                           builder: (conteext) => ViewPostScreen(
                                               id: feed.posts![index].sId!,
-                                              count: index)));
+                                              count: index,isFocus: false,)));
                                     },
                                     child: Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
@@ -394,34 +377,30 @@ class FeedScreen extends StatelessWidget {
                         ),
                       ),
                       Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           Expanded(
                             child: InkWell(
-                              child: Row(
-                                children: const [
-                                  CircleAvatar(
-                                    radius: 20,
-                                    backgroundImage: NetworkImage(
-                                        'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
-                                  ),
-                                  SizedBox(
-                                    width: 10,
-                                  ),
-                                  Text(
-                                    'Write Comment...',
-                                    style: TextStyle(
-                                        fontSize: 15, color: Colors.grey),
-                                  ),
-                                ],
+                              child: Container(
+                                padding: const EdgeInsets.only(top: 10,left: 10),
+                                height: 40,
+                                decoration:  BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  borderRadius:const BorderRadius.all(Radius.circular(15))
+                                ),
+                                child: const Text(
+                                  'Write Comment...',
+                                  style: TextStyle(
+                                      fontSize: 15, color: Colors.grey),
+                                ),
                               ),
                               onTap: () {
                                 Navigator.push(conteext, MaterialPageRoute(
-                                    builder: (conteext) =>
-                                        ViewPostScreen(id: feed.posts![index].sId!,
-                                            count: index)));
+                                    builder: (conteext) => ViewPostScreen(id: feed.posts![index].sId!, count: index,isFocus: true,)));
                               },
                             ),
                           ),
+                          const SizedBox(width: 10,),
                           InkWell(
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -451,6 +430,7 @@ class FeedScreen extends StatelessWidget {
                               PurpleBookCubit.get(conteext).likePost(
                                   id: feed.posts![index].sId!, index: index);
                               PurpleBookCubit.get(conteext).changeColorIcon(index);
+                              PurpleBookCubit.get(conteext).getFeed();
                             },
                           )
                         ],
@@ -459,18 +439,17 @@ class FeedScreen extends StatelessWidget {
                   ),
               ));
 
-  Widget buildBottomSheet(LikesModule user, int index) =>
-      Padding(
+  Widget buildBottomSheet(LikesModule user, int index) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                const CircleAvatar(
+                 CircleAvatar(
                   radius: 25,
-                  backgroundImage: NetworkImage(
-                      'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
+                  backgroundImage: user.users![index].imageMini!.data!.data!.isNotEmpty? Image.memory(Uint8List.fromList(user.users![index].imageMini!.data!.data!)).image
+                      : const AssetImage('assets/image/user.jpg')
                 ),
                 const SizedBox(
                   width: 10,
@@ -492,10 +471,12 @@ class FeedScreen extends StatelessWidget {
                 ),
                 if(user.users![index].sId != userId)
                   if(user.users![index].friendState == 'NOT_FRIEND')
-                    MaterialButton(onPressed: () {},
-                      color: Colors.blue,
-                      child: const Text(
-                        'Add Friend', style: TextStyle(color: Colors.white),),)
+                    Expanded(
+                      child: MaterialButton(onPressed: () {},
+                        color: Colors.blue,
+                        child: const Text(
+                          'Add Friend', style: TextStyle(color: Colors.white),),),
+                    )
                   else
                     MaterialButton(onPressed: () {},
                       color: Colors.blueGrey,
@@ -503,25 +484,10 @@ class FeedScreen extends StatelessWidget {
                         style: TextStyle(color: Colors.white),),)
               ],
             ),
-            // Padding(
-            //   padding: const EdgeInsets.all(10.0),
-            //   child: Container(
-            //     width: double.infinity,
-            //     height: 1,
-            //     color: Colors.grey,
-            //   ),
-            // ),
           ],
         ),
       );
 
-  Widget buildFoodShimmer()=>ListView.builder(
-    itemBuilder:(context,index)=> ListTile(
-      leading: ShimmerWidget.circular(width: 64, height: 64,shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),),
-      title: const ShimmerWidget.rectangular(height: 16),
-        subtitle: const ShimmerWidget.rectangular(height: 14),
-    ),
-    itemCount: 10,
-  );
+
 
 }

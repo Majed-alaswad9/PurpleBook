@@ -22,7 +22,7 @@ class Post {
   String? sId;
   String? content;
   Image? image;
-  String? createdAt;
+  DateTime? createdAt;
   Author? author;
   bool? likedByUser;
   int? likesCount;
@@ -41,7 +41,7 @@ class Post {
     sId = json['_id'];
     content = unescape.convert(json['content']);
     image = json['image'] != null ? Image.fromJson(json['image']) : null;
-    createdAt = json['createdAt'];
+    createdAt = DateTime.parse( json['createdAt']);
     author =
     json['author'] != null ? Author.fromJson(json['author']) : null;
     likedByUser = json['likedByUser'];

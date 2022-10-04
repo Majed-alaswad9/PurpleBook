@@ -30,7 +30,7 @@ class EditPostScreen extends StatelessWidget {
               backgroundColor: HexColor("#6823D0") ,
               actions: [
                 TextButton(onPressed: (){
-                  PurpleBookCubit.get(context).editPosts(edit: editPostController.text,id: post.sId!,index: index);
+                  PurpleBookCubit.get(context).editPosts(edit: editPostController.text,id: post.sId!);
                 }, child: const Text('edit',style: TextStyle(color: Colors.white,fontSize: 20)),)
               ],
             ),

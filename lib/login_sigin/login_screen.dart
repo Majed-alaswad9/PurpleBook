@@ -5,8 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_cubit.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_state.dart';
-import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
-import '../component/end_points.dart';
+import '../components/end_points.dart';
 import '../purple_book/purple_book_screen.dart';
 
 class LoginScreen extends StatelessWidget {

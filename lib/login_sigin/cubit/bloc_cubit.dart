@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purplebook/modules/login_module.dart';
 import 'package:purplebook/network/dio_helper.dart';
 
-import '../../component/end_points.dart';
+import '../../components/end_points.dart';
 import 'bloc_state.dart';
 
 class LoginSignUpCubit extends Cubit<LogInSIgnUpState> {
@@ -37,10 +37,8 @@ class LoginSignUpCubit extends Cubit<LogInSIgnUpState> {
       'password': password,
     }).then((value) {
       loginModul = LogInModule.fromJson(value.data);
-      print(value.data);
       emit(LogInSuccessState(loginModul!));
     }).catchError((error) {
-      print(error.toString());
       emit(LogInErrorState(error.toString()));
     });
   }

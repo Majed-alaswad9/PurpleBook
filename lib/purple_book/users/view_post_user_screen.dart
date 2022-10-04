@@ -6,8 +6,8 @@ import 'package:html/parser.dart';
 import 'package:purplebook/modules/comments_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 
-import '../../component/components.dart';
-import '../../component/end_points.dart';
+import '../../components/const.dart';
+import '../../components/end_points.dart';
 import '../cubit/purplebook_state.dart';
 
 

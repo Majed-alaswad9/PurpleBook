@@ -26,7 +26,7 @@ class CommentsModule {
 class Comments {
   String? sId;
   String? content;
-  String? createdAt;
+  DateTime? createdAt;
   int? likesCount;
   Author? author;
   bool? likedByUser;
@@ -43,7 +43,7 @@ class Comments {
   Comments.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     content = unescape.convert(json['content']);
-    createdAt = json['createdAt'];
+    createdAt = DateTime.parse( json['createdAt']);
     likesCount = json['likesCount'];
     author =
     json['author'] != null ? Author.fromJson(json['author']) : null;

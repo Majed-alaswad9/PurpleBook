@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purplebook/modules/comment_likes_module.dart';
 import 'package:purplebook/modules/comments_module.dart';
 import 'package:purplebook/modules/feed_moduel.dart';
 import 'package:purplebook/modules/friend_recommendation_module.dart';
@@ -21,7 +22,7 @@ import 'package:purplebook/purple_book/feed_screen.dart';
 import 'package:purplebook/purple_book/friends_screen.dart';
 import 'package:purplebook/purple_book/notification_screen.dart';
 import 'package:purplebook/purple_book/account_screen.dart';
-import '../../component/end_points.dart';
+import '../../components/end_points.dart';
 
 class PurpleBookCubit extends Cubit<PurpleBookState> {
   PurpleBookCubit() : super(InitialPurpleBookState());
@@ -63,17 +64,14 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   void editPosts(
-      {required String edit, required String id, required int index}) {
+      {required String edit, required String id}) {
     emit(EditPostLoadingState());
     DioHelper.patchData(
             url: '$posts$id', data: {'content': edit}, token: token)
         .then((value) {
-      feedModule!.posts![index].content = edit;
       getFeed();
-      // print(feedModule!.posts![index].content);
       emit(EditPostSuccessState());
     }).catchError((error) {
-      //print(error.toString());
       emit(EditPostErrorState());
     });
   }
@@ -163,13 +161,13 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(DeletePhotoPostState());
   }
 
-  LikesModule? getLikes;
+  LikesModule? likeModule;
   Future<void> getLikesPost({required String id}) async {
     emit(GetLikePostLoadingState());
     return await DioHelper.getData(
             url: '$posts$id$likePost_2', token: token)
         .then((value) {
-      getLikes = LikesModule.fromJson(value.data);
+      likeModule = LikesModule.fromJson(value.data);
       emit(GetLikePostSuccessState());
     }).catchError((error) {
       emit(GetLikePostErrorState());
@@ -181,7 +179,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   List<int>? likeCommentCount = [];
   void getComments({required String id}) {
     emit(GetCommentPostLoadingState());
-     DioHelper.getData(url: '$comments_1$id$comments_2', token: token)
+     DioHelper.getData(url: '$comments_1$id$comments_2?sort=date', token: token)
         .then((value) {
       comment = CommentsModule.fromJson(value.data);
       for (var element in comment!.comments!) {
@@ -194,26 +192,33 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
-  void likeComment(
-      {required String idPost, required String idComment, required int index}) {
+  CommentLikesModule? commentLikes;
+  Future<void> getLikeComments({required String commentId,required String postId})async{
+    emit(GetLikeCommentsLoadingState());
+      return await DioHelper.getData(url: '$posts$postId$comments$commentId$likePost_2',token: token).then((value) {
+      commentLikes=CommentLikesModule.fromJson(value.data);
+      emit(GetLikeCommentsSuccessState());
+    }).catchError((error){
+      emit(GetLikeCommentsErrorState());
+    });
+  }
+
+  Future<void> likeComment(
+      {required String idPost, required String idComment, required int index}) async{
     emit(LikeCommentPostLoadingState());
     if (!isLikeComment![index]) {
-      DioHelper.postData(
-              url: '$comments_1$idPost$comments_2/$idComment$likePost_2',
-              token: token)
+      return await DioHelper.postData(url: '$comments_1$idPost$comments_2/$idComment$likePost_2', token: token)
           .then((value) {
         emit(AddLikeCommentPostSuccessState());
       }).catchError((error) {
         emit(AddLikeCommentPostErrorState());
       });
     } else {
-      DioHelper.deleteData(
+     return await DioHelper.deleteData(
               url: '$comments_1$idPost$comments_2/$idComment$likePost_2',
-              token: token)
-          .then((value) {
-            emit(DeleteLikeCommentPostSuccessState());
-      })
-          .catchError((error) {
+              token: token).then((value) {
+        emit(DeleteLikeCommentPostSuccessState());
+      }).catchError((error) {
             emit(DeleteLikeCommentPostErrorState());
       });
     }
@@ -458,9 +463,9 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
-  void acceptFriendRequest({required String id}){
+  Future<void> acceptFriendRequest({required String id})async{
     emit(AcceptFriendRequestLoadingState());
-    DioHelper.postData(url: '$users$userId$cancelFriends$id',token: token).then((value) {
+    return await DioHelper.postData(url: '$users$userId$cancelFriends$id',token: token).then((value) {
       getFriendRequest();
       getFriendRecommendation();
       emit(AcceptFriendRequestSuccessState());

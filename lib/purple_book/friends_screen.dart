@@ -5,8 +5,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/modules/friend_recommendation_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/users/user_profile.dart';
-
-import '../component/components.dart';
+import '../components/const.dart';
 import '../modules/friends_request_module.dart';
 import 'cubit/purplebook_state.dart';
 

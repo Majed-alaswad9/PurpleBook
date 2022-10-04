@@ -15,8 +15,8 @@ import 'package:purplebook/purple_book/users/user_profile.dart';
 import 'package:purplebook/purple_book/users/view_post_user_screen.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
 
-import '../component/components.dart';
-import '../component/end_points.dart';
+import '../components/const.dart';
+import '../components/end_points.dart';
 import '../modules/likes_module.dart';
 
 // ignore: must_be_immutable
@@ -448,7 +448,7 @@ class AccountScreen extends StatelessWidget {
                                 builder: (context) => ViewPostScreen(
                                     id: cubit.userComments!.comments![index]
                                         .post!.sId!,
-                                    count: index)));
+                                    count: index,isFocus: false,)));
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -878,7 +878,7 @@ class AccountScreen extends StatelessWidget {
                                           top: Radius.circular(20))),
                                   builder: (context) => ConditionalBuilder(
                                     condition: PurpleBookCubit.get(context_1)
-                                        .getLikes!
+                                        .likeModule!
                                         .users!
                                         .isNotEmpty,
                                     builder: (context) => ListView.separated(
@@ -888,7 +888,7 @@ class AccountScreen extends StatelessWidget {
                                         itemBuilder: (context, index) =>
                                             buildBottomSheet(
                                                 PurpleBookCubit.get(context_1)
-                                                    .getLikes!,
+                                                    .likeModule!,
                                                 index),
                                         separatorBuilder: (context, index) =>
                                             const SizedBox(
@@ -896,7 +896,7 @@ class AccountScreen extends StatelessWidget {
                                             ),
                                         itemCount:
                                             PurpleBookCubit.get(context_1)
-                                                .getLikes!
+                                                .likeModule!
                                                 .users!
                                                 .length),
                                     fallback: (context) => const Center(

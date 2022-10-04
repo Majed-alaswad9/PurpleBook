@@ -5,6 +5,7 @@ String likePost_2='/likes';
 String addPost='/posts';
 String comments_1='/posts/';
 String comments_2='/comments';
+String comments='/comments/';
 String users='/users/';
 String userPosts='/posts';
 String friends='/friends';
