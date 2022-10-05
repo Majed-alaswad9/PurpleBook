@@ -147,3 +147,15 @@ class AcceptFriendRequestLoadingState extends PurpleBookState{}
 class AcceptFriendRequestSuccessState extends PurpleBookState{}
 class AcceptFriendRequestErrorState extends PurpleBookState{}
 
+class ViewedFriendRequestLoadingState extends PurpleBookState{}
+class ViewedFriendRequestSuccessState extends PurpleBookState{}
+class ViewedFriendRequestErrorState extends PurpleBookState{}
+
+class ViewedAllNotificationsLoadingState extends PurpleBookState{}
+class ViewedAllNotificationsSuccessState extends PurpleBookState{}
+class ViewedAllNotificationsErrorState extends PurpleBookState{}
+
+class GetNotificationsLoadingState extends PurpleBookState{}
+class GetNotificationsSuccessState extends PurpleBookState{}
+class GetNotificationsErrorState extends PurpleBookState{}
+

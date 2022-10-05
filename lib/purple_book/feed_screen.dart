@@ -17,6 +17,7 @@ import 'package:purplebook/purple_book/view_post_screen.dart';
 import '../components/const.dart';
 import '../components/end_points.dart';
 
+// ignore: must_be_immutable
 class FeedScreen extends StatelessWidget {
   FeedScreen({Key? key}) : super(key: key);
   var keyScaffold = GlobalKey<ScaffoldState>();
@@ -32,6 +33,26 @@ class FeedScreen extends StatelessWidget {
         listener: (context, state) {
           if(state is PostDeleteSuccessState){
             showMsg(msg: 'Deleted Successfully', color: ColorMsg.inCorrect);
+          }else if(state is PostDeleteErrorState){
+            showMsg(msg: 'Deleted Failed', color: ColorMsg.error);
+          }
+
+          if(state is SendRequestSuccessState){
+            showMsg(msg: 'Sent Successfully', color: ColorMsg.inCorrect);
+          }else if(state is SendRequestErrorState){
+            showMsg(msg: 'Sent Failed', color: ColorMsg.error);
+          }
+
+          if(state is CancelSendRequestSuccessState){
+            showMsg(msg: 'Cancel Successfully', color: ColorMsg.inCorrect);
+          }else if(state is CancelSendRequestErrorState){
+            showMsg(msg: 'Cancel Failed', color: ColorMsg.error);
+          }
+
+          if(state is AcceptFriendRequestSuccessState){
+            showMsg(msg: 'Accept request Successfully', color: ColorMsg.inCorrect);
+          }else if(state is AcceptFriendRequestErrorState){
+            showMsg(msg: 'Accept request Failed', color: ColorMsg.error);
           }
         },
         builder: (context, state) {
@@ -260,10 +281,10 @@ class FeedScreen extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 5.0),
                         child: Row(
                           children: [
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                child: InkWell(
+                            if(PurpleBookCubit.get(conteext).feedModule!.posts![index].likesCount!=0)
+                               Expanded(
+                                 child: Padding(padding: const EdgeInsets.symmetric(vertical: 10.0),
+                                    child: InkWell(
                                   highlightColor: HexColor("#6823D0"),
                                   onTap: () {
                                     showMsg(msg: 'Just a second', color: ColorMsg.inCorrect);
@@ -280,21 +301,9 @@ class FeedScreen extends StatelessWidget {
                                               builder: (context) => ListView.separated(
                                                       shrinkWrap: true,
                                                       physics: const NeverScrollableScrollPhysics(),
-                                                      itemBuilder: (context, index) =>
-                                                          buildBottomSheet(
-                                                              PurpleBookCubit
-                                                                  .get(conteext)
-                                                                  .likeModule!, index),
-                                                      separatorBuilder: (context,
-                                                          index) =>
-                                                      const SizedBox(
-                                                        height: 10,
-                                                      ),
-                                                      itemCount: PurpleBookCubit
-                                                          .get(conteext)
-                                                          .likeModule!
-                                                          .users!
-                                                          .length),
+                                                      itemBuilder: (context, index) => buildBottomSheet(PurpleBookCubit.get(conteext).likeModule!, index,conteext),
+                                                      separatorBuilder: (context, index) => const SizedBox(height: 10,),
+                                                      itemCount: PurpleBookCubit.get(conteext).likeModule!.users!.length),
                                               fallback: (context) => const Center(child: Text('Not Likes Yet',
                                                 style: TextStyle(fontSize: 25),)),
                                             ),);
@@ -313,7 +322,7 @@ class FeedScreen extends StatelessWidget {
                                       Text(
                                         '${PurpleBookCubit
                                             .get(conteext)
-                                            .likesCount![index]}',
+                                            .likesCount![index]} like',
                                         style: Theme
                                             .of(conteext)
                                             .textTheme
@@ -427,8 +436,7 @@ class FeedScreen extends StatelessWidget {
                               ],
                             ),
                             onTap: () {
-                              PurpleBookCubit.get(conteext).likePost(
-                                  id: feed.posts![index].sId!, index: index);
+                              PurpleBookCubit.get(conteext).likePost(id: feed.posts![index].sId!, index: index);
                               PurpleBookCubit.get(conteext).changeColorIcon(index);
                               PurpleBookCubit.get(conteext).getFeed();
                             },
@@ -439,7 +447,7 @@ class FeedScreen extends StatelessWidget {
                   ),
               ));
 
-  Widget buildBottomSheet(LikesModule user, int index) => Padding(
+  Widget buildBottomSheet(LikesModule user, int index,context_1) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -470,18 +478,179 @@ class FeedScreen extends StatelessWidget {
                   ),
                 ),
                 if(user.users![index].sId != userId)
-                  if(user.users![index].friendState == 'NOT_FRIEND')
+                  if (user.users![index].friendState == 'NOT_FRIEND')
                     Expanded(
-                      child: MaterialButton(onPressed: () {},
-                        color: Colors.blue,
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                  title: const Text('Add Friend'),
+                                  content: Text(
+                                      'Are you sure you want to sent request to ${user.users![index].firstName} ${user.users![index].lastName} ?'),
+                                  elevation: 10,
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, 'Cancel');
+                                      },
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                            color: HexColor("#6823D0")),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        PurpleBookCubit.get(context_1).sendRequestFriend(id: user.users![index].sId!);
+                                        Navigator.pop(context, 'OK');
+                                      },
+                                      child: Text('OK',
+                                          style: TextStyle(
+                                              color: HexColor("#6823D0"))),
+                                    ),
+                                  ]));
+                        },
+                        color: HexColor("#6823D0"),
                         child: const Text(
-                          'Add Friend', style: TextStyle(color: Colors.white),),),
+                          'Add Friend',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
                     )
-                  else
-                    MaterialButton(onPressed: () {},
-                      color: Colors.blueGrey,
-                      child: const Text('Cancel Friend',
-                        style: TextStyle(color: Colors.white),),)
+                  else if (user.users![index].friendState == 'FRIEND')
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                  title: const Text('Cancel Friend'),
+                                  content: Text(
+                                      'Are you sure you want to remove ${user.users![index].firstName} ${user.users![index].lastName} from your list friends?'),
+                                  elevation: 10,
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(context, 'Cancel');
+                                      },
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                            color: HexColor("#6823D0")),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        PurpleBookCubit.get(context_1)
+                                            .cancelFriend(
+                                            receiveId:
+                                            user.users![index].sId!)
+                                            .then((value) => Navigator.pop(
+                                            context, 'OK'));
+                                      },
+                                      child: Text('OK',
+                                          style: TextStyle(
+                                              color: HexColor("#6823D0"))),
+                                    ),
+                                  ]));
+                        },
+                        color: Colors.grey.shade300,
+                        child: const Text(
+                          'Cancel Friend',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    )
+                  else if (user.users![index].friendState == 'FRIEND_REQUEST_SENT')
+                      Expanded(
+                        child: MaterialButton(
+                          onPressed: () {
+                            showDialog<String>(
+                                context: context_1,
+                                builder: (BuildContext context) => AlertDialog(
+                                    title: Text(
+                                        'Friend request ${user.users![index].firstName} ${user.users![index].lastName}'),
+                                    content: const Text(
+                                        'Are you sure you want to cancel request sent?'),
+                                    elevation: 10,
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context, 'Cancel');
+                                        },
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                              color: HexColor("#6823D0")),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          PurpleBookCubit.get(context_1)
+                                              .cancelSendRequestFriend(
+                                              receiveId:
+                                              user.users![index].sId!)
+                                              .then((value) =>
+                                              Navigator.pop(context_1));
+                                        },
+                                        child: Text('OK',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0"))),
+                                      ),
+                                    ]));
+                          },
+                          color: HexColor("#6823D0"),
+                          child: const Text(
+                            'Cancel request',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      )
+                    else
+                      Expanded(
+                        child: MaterialButton(
+                          onPressed: () {
+                            showDialog<String>(
+                                context: context_1,
+                                builder: (BuildContext context) => AlertDialog(
+                                    title: Text(
+                                        'Accept request ${user.users![index].firstName} ${user.users![index].lastName} '),
+                                    content: const Text(
+                                        'Are you sure you want to Accept request?'),
+                                    elevation: 10,
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context, 'Cancel');
+                                        },
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                              color: HexColor("#6823D0")),
+                                        ),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          PurpleBookCubit.get(context_1)
+                                              .acceptFriendRequest(
+                                              id: user.users![index].sId!)
+                                              .then((value) =>
+                                              Navigator.pop(context_1));
+                                        },
+                                        child: Text('OK',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0"))),
+                                      ),
+                                    ]));
+                          },
+                          color: HexColor("#6823D0"),
+                          child: const Text(
+                            'Accept request',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      )
               ],
             ),
           ],

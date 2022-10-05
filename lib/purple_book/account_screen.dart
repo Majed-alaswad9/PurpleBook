@@ -9,6 +9,7 @@ import 'package:html/parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:purplebook/login_sigin/login_screen.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
+import 'package:purplebook/network/local/cach_helper.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/users/user_profile.dart';
@@ -310,6 +311,7 @@ class AccountScreen extends StatelessWidget {
                                   },child: const Text('Delete Account',style: TextStyle(fontSize: 20,color: Colors.white),),),
                                 ),
                               ),
+
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                                 children: [

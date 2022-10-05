@@ -3,8 +3,10 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:purplebook/components/const.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_cubit.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_state.dart';
+import 'package:purplebook/network/local/cach_helper.dart';
 import '../components/end_points.dart';
 import '../purple_book/purple_book_screen.dart';
 
@@ -19,13 +21,16 @@ class LoginScreen extends StatelessWidget {
     child: BlocConsumer<LoginSignUpCubit,LogInSIgnUpState>(
       listener: (context,state){
         if(state is LogInSuccessState) {
-          token=state.logInModel.token;
-          userId=state.logInModel.userId;
-          isAdmin=state.logInModel.isAdmin;
-          Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const PurpleBookScreen()),
-                  (route) => false);
+          CachHelper.saveData(key: 'token', value:state.logInModel.token ).then((value) {
+            token=state.logInModel.token;
+            userId=state.logInModel.userId;
+            isAdmin=state.logInModel.isAdmin;
+            CachHelper.saveData(key: 'userId', value:state.logInModel.userId );
+            CachHelper.saveData(key: 'isAdmin', value:state.logInModel.isAdmin );
+            showMsg(msg: 'Login Successfully', color: ColorMsg.inCorrect);
+            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => const PurpleBookScreen()), (route) => false);
+          });
+
         }
       },
       builder:(context,state){

@@ -43,7 +43,7 @@ class DioHelper {
   static Future<Response> patchData(
   {
   required String url,
-    required Map<String,dynamic>  data,
+     Map<String,dynamic>?  data,
     String? token
 })async{
     return await dio.patch(url,data: data,options: Options(headers: {

@@ -51,7 +51,7 @@ class ViewPostScreen extends StatelessWidget {
             showMsg(msg: 'deleted Successfully', color: ColorMsg.success);
             Navigator.pushAndRemoveUntil(
                 context,
-                MaterialPageRoute(builder: (context) => PurpleBookScreen()),
+                MaterialPageRoute(builder: (context) => const PurpleBookScreen()),
                 (route) => false);
           } else if (state is PostDeleteErrorState) {
             showMsg(msg: 'Failed delete', color: ColorMsg.error);
@@ -1167,8 +1167,7 @@ class ViewPostScreen extends StatelessWidget {
                         ),
                       ),
                     )
-                  else if (user.users![index].friendState ==
-                      'FRIEND_REQUEST_SENT')
+                  else if (user.users![index].friendState == 'FRIEND_REQUEST_SENT')
                     Expanded(
                       child: MaterialButton(
                         onPressed: () {

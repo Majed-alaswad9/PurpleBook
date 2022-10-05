@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,6 +10,7 @@ import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 
 import '../../components/const.dart';
 import '../../components/end_points.dart';
+import '../../modules/likes_module.dart';
 import '../cubit/purplebook_state.dart';
 
 
@@ -114,8 +117,7 @@ class ViewPostUserScreen extends StatelessWidget {
                                     ' ${parseFragment(cubit.postView!.post!.content!).text!}',
                                     style: const TextStyle(fontSize: 20),
                                   ),
-                                  if (cubit
-                                      .postView!.post!.image!.data!.isNotEmpty)
+                                  if (cubit.postView!.post!.image!.data!.isNotEmpty)
                                     Container(
                                       width: double.infinity,
                                       height: 200,
@@ -129,11 +131,9 @@ class ViewPostUserScreen extends StatelessWidget {
                                           )),
                                     ),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 5.0),
+                                    padding: const EdgeInsets.symmetric(vertical: 5.0),
                                     child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 10.0),
+                                      padding: const EdgeInsets.symmetric(vertical: 10.0),
                                       child: Row(
                                         children: [
                                           IconButton(
@@ -149,14 +149,39 @@ class ViewPostUserScreen extends StatelessWidget {
                                           const SizedBox(
                                             width: 5,
                                           ),
-                                          Text(
-                                            '${cubit.likesUserCount![count]} like',
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .caption!
-                                                .copyWith(
-                                                color: Colors.grey,
-                                                fontSize: 15),
+                                          InkWell(
+                                            onTap: (){
+                                              PurpleBookCubit.get(context).getLikesPost(id: id).then((value) {
+                                                showModalBottomSheet(context: context,
+                                                  isScrollControlled: true,
+                                                  shape: const RoundedRectangleBorder(
+                                                      borderRadius: BorderRadius.vertical(
+                                                          top: Radius.circular(20))
+                                                  ),
+                                                  builder: (context) =>
+                                                      ConditionalBuilder(
+                                                        condition: PurpleBookCubit.get(context).likeModule!.users!.isNotEmpty,
+                                                        builder: (context) => ListView.separated(
+                                                            shrinkWrap: true,
+                                                            physics: const NeverScrollableScrollPhysics(),
+                                                            itemBuilder: (context, index) => buildBottomSheet(PurpleBookCubit.get(context).likeModule!, index),
+                                                            separatorBuilder: (context, index) => const SizedBox(height: 10,),
+                                                            itemCount: PurpleBookCubit.get(context).likeModule!.users!.length),
+                                                        fallback: (context) => const Center(child: Text('Not Likes Yet',
+                                                          style: TextStyle(fontSize: 25),)),
+                                                      ),);
+                                              });
+
+                                            },
+                                            child: Text(
+                                              '${cubit.likesUserCount![count]} like',
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .caption!
+                                                  .copyWith(
+                                                  color: Colors.grey,
+                                                  fontSize: 15),
+                                            ),
                                           )
                                         ],
                                       ),
@@ -409,6 +434,55 @@ class ViewPostUserScreen extends StatelessWidget {
           ),
         ),
       );
+
+  Widget buildBottomSheet(LikesModule user, int index) => Padding(
+    padding: const EdgeInsets.all(8.0),
+    child: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Row(
+          children: [
+            CircleAvatar(
+                radius: 25,
+                backgroundImage: user.users![index].imageMini!.data!.data!.isNotEmpty? Image.memory(Uint8List.fromList(user.users![index].imageMini!.data!.data!)).image
+                    : const AssetImage('assets/image/user.jpg')
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '${user.users![index].firstName} ${user.users![index]
+                        .lastName}',
+                    style: const TextStyle(
+                        height: 1.3,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 17),
+                  ),
+                ],
+              ),
+            ),
+            if(user.users![index].sId != userId)
+              if(user.users![index].friendState == 'NOT_FRIEND')
+                Expanded(
+                  child: MaterialButton(onPressed: () {},
+                    color: Colors.blue,
+                    child: const Text(
+                      'Add Friend', style: TextStyle(color: Colors.white),),),
+                )
+              else
+                MaterialButton(onPressed: () {},
+                  color: Colors.blueGrey,
+                  child: const Text('Cancel Friend',
+                    style: TextStyle(color: Colors.white),),)
+          ],
+        ),
+      ],
+    ),
+  );
 
   String? validateContent(String? value) {
     if (value != null) {

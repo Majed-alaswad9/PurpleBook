@@ -13,6 +13,7 @@ String cancelFriends='/friends/';
 String friendRequests='/friend_requests';
 String cancelFriendRequests='/sent_friend_requests/';
 String friendRecommendation='/friend_recommendation';
+String notifications='/notifications';
 
 
 String? token;

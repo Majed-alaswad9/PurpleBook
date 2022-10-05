@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purplebook/modules/login_module.dart';
-import 'package:purplebook/network/dio_helper.dart';
+import 'package:purplebook/network/remote/dio_helper.dart';
 
 import '../../components/end_points.dart';
 import 'bloc_state.dart';
