@@ -105,6 +105,25 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     }
   }
 
+  void likePostFromViewPost({required String id}) {
+    emit(AddLikePostFromViewLoadingState());
+    if (!postView!.post!.likedByUser!) {
+      DioHelper.postData(url: '$posts$id$likePost_2', token: token)
+          .then((value) {
+        emit(AddLikePostFromViewSuccessState());
+      }).catchError((error) {
+        emit(AddLikePostFromViewErrorState());
+      });
+    } else {
+      DioHelper.deleteData(url: '$posts$id$likePost_2', token: token)
+          .then((value) {
+        emit(DeleteLikePostFromViewSuccessState());
+      }).catchError((error) {
+        emit(DeleteLikePostFromViewErrorState());
+      });
+    }
+  }
+
   //change color icon likes posts
   void changeColorIcon(int index) {
     if (isLikePost![index]) {
@@ -344,6 +363,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       print(userProfile!.user!.imageFull!.data!.type);
       emit(GetUserProfileSuccessState());
     }).catchError((error) {
+      print(error.toString());
       emit(GetUserProfileErrorState());
     });
   }
@@ -519,8 +539,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
 
   void viewedAllNotifications() {
     emit(ViewedAllNotificationsLoadingState());
-    DioHelper.patchData(url: notifications, token: token)
-        .then((value) {
+    DioHelper.patchData(url: notifications, token: token).then((value) {
       emit(ViewedAllNotificationsSuccessState());
     }).catchError((error) {
       emit(ViewedAllNotificationsErrorState());
@@ -528,6 +547,9 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   NotificationsModule? notificationsModule;
+  List<String> linkUser = [];
+  List<String> linkPost = [];
+  List<String> linkComment = [];
   void getNotifications() {
     emit(GetNotificationsLoadingState());
     DioHelper.getData(url: notifications, token: token).then((value) {

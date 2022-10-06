@@ -85,61 +85,63 @@ class UserProfileScreen extends StatelessWidget {
                           if (cubit.userProfile!.user!.friendState! == 'FRIEND')
                             MaterialButton(
                               onPressed: () {
-                                  showDialog<String>(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          AlertDialog(
-                                              title: Text(
-                                                  'unfriend with ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}'),
-                                              content: Text(
-                                                  'Are you sure you want to remove ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName} from friends list?'),
-                                              elevation: 10,
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
+                                showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                            title: Text(
+                                                'unfriend with ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}'),
+                                            content: Text(
+                                                'Are you sure you want to remove ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName} from friends list?'),
+                                            elevation: 10,
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(
+                                                      context, 'Cancel');
+                                                },
+                                                child: Text(
+                                                  'Cancel',
+                                                  style: TextStyle(
+                                                      color:
+                                                          HexColor("#6823D0")),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  cubit
+                                                      .cancelFriend(
+                                                          receiveId: id)
+                                                      .then((value) {
+                                                    cubit.getUserProfile(
+                                                        id: id);
                                                     Navigator.pop(
-                                                        context, 'Cancel');
-                                                  },
-                                                  child: Text(
-                                                    'Cancel',
+                                                        context, 'OK');
+                                                  });
+                                                },
+                                                child: Text('OK',
                                                     style: TextStyle(
                                                         color: HexColor(
-                                                            "#6823D0")),
-                                                  ),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    cubit
-                                                        .cancelFriend(
-                                                            receiveId: id)
-                                                        .then((value) {
-                                                      cubit.getUserProfile(
-                                                          id: id);
-                                                      Navigator.pop(
-                                                          context, 'OK');
-                                                    });
-                                                  },
-                                                  child: Text('OK',
-                                                      style: TextStyle(
-                                                          color: HexColor(
-                                                              "#6823D0"))),
-                                                ),
-                                              ]));},
+                                                            "#6823D0"))),
+                                              ),
+                                            ]));
+                              },
                               color: HexColor("#6823D0"),
                               child: const Text(
-                               'Friend',
+                                'Friend',
                                 style: TextStyle(
                                     color: Colors.white70,
                                     fontWeight: FontWeight.bold,
                                     fontSize: 15),
                               ),
                             )
-                          else if (cubit.userProfile!.user!.friendState! == 'NOT_FRIEND')
+                          else if (cubit.userProfile!.user!.friendState! ==
+                              'NOT_FRIEND')
                             MaterialButton(
                               onPressed: () {
-                                  cubit.sendRequestFriend(id: id).then((value) {
-                                    cubit.getUserProfile(id: id);
-                                  });
+                                cubit.sendRequestFriend(id: id).then((value) {
+                                  cubit.getUserProfile(id: id);
+                                });
                               },
                               color: HexColor("#6823D0"),
                               child: const Text(
@@ -150,49 +152,50 @@ class UserProfileScreen extends StatelessWidget {
                                     fontSize: 15),
                               ),
                             )
-                          else if (cubit.userProfile!.user!.friendState! == 'FRIEND_REQUEST_SENT')
+                          else if (cubit.userProfile!.user!.friendState! ==
+                              'FRIEND_REQUEST_SENT')
                             MaterialButton(
                               onPressed: () {
-                                  showDialog<String>(
-                                      context: context,
-                                      builder: (BuildContext context) =>
-                                          AlertDialog(
-                                              title: Text(
-                                                  'cancel request ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}'),
-                                              content: Text(
-                                                  'Are you sure you want to cancel sent request to ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName} ?'),
-                                              elevation: 10,
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
+                                showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                            title: Text(
+                                                'cancel request ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}'),
+                                            content: Text(
+                                                'Are you sure you want to cancel sent request to ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName} ?'),
+                                            elevation: 10,
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(
+                                                      context, 'Cancel');
+                                                },
+                                                child: Text(
+                                                  'Cancel',
+                                                  style: TextStyle(
+                                                      color:
+                                                          HexColor("#6823D0")),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  cubit
+                                                      .cancelSendRequestFriend(
+                                                          receiveId: id)
+                                                      .then((value) {
+                                                    cubit.getUserProfile(
+                                                        id: id);
                                                     Navigator.pop(
-                                                        context, 'Cancel');
-                                                  },
-                                                  child: Text(
-                                                    'Cancel',
+                                                        context, 'OK');
+                                                  });
+                                                },
+                                                child: Text('OK',
                                                     style: TextStyle(
                                                         color: HexColor(
-                                                            "#6823D0")),
-                                                  ),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    cubit
-                                                        .cancelSendRequestFriend(
-                                                            receiveId: id)
-                                                        .then((value) {
-                                                      cubit.getUserProfile(
-                                                          id: id);
-                                                      Navigator.pop(
-                                                          context, 'OK');
-                                                    });
-                                                  },
-                                                  child: Text('OK',
-                                                      style: TextStyle(
-                                                          color: HexColor(
-                                                              "#6823D0"))),
-                                                ),
-                                              ]));
+                                                            "#6823D0"))),
+                                              ),
+                                            ]));
                               },
                               color: HexColor("#6823D0"),
                               child: const Text(
@@ -232,7 +235,8 @@ class UserProfileScreen extends StatelessWidget {
                                       child: Text(
                                         'Posts',
                                         style: TextStyle(
-                                          color: indexWidget == 0 ? Colors.white
+                                          color: indexWidget == 0
+                                              ? Colors.white
                                               : Colors.black,
                                         ),
                                       ),
@@ -337,9 +341,10 @@ class UserProfileScreen extends StatelessWidget {
                             context,
                             MaterialPageRoute(
                                 builder: (context) => ViewPostScreen(
-                                    id: cubit.userComments!.comments![index]
-                                        .post!.sId!,
-                                    count: index,isFocus: false,)));
+                                      id: cubit.userComments!.comments![index]
+                                          .post!.sId!,
+                                      addComent: false,isFocus: false,
+                                    )));
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.end,
@@ -641,7 +646,9 @@ class UserProfileScreen extends StatelessWidget {
             color: HexColor("#6823D0"),
           )));
 
-  Widget buildUserPost(UserPostsModule? user, int index, BuildContext context_1) => Card(
+  Widget buildUserPost(
+          UserPostsModule? user, int index, BuildContext context_1) =>
+      Card(
           elevation: 10,
           clipBehavior: Clip.antiAliasWithSaveLayer,
           margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -689,7 +696,9 @@ class UserProfileScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 if (user.posts![index].image!.data!.isNotEmpty)
                   InkWell(
                     onTap: () {
@@ -706,10 +715,11 @@ class UserProfileScreen extends StatelessWidget {
                       height: 200,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
-                          image:  DecorationImage(
-                            fit: BoxFit.fill,
-                            image: Image.memory(base64Decode(user.posts![index].image!.data!)).image
-                          )),
+                          image: DecorationImage(
+                              fit: BoxFit.fill,
+                              image: Image.memory(base64Decode(
+                                      user.posts![index].image!.data!))
+                                  .image)),
                     ),
                   ),
                 Padding(
@@ -916,10 +926,14 @@ class UserProfileScreen extends StatelessWidget {
           children: [
             Row(
               children: [
-                 CircleAvatar(
-                  radius: 25,
-                  backgroundImage:user.users![index].imageMini!.data!.data!.isNotEmpty? Image.memory(Uint8List.fromList(user.users![index].imageMini!.data!.data!)).image:null
-                ),
+                CircleAvatar(
+                    radius: 25,
+                    backgroundImage:
+                        user.users![index].imageMini!.data!.data!.isNotEmpty
+                            ? Image.memory(Uint8List.fromList(
+                                    user.users![index].imageMini!.data!.data!))
+                                .image
+                            : null),
                 const SizedBox(
                   width: 10,
                 ),

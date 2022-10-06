@@ -8,8 +8,11 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:purplebook/login_sigin/login_screen.dart';
+import 'package:purplebook/modules/comment_likes_module.dart';
+import 'package:purplebook/modules/comments_module.dart';
+import 'package:purplebook/modules/user_comments_module.dart';
+import 'package:purplebook/modules/user_friends_module.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
-import 'package:purplebook/network/local/cach_helper.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/users/user_profile.dart';
@@ -35,15 +38,42 @@ class AccountScreen extends StatelessWidget {
         ..getUserPosts(userId: userId!),
       child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
         listener: (context, state) {
-          if(state is UpdateUserProfileSuccessState){
+          if (state is UpdateUserProfileSuccessState) {
             showMsg(msg: 'Update Successfully', color: ColorMsg.inCorrect);
-          }
-          else if(state is UpdateUserProfileErrorState){
+          } else if (state is UpdateUserProfileErrorState) {
             showMsg(msg: 'Update Failed', color: ColorMsg.error);
           }
 
-          if(state is DeleteUserSuccessState){
-            Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>LoginScreen()), (route) => false);
+          if (state is DeleteUserSuccessState) {
+            Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => LoginScreen()),
+                (route) => false);
+          }
+
+          if (state is PostDeleteSuccessState) {
+            showMsg(msg: 'Deleted Successfully', color: ColorMsg.inCorrect);
+          } else if (state is PostDeleteErrorState) {
+            showMsg(msg: 'Deleted Failed', color: ColorMsg.error);
+          }
+
+          if (state is SendRequestSuccessState) {
+            showMsg(msg: 'Sent Successfully', color: ColorMsg.inCorrect);
+          } else if (state is SendRequestErrorState) {
+            showMsg(msg: 'Sent Failed', color: ColorMsg.error);
+          }
+
+          if (state is CancelSendRequestSuccessState) {
+            showMsg(msg: 'Cancel Successfully', color: ColorMsg.inCorrect);
+          } else if (state is CancelSendRequestErrorState) {
+            showMsg(msg: 'Cancel Failed', color: ColorMsg.error);
+          }
+
+          if (state is AcceptFriendRequestSuccessState) {
+            showMsg(
+                msg: 'Accept request Successfully', color: ColorMsg.inCorrect);
+          } else if (state is AcceptFriendRequestErrorState) {
+            showMsg(msg: 'Accept request Failed', color: ColorMsg.error);
           }
         },
         builder: (context, state) {
@@ -55,8 +85,10 @@ class AccountScreen extends StatelessWidget {
               child: Column(
                 children: [
                   const Padding(padding: EdgeInsets.all(10)),
-                  if(state is UpdateUserProfileLoadingState)
-                    LinearProgressIndicator(color: HexColor("#6823D0"),),
+                  if (state is UpdateUserProfileLoadingState)
+                    LinearProgressIndicator(
+                      color: HexColor("#6823D0"),
+                    ),
                   Container(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -72,20 +104,20 @@ class AccountScreen extends StatelessWidget {
                                 radius: 90,
                                 child: CircleAvatar(
                                   radius: 85,
-                                  backgroundImage:cubit.profileImage ==null ? Image.memory(Uint8List.fromList(cubit.userProfile!.user!.imageFull!.data!.data!)).image:Image(image: FileImage(cubit.profileImage!)).image ,
+                                  backgroundImage: cubit.profileImage == null
+                                      ? Image.memory(Uint8List.fromList(cubit
+                                              .userProfile!
+                                              .user!
+                                              .imageFull!
+                                              .data!
+                                              .data!))
+                                          .image
+                                      : Image(
+                                              image: FileImage(
+                                                  cubit.profileImage!))
+                                          .image,
                                 ),
                               ),
-                              // Container(
-                              //   margin: const EdgeInsets.all(10),
-                              //   width: double.infinity,
-                              //   height: 300,
-                              //   decoration: BoxDecoration(
-                              //       borderRadius: BorderRadius.circular(5),
-                              //       image:  DecorationImage(
-                              //           fit: BoxFit.fill,
-                              //           image: Image.memory(Uint8List.fromList(cubit.userProfile!.user!.imageFull!.data!.data!)).image
-                              //       )),
-                              // ),
                               CircleAvatar(
                                 backgroundColor: HexColor("#6823D0"),
                                 radius: 25,
@@ -93,7 +125,8 @@ class AccountScreen extends StatelessWidget {
                                     onPressed: () {
                                       cubit.imageProfile(ImageSource.gallery);
                                     },
-                                    icon: const Icon(Icons.camera_alt_outlined)),
+                                    icon:
+                                        const Icon(Icons.camera_alt_outlined)),
                               )
                             ],
                           ),
@@ -101,24 +134,30 @@ class AccountScreen extends StatelessWidget {
                         const SizedBox(
                           height: 15,
                         ),
-                        if(cubit.profileImage!=null)
+                        if (cubit.profileImage != null)
                           Row(
                             children: [
                               Expanded(
                                 child: Card(
-                                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   elevation: 7,
                                   color: HexColor("#6823D0"),
                                   child: MaterialButton(
                                     onPressed: () {
-                                      firstNameController.text=cubit.userProfile!.user!.firstName!;
-                                      lastNameController.text=cubit.userProfile!.user!.lastName!;
-                                      cubit.editUserProfile(id: userId!, firstName: firstNameController.text, lastName: lastNameController.text);
+                                      firstNameController.text =
+                                          cubit.userProfile!.user!.firstName!;
+                                      lastNameController.text =
+                                          cubit.userProfile!.user!.lastName!;
+                                      cubit.editUserProfile(
+                                          id: userId!,
+                                          firstName: firstNameController.text,
+                                          lastName: lastNameController.text);
                                     },
                                     child: const Text(
                                       'Update',
                                       style: TextStyle(
-                                        color:  Colors.white,
+                                        color: Colors.white,
                                       ),
                                     ),
                                   ),
@@ -126,7 +165,8 @@ class AccountScreen extends StatelessWidget {
                               ),
                               Expanded(
                                 child: Card(
-                                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 10),
                                   elevation: 7,
                                   color: HexColor("#6823D0"),
                                   child: MaterialButton(
@@ -135,9 +175,7 @@ class AccountScreen extends StatelessWidget {
                                     },
                                     child: const Text(
                                       'Cancel',
-                                      style: TextStyle(
-                                          color: Colors.white
-                                      ),
+                                      style: TextStyle(color: Colors.white),
                                     ),
                                   ),
                                 ),
@@ -156,109 +194,176 @@ class AccountScreen extends StatelessWidget {
                               style: const TextStyle(
                                   fontSize: 30, fontWeight: FontWeight.bold),
                             ),
-                            const SizedBox(width: 10,),
+                            const SizedBox(
+                              width: 10,
+                            ),
                             CircleAvatar(
-                              radius: 15,
+                                radius: 15,
                                 backgroundColor: HexColor("#6823D0"),
                                 child: IconButton(
-                                    onPressed: (){
-                                      firstNameController.text=cubit.userProfile!.user!.firstName!;
-                                      lastNameController.text=cubit.userProfile!.user!.lastName!;
-                                      showDialog<String>(
-                                          context: context,
-                                          builder: (BuildContext context_2) =>
-                                              AlertDialog(
-                                                  title: const Text('Edit Name'),
-                                                  elevation: 10,
-                                                  content: Column(
-                                                    mainAxisSize: MainAxisSize.min,
-                                                    children: [
-                                                      TextFormField(
-                                                        controller: firstNameController,
-                                                        maxLines: 2,
-                                                        minLines: 1,
-                                                        keyboardType: TextInputType.multiline,
-                                                        decoration: InputDecoration(
-                                                            label: const Text('First Name'),
-                                                            labelStyle: TextStyle(
-                                                                color: HexColor("#6823D0")),
-                                                            hintStyle: Theme
-                                                                .of(context)
-                                                                .textTheme
-                                                                .subtitle2,
-                                                            border: const OutlineInputBorder(),
-                                                            enabledBorder: const OutlineInputBorder(
-                                                              borderSide: BorderSide(
-                                                                  color: Colors.grey),
-                                                              borderRadius: BorderRadius.all(
-                                                                  Radius.circular(10.0)),
-                                                            ),
-                                                            focusedBorder: OutlineInputBorder(
-                                                              borderSide: BorderSide(
-                                                                  color: HexColor("#6823D0")),
-                                                              borderRadius: const BorderRadius
-                                                                  .all(Radius.circular(
-                                                                  10.0)),
-                                                            ),
-                                                            contentPadding: const EdgeInsets
-                                                                .all(10)),
-                                                      ),
-                                                      const SizedBox(height: 15,),
-                                                      TextFormField(
-                                                        controller: lastNameController,
-                                                        maxLines: 2,
-                                                        minLines: 1,
-                                                        keyboardType: TextInputType.multiline,
-                                                        decoration: InputDecoration(
-                                                            label: const Text('Last Name'),
-                                                            labelStyle: TextStyle(
-                                                                color: HexColor("#6823D0")),
-                                                            hintStyle: Theme
-                                                                .of(context)
-                                                                .textTheme
-                                                                .subtitle2,
-                                                            border: const OutlineInputBorder(),
-                                                            enabledBorder: const OutlineInputBorder(
-                                                              borderSide: BorderSide(
-                                                                  color: Colors.grey),
-                                                              borderRadius: BorderRadius.all(
-                                                                  Radius.circular(10.0)),
-                                                            ),
-                                                            focusedBorder: OutlineInputBorder(
-                                                              borderSide: BorderSide(
-                                                                  color: HexColor("#6823D0")),
-                                                              borderRadius: const BorderRadius
-                                                                  .all(Radius.circular(
-                                                                  10.0)),
-                                                            ),
-                                                            contentPadding: const EdgeInsets
-                                                                .all(10)),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(context_2, 'Cancel');
-                                                      },
-                                                      child: const Text('Cancel',
-                                                        style: TextStyle(
-                                                            color: Colors.black),),
+                                  onPressed: () {
+                                    firstNameController.text =
+                                        cubit.userProfile!.user!.firstName!;
+                                    lastNameController.text =
+                                        cubit.userProfile!.user!.lastName!;
+                                    showDialog<String>(
+                                        context: context,
+                                        builder:
+                                            (BuildContext context_2) =>
+                                                AlertDialog(
+                                                    title:
+                                                        const Text('Edit Name'),
+                                                    elevation: 10,
+                                                    content: Column(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        TextFormField(
+                                                          controller:
+                                                              firstNameController,
+                                                          maxLines: 2,
+                                                          minLines: 1,
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .multiline,
+                                                          decoration:
+                                                              InputDecoration(
+                                                                  label: const Text(
+                                                                      'First Name'),
+                                                                  labelStyle: TextStyle(
+                                                                      color: HexColor(
+                                                                          "#6823D0")),
+                                                                  hintStyle: Theme.of(
+                                                                          context)
+                                                                      .textTheme
+                                                                      .subtitle2,
+                                                                  border:
+                                                                      const OutlineInputBorder(),
+                                                                  enabledBorder:
+                                                                      const OutlineInputBorder(
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                            color:
+                                                                                Colors.grey),
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(10.0)),
+                                                                  ),
+                                                                  focusedBorder:
+                                                                      OutlineInputBorder(
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                            color:
+                                                                                HexColor("#6823D0")),
+                                                                    borderRadius: const BorderRadius
+                                                                            .all(
+                                                                        Radius.circular(
+                                                                            10.0)),
+                                                                  ),
+                                                                  contentPadding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          10)),
+                                                        ),
+                                                        const SizedBox(
+                                                          height: 15,
+                                                        ),
+                                                        TextFormField(
+                                                          controller:
+                                                              lastNameController,
+                                                          maxLines: 2,
+                                                          minLines: 1,
+                                                          keyboardType:
+                                                              TextInputType
+                                                                  .multiline,
+                                                          decoration:
+                                                              InputDecoration(
+                                                                  label: const Text(
+                                                                      'Last Name'),
+                                                                  labelStyle: TextStyle(
+                                                                      color: HexColor(
+                                                                          "#6823D0")),
+                                                                  hintStyle: Theme.of(
+                                                                          context)
+                                                                      .textTheme
+                                                                      .subtitle2,
+                                                                  border:
+                                                                      const OutlineInputBorder(),
+                                                                  enabledBorder:
+                                                                      const OutlineInputBorder(
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                            color:
+                                                                                Colors.grey),
+                                                                    borderRadius:
+                                                                        BorderRadius.all(
+                                                                            Radius.circular(10.0)),
+                                                                  ),
+                                                                  focusedBorder:
+                                                                      OutlineInputBorder(
+                                                                    borderSide:
+                                                                        BorderSide(
+                                                                            color:
+                                                                                HexColor("#6823D0")),
+                                                                    borderRadius: const BorderRadius
+                                                                            .all(
+                                                                        Radius.circular(
+                                                                            10.0)),
+                                                                  ),
+                                                                  contentPadding:
+                                                                      const EdgeInsets
+                                                                              .all(
+                                                                          10)),
+                                                        ),
+                                                      ],
                                                     ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        cubit.editUserProfile(id: userId!, firstName: firstNameController.text, lastName: lastNameController.text);
-                                                        Navigator.pop(context_2,'Update');
-                                                      },
-                                                      child: Text('OK', style: TextStyle(
-                                                          color: HexColor("#6823D0")),
-                                                    ),)
-                                                  ]));
-                                    },
-                                    icon: const Icon(Icons.edit,size: 14,),))
+                                                    actions: [
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          Navigator.pop(
+                                                              context_2,
+                                                              'Cancel');
+                                                        },
+                                                        child: const Text(
+                                                          'Cancel',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.black),
+                                                        ),
+                                                      ),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          cubit.editUserProfile(
+                                                              id: userId!,
+                                                              firstName:
+                                                                  firstNameController
+                                                                      .text,
+                                                              lastName:
+                                                                  lastNameController
+                                                                      .text);
+                                                          Navigator.pop(
+                                                              context_2,
+                                                              'Update');
+                                                        },
+                                                        child: Text(
+                                                          'OK',
+                                                          style: TextStyle(
+                                                              color: HexColor(
+                                                                  "#6823D0")),
+                                                        ),
+                                                      )
+                                                    ]));
+                                  },
+                                  icon: const Icon(
+                                    Icons.edit,
+                                    size: 14,
+                                  ),
+                                ))
                           ],
                         ),
-                       const SizedBox(height: 25,),
+                        const SizedBox(
+                          height: 25,
+                        ),
                         Padding(
                           padding: const EdgeInsets.all(10.0),
                           child: Container(
@@ -276,49 +381,61 @@ class AccountScreen extends StatelessWidget {
                                 child: Container(
                                   color: Colors.red,
                                   width: double.infinity,
-                                  child:  MaterialButton(onPressed: (){
-                                    showDialog<String>(
-                                        context: context,
-                                        builder: (BuildContext context) => AlertDialog(
-                                            title: const Text(
-                                                'Delete account'),
-                                            content: const Text(
-                                                'Are you sure yoo delete your account'),
-                                            elevation: 10,
-                                            actions: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context, 'Cancel');
-                                                },
-                                                child: Text(
-                                                  'Cancel',
-                                                  style: TextStyle(
-                                                      color:
-                                                      HexColor("#6823D0")),
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () {
-                                                  cubit.deleteUser();
-                                                  Navigator.pop(
-                                                      context, 'OK');
-                                                },
-                                                child: const Text('Yes',
-                                                    style: TextStyle(
-                                                        color: Colors.red)),
-                                              ),
-                                            ]));
-                                  },child: const Text('Delete Account',style: TextStyle(fontSize: 20,color: Colors.white),),),
+                                  child: MaterialButton(
+                                    onPressed: () {
+                                      showDialog<String>(
+                                          context: context,
+                                          builder: (BuildContext context) =>
+                                              AlertDialog(
+                                                  title: const Text(
+                                                      'Delete account'),
+                                                  content: const Text(
+                                                      'Are you sure yoo delete your account'),
+                                                  elevation: 10,
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                            context, 'Cancel');
+                                                      },
+                                                      child: Text(
+                                                        'Cancel',
+                                                        style: TextStyle(
+                                                            color: HexColor(
+                                                                "#6823D0")),
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        cubit.deleteUser();
+                                                        Navigator.pop(
+                                                            context, 'OK');
+                                                      },
+                                                      child: const Text('Yes',
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.red)),
+                                                    ),
+                                                  ]));
+                                    },
+                                    child: const Text(
+                                      'Delete Account',
+                                      style: TextStyle(
+                                          fontSize: 20, color: Colors.white),
+                                    ),
+                                  ),
                                 ),
                               ),
-
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
                                 children: [
                                   Expanded(
                                     child: Card(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                                      elevation: cubit.indexWidget == 0 ? 10 : 0,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      elevation:
+                                          cubit.indexWidget == 0 ? 10 : 0,
                                       color: cubit.indexWidget == 0
                                           ? HexColor("#6823D0")
                                           : Colors.white,
@@ -340,8 +457,10 @@ class AccountScreen extends StatelessWidget {
                                   ),
                                   Expanded(
                                     child: Card(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                                      elevation: cubit.indexWidget == 1 ? 10 : 0,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      elevation:
+                                          cubit.indexWidget == 1 ? 10 : 0,
                                       color: cubit.indexWidget == 1
                                           ? HexColor("#6823D0")
                                           : Colors.white,
@@ -363,8 +482,10 @@ class AccountScreen extends StatelessWidget {
                                   ),
                                   Expanded(
                                     child: Card(
-                                      margin: const EdgeInsets.symmetric(horizontal: 10),
-                                      elevation: cubit.indexWidget == 2 ? 10 : 0,
+                                      margin: const EdgeInsets.symmetric(
+                                          horizontal: 10),
+                                      elevation:
+                                          cubit.indexWidget == 2 ? 10 : 0,
                                       color: cubit.indexWidget == 2
                                           ? HexColor("#6823D0")
                                           : Colors.white,
@@ -386,7 +507,6 @@ class AccountScreen extends StatelessWidget {
                                   ),
                                 ],
                               ),
-
                             ],
                           ),
                         ),
@@ -398,21 +518,23 @@ class AccountScreen extends StatelessWidget {
                   ),
                   if (cubit.indexWidget == 0)
                     ConditionalBuilder(
-                        condition: cubit.userPost!=null,
-                        builder:(context)=> userPosts(context),
-                        fallback: (context)=>buildFoodShimmer(),
+                      condition: cubit.userPost != null,
+                      builder: (context) => userPosts(context),
+                      fallback: (context) => buildFoodShimmer(),
                     )
                   else if (cubit.indexWidget == 1)
                     ConditionalBuilder(
-                      condition: cubit.userComments!=null,
-                      builder:(context)=> userComments(context,cubit),
-                      fallback: (context)=>buildFoodShimmer(),
+                      condition: cubit.userComments != null,
+                      builder: (context) =>
+                          userComments(context, cubit.userComments),
+                      fallback: (context) => buildFoodShimmer(),
                     )
                   else
                     ConditionalBuilder(
-                      condition: cubit.userFriends!=null,
-                      builder:(context)=> userFriend(context,cubit),
-                      fallback: (context)=>buildFoodShimmer(),
+                      condition: cubit.userFriends != null,
+                      builder: (context) => userFriend(
+                          context, PurpleBookCubit.get(context).userFriends),
+                      fallback: (context) => buildFoodShimmer(),
                     )
                 ],
               ),
@@ -428,140 +550,190 @@ class AccountScreen extends StatelessWidget {
   }
 
   // build Widget user comments
-  Widget userComments(context, cubit) => ConditionalBuilder(
-      condition: cubit.userComments != null && cubit.isLikeComment!.isNotEmpty,
-      builder: (context) => ListView.separated(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemBuilder: (context, index) => Card(
-              elevation: 10,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    InkWell(
-                      onTap: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => ViewPostScreen(
-                                    id: cubit.userComments!.comments![index]
-                                        .post!.sId!,
-                                    count: index,isFocus: false,)));
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            'on ${cubit.userComments!.comments![index].post!.postAuthorFirstName!}\'s',
-                            style: Theme.of(context)
-                                .textTheme
-                                .caption!
-                                .copyWith(color: Colors.black, fontSize: 16),
-                          ),
-                          Text(
-                            '"',
-                            style: Theme.of(context)
-                                .textTheme
-                                .caption!
-                                .copyWith(color: Colors.black, fontSize: 16),
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            parseFragment(cubit.userComments!.comments![index]
-                                    .post!.contentPreview)
-                                .text!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context)
-                                .textTheme
-                                .caption!
-                                .copyWith(color: Colors.grey, fontSize: 18),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text(
-                            '"',
-                            style: Theme.of(context)
-                                .textTheme
-                                .caption!
-                                .copyWith(color: Colors.black, fontSize: 16),
-                          ),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Text(
-                            parseFragment(cubit
-                                    .userComments!.comments![index].content)
-                                .text!,
-                            maxLines: 3,
-                            textAlign: TextAlign.end,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                                fontWeight: FontWeight.bold, fontSize: 25),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
+  Widget userComments(context_1, UserCommentsModule? comment) =>
+      ConditionalBuilder(
+          condition: comment!.comments != null &&
+              PurpleBookCubit.get(context_1).isLikeComment!.isNotEmpty,
+          builder: (context) => ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemBuilder: (context, index) => Card(
+                  elevation: 10,
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        IconButton(
-                          onPressed: () {
-                            cubit.likeComment(
-                                idPost: cubit
-                                    .userComments!.comments![index].post!.sId!,
-                                idComment:
-                                    cubit.userComments!.comments![index].sId!,
-                                index: index);
-                            cubit.changeLikeComment(index);
+                        InkWell(
+                          onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) =>
+                                        ViewPostScreen.focusComment(
+                                          id: comment
+                                              .comments![index].post!.sId!,
+                                          addComent: false,
+                                          isFocus: true,
+                                          idComment:
+                                              comment.comments![index].sId,
+                                        )));
                           },
-                          icon: const Icon(Icons.thumb_up_alt_outlined),
-                          color:
-                              PurpleBookCubit.get(context).isLikeComment![index]
-                                  ? HexColor("#6823D0")
-                                  : Colors.grey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Text(
+                                'on ${comment.comments![index].post!.postAuthorFirstName!}\'s',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption!
+                                    .copyWith(
+                                        color: Colors.black, fontSize: 16),
+                              ),
+                              Text(
+                                '"',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption!
+                                    .copyWith(
+                                        color: Colors.black, fontSize: 16),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              Text(
+                                parseFragment(comment
+                                        .comments![index].post!.contentPreview)
+                                    .text!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption!
+                                    .copyWith(color: Colors.grey, fontSize: 18),
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              Text(
+                                '"',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .caption!
+                                    .copyWith(
+                                        color: Colors.black, fontSize: 16),
+                              ),
+                              const SizedBox(
+                                height: 20,
+                              ),
+                              Text(
+                                parseFragment(comment.comments![index].content)
+                                    .text!,
+                                maxLines: 3,
+                                textAlign: TextAlign.end,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold, fontSize: 25),
+                              ),
+                            ],
+                          ),
                         ),
                         const SizedBox(
-                          width: 5,
+                          height: 20,
                         ),
-                        Text(
-                          '${cubit.likeCommentCount![index]} like',
-                          style: Theme.of(context)
-                              .textTheme
-                              .caption!
-                              .copyWith(color: Colors.grey, fontSize: 15),
-                        )
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                PurpleBookCubit.get(context).likeComment(
+                                    idPost: comment.comments![index].post!.sId!,
+                                    idComment: comment.comments![index].sId!,
+                                    index: index);
+                                PurpleBookCubit.get(context)
+                                    .changeLikeComment(index);
+                              },
+                              icon: const Icon(Icons.thumb_up_alt_outlined),
+                              color: PurpleBookCubit.get(context)
+                                      .isLikeComment![index]
+                                  ? HexColor("#6823D0")
+                                  : Colors.grey,
+                            ),
+                            const SizedBox(
+                              width: 5,
+                            ),
+                            if (PurpleBookCubit.get(context)
+                                    .likeCommentCount![index] !=
+                                0)
+                              InkWell(
+                                onTap: () {
+                                  PurpleBookCubit.get(context)
+                                      .getLikeComments(
+                                          commentId:
+                                              comment.comments![index].sId!,
+                                          postId: comment
+                                              .comments![index].post!.sId!)
+                                      .then((value) {
+                                    showModalBottomSheet(
+                                        context: context_1,
+                                        isScrollControlled: true,
+                                        shape: const RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.vertical(
+                                                top: Radius.circular(20))),
+                                        builder: (context) =>
+                                            ListView.separated(
+                                                shrinkWrap: true,
+                                                physics:
+                                                    const NeverScrollableScrollPhysics(),
+                                                itemBuilder: (context, index) =>
+                                                    buildLikesComment(
+                                                        PurpleBookCubit.get(
+                                                                context_1)
+                                                            .commentLikes!,
+                                                        index,
+                                                        context_1),
+                                                separatorBuilder:
+                                                    (context, index) =>
+                                                        const SizedBox(
+                                                          height: 10,
+                                                        ),
+                                                itemCount: PurpleBookCubit.get(
+                                                        context_1)
+                                                    .likeModule!
+                                                    .users!
+                                                    .length));
+                                  });
+                                },
+                                child: Text(
+                                  '${PurpleBookCubit.get(context).likeCommentCount![index]} like',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .caption!
+                                      .copyWith(
+                                          color: Colors.grey, fontSize: 15),
+                                ),
+                              )
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
+                separatorBuilder: (context, index) => const SizedBox(
+                  height: 10,
+                ),
+                itemCount: comment.comments!.length,
               ),
-            ),
-            separatorBuilder: (context, index) => const SizedBox(
-              height: 10,
-            ),
-            itemCount: cubit.userComments!.comments!.length,
-          ),
-      fallback: (context) => const Center(child: Text(
-        'No Comments Yet (•_•)',
-        style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.w600
-        ),
-      )));
+          fallback: (context) => const Center(
+                  child: Text(
+                'No Comments Yet (•_•)',
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
+              )));
 
   //build Widget user posts
   Widget userPosts(context) => ConditionalBuilder(
-        condition: PurpleBookCubit.get(context).userPost!.posts!.isNotEmpty ,
+        condition: PurpleBookCubit.get(context).userPost!.posts!.isNotEmpty,
         builder: (context) => ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -571,18 +743,16 @@ class AccountScreen extends StatelessWidget {
                   height: 10,
                 ),
             itemCount: PurpleBookCubit.get(context).userPost!.posts!.length),
-        fallback: (context) => const Center(child: Text(
+        fallback: (context) => const Center(
+            child: Text(
           'No Posts Yet (•_•)',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.w600
-          ),
+          style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
         )),
       );
 
   //build Widget user friends
-  Widget userFriend(context, cubit) => ConditionalBuilder(
-      condition: cubit.userFriends.friends.isNotEmpty,
+  Widget userFriend(context, UserFriendsModule? friend) => ConditionalBuilder(
+      condition: friend!.friends!.isNotEmpty,
       builder: (context) => ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -594,11 +764,14 @@ class AccountScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   child: Row(
                     children: [
-                      const CircleAvatar(
-                        radius: 35,
-                        backgroundImage: NetworkImage(
-                            'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
-                      ),
+                      CircleAvatar(
+                          radius: 35,
+                          backgroundImage: friend
+                                  .friends![index].imageMini!.data!.isNotEmpty
+                              ? Image.memory(base64Decode(
+                                      friend.friends![index].imageMini!.data!))
+                                  .image
+                              : AssetImage('assets/image/user.jpg')),
                       const SizedBox(
                         width: 10,
                       ),
@@ -609,72 +782,73 @@ class AccountScreen extends StatelessWidget {
                                 context,
                                 MaterialPageRoute(
                                     builder: (context) => UserProfileScreen(
-                                        id: cubit.userFriends!.friends![index]
-                                            .sId)));
+                                        id: friend.friends![index].sId!)));
                           },
                           child: Text(
-                            '${cubit.userFriends!.friends![index].firstName} ${cubit.userFriends!.friends![index].lastName}',
+                            '${friend.friends![index].firstName} ${friend.friends![index].lastName}',
                             style: const TextStyle(
                                 fontSize: 20, fontWeight: FontWeight.bold),
                           ),
                         ),
                       ),
-                        MaterialButton(
-                          onPressed: () {
-                            showDialog<String>(
-                                context: context,
-                                builder: (BuildContext context) => AlertDialog(
-                                    title: Text(
-                                        'unfriend ${cubit.userFriends!.friends![index].firstName} ${cubit.userFriends!.friends![index].lastName}'),
-                                    content: Text('Are you sure you want to remove ${cubit.userFriends!.friends![index].firstName} ${cubit.userFriends!.friends![index].lastName} from friends list?'),
-                                    elevation: 10,
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, 'Cancel');
-                                        },
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                              color:
-                                              HexColor("#6823D0")),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          cubit.cancelFriend(receiveId: cubit.userFriends!.friends![index].sId).then((value) {
-                                            cubit.getUSerFriends(id: userId);
-                                            Navigator.pop(context, 'OK');
-                                          });
-                                        },
-                                        child: Text('OK',
+                      MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: Text(
+                                          'unfriend ${friend.friends![index].firstName} ${friend.friends![index].lastName}'),
+                                      content: Text(
+                                          'Are you sure you want to remove ${friend.friends![index].firstName} ${friend.friends![index].lastName} from friends list?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
                                             style: TextStyle(
-                                                color: HexColor(
-                                                    "#6823D0"))),
-                                      ),
-                                    ]));
-                          },
-                          color: Colors.grey.shade300,
-                          child: const Text(
-                            'Cancel Friend',
-                            style: TextStyle(color: Colors.black),
-                          ),
-                        )
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context)
+                                                .cancelFriend(
+                                                    receiveId: friend
+                                                        .friends![index].sId!)
+                                                .then((value) {
+                                              PurpleBookCubit.get(context)
+                                                  .getUSerFriends(id: userId!);
+                                              Navigator.pop(context, 'OK');
+                                            });
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: Colors.grey.shade300,
+                        child: const Text(
+                          'Cancel Friend',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      )
                     ],
                   )),
             ),
             separatorBuilder: (context, index) => const SizedBox(
               height: 10,
             ),
-            itemCount: cubit.userFriends!.friends!.length,
+            itemCount: friend.friends!.length,
           ),
-      fallback: (context) => const Center(child: Text(
-        'No Friends Yet (•_•)',
-        style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.w600
-        ),
-      )));
+      fallback: (context) => const Center(
+              child: Text(
+            'No Friends Yet (•_•)',
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
+          )));
 
   Widget buildUserPost(
           UserPostsModule? user, int index, BuildContext context_1) =>
@@ -692,22 +866,15 @@ class AccountScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                           '${user!.posts![index].createdAt!.year.toString()}-'
-                              '${user.posts![index].createdAt!.month.toString()}-'
-                              '${user.posts![index].createdAt!.day.toString()}  '
-                              '${user.posts![index].createdAt!.hour.toString()}:'
-                              '${user.posts![index].createdAt!.minute.toString()}',
+                          '${user.posts![index].createdAt!.month.toString()}-'
+                          '${user.posts![index].createdAt!.day.toString()}  '
+                          '${user.posts![index].createdAt!.hour.toString()}:'
+                          '${user.posts![index].createdAt!.minute.toString()}',
                           style:
                               const TextStyle(height: 1.3, color: Colors.grey)),
                     ),
                     PopupMenuButton(onSelected: (value) {
                       if (value == Constants.edit) {
-                        /* Navigator.push(
-                            conteext,
-                            MaterialPageRoute(
-                                builder: (context) => EditPostScreen(
-                                    id: feed.posts![index].sId!,
-                                    post: feed.posts![index],
-                                    index: index)));*/
                         firstNameController.text =
                             parseFragment(user.posts![index].content!).text!;
                         showDialog<String>(
@@ -757,7 +924,8 @@ class AccountScreen extends StatelessWidget {
                                         onPressed: () {
                                           PurpleBookCubit.get(context_1)
                                               .editUserPosts(
-                                                  edit: firstNameController.text,
+                                                  edit:
+                                                      firstNameController.text,
                                                   id: user.posts![index].sId!,
                                                   index: index);
                                           Navigator.pop(context, 'OK');
@@ -821,9 +989,10 @@ class AccountScreen extends StatelessWidget {
                     Navigator.push(
                         context_1,
                         MaterialPageRoute(
-                            builder: (context) => ViewPostUserScreen(
+                            builder: (context) => ViewPostScreen(
                                   id: user.posts![index].sId!,
-                                  count: index,
+                                  addComent: false,
+                                  isFocus: false,
                                 )));
                   },
                   child: Text(
@@ -833,7 +1002,9 @@ class AccountScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 10,),
+                const SizedBox(
+                  height: 10,
+                ),
                 if (user.posts![index].image!.data!.isNotEmpty)
                   InkWell(
                     onTap: () {
@@ -850,10 +1021,11 @@ class AccountScreen extends StatelessWidget {
                       height: 200,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
-                          image:  DecorationImage(
-                            fit: BoxFit.fill,
-                            image: Image.memory(base64Decode(user.posts![index].image!.data!)).image
-                          )),
+                          image: DecorationImage(
+                              fit: BoxFit.contain,
+                              image: Image.memory(base64Decode(
+                                      user.posts![index].image!.data!))
+                                  .image)),
                     ),
                   ),
                 Padding(
@@ -888,10 +1060,11 @@ class AccountScreen extends StatelessWidget {
                                         physics:
                                             const NeverScrollableScrollPhysics(),
                                         itemBuilder: (context, index) =>
-                                            buildBottomSheet(
+                                            buildLikesPost(
                                                 PurpleBookCubit.get(context_1)
                                                     .likeModule!,
-                                                index),
+                                                index,
+                                                context_1),
                                         separatorBuilder: (context, index) =>
                                             const SizedBox(
                                               height: 10,
@@ -921,7 +1094,7 @@ class AccountScreen extends StatelessWidget {
                                   width: 5,
                                 ),
                                 Text(
-                                  '${PurpleBookCubit.get(context_1).likesUserCount![index]}',
+                                  '${PurpleBookCubit.get(context_1).likesUserCount![index]} like',
                                   style: Theme.of(context_1)
                                       .textTheme
                                       .caption!
@@ -933,46 +1106,47 @@ class AccountScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: SizedBox(
-                            height: 30,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context_1,
-                                    MaterialPageRoute(
-                                        builder: (context_1) =>
-                                            ViewPostUserScreen(
-                                                id: user.posts![index].sId!,
-                                                count: index)));
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  const Icon(
-                                    Icons.chat_rounded,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    '${user.posts![index].commentsCount} comment',
-                                    style: Theme.of(context_1)
-                                        .textTheme
-                                        .caption!
-                                        .copyWith(
-                                            color: Colors.grey, fontSize: 17),
-                                  )
-                                ],
+                      if (user.posts![index].commentsCount != 0)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: SizedBox(
+                              height: 30,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context_1,
+                                      MaterialPageRoute(
+                                          builder: (context_1) =>
+                                              ViewPostUserScreen(
+                                                  id: user.posts![index].sId!,
+                                                  count: index)));
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Icon(
+                                      Icons.chat_rounded,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      '${user.posts![index].commentsCount} comment',
+                                      style: Theme.of(context_1)
+                                          .textTheme
+                                          .caption!
+                                          .copyWith(
+                                              color: Colors.grey, fontSize: 17),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -988,32 +1162,32 @@ class AccountScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: InkWell(
-                        child: Row(
-                          children: const [
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage: NetworkImage(
-                                  'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              'Write Comment...',
-                              style:
-                                  TextStyle(fontSize: 15, color: Colors.grey),
-                            ),
-                          ],
+                        child: Container(
+                          padding: const EdgeInsets.only(top: 10, left: 10),
+                          height: 40,
+                          decoration: BoxDecoration(
+                              color: Colors.grey.shade200,
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(15))),
+                          child: const Text(
+                            'Write Comment...',
+                            style: TextStyle(fontSize: 15, color: Colors.grey),
+                          ),
                         ),
                         onTap: () {
                           Navigator.push(
                               context_1,
                               MaterialPageRoute(
-                                  builder: (context_1) => ViewPostUserScreen(
-                                      id: user.posts![index].sId!,
-                                      count: index)));
+                                  builder: (context_1) => ViewPostScreen(
+                                        id: user.posts![index].sId!,
+                                        addComent: true,
+                                        isFocus: false,
+                                      )));
                         },
                       ),
+                    ),
+                    const SizedBox(
+                      width: 10,
                     ),
                     InkWell(
                       child: Row(
@@ -1053,52 +1227,218 @@ class AccountScreen extends StatelessWidget {
             ),
           ));
 
-  Widget buildBottomSheet(LikesModule user, int index) => Padding(
+  Widget buildLikesPost(LikesModule user, int index, context_1) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                const CircleAvatar(
-                  radius: 25,
-                  backgroundImage: NetworkImage(
-                      'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
-                ),
+                CircleAvatar(
+                    radius: 25,
+                    backgroundImage:
+                        user.users![index].imageMini!.data!.data!.isNotEmpty
+                            ? Image.memory(Uint8List.fromList(
+                                    user.users![index].imageMini!.data!.data!))
+                                .image
+                            : const AssetImage('assets/image/user.jpg')),
                 const SizedBox(
                   width: 10,
                 ),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${user.users![index].firstName} ${user.users![index].lastName}',
-                        style: const TextStyle(
-                            height: 1.3,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17),
-                      ),
-                    ],
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context_1,
+                          MaterialPageRoute(
+                              builder: (context) => UserProfileScreen(
+                                  id: user.users![index].sId!)));
+                    },
+                    child: Text(
+                      '${user.users![index].firstName} ${user.users![index].lastName}',
+                      style: const TextStyle(
+                          height: 1.3,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17),
+                    ),
                   ),
                 ),
                 if (user.users![index].sId != userId)
                   if (user.users![index].friendState == 'NOT_FRIEND')
-                    MaterialButton(
-                      onPressed: () {},
-                      color: Colors.blue,
-                      child: const Text(
-                        'Add Friend',
-                        style: TextStyle(color: Colors.white),
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: const Text('Add Friend'),
+                                      content: Text(
+                                          'Are you sure you want to sent request to ${user.users![index].firstName} ${user.users![index].lastName} ?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .sendRequestFriend(
+                                                    id: user
+                                                        .users![index].sId!);
+                                            Navigator.pop(context, 'OK');
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: HexColor("#6823D0"),
+                        child: const Text(
+                          'Add Friend',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  else if (user.users![index].friendState == 'FRIEND')
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: const Text('Cancel Friend'),
+                                      content: Text(
+                                          'Are you sure you want to remove ${user.users![index].firstName} ${user.users![index].lastName} from your list friends?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .cancelFriend(
+                                                    receiveId:
+                                                        user.users![index].sId!)
+                                                .then((value) => Navigator.pop(
+                                                    context, 'OK'));
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: Colors.grey.shade300,
+                        child: const Text(
+                          'Cancel Friend',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    )
+                  else if (user.users![index].friendState ==
+                      'FRIEND_REQUEST_SENT')
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: Text(
+                                          'Friend request ${user.users![index].firstName} ${user.users![index].lastName}'),
+                                      content: const Text(
+                                          'Are you sure you want to cancel request sent?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .cancelSendRequestFriend(
+                                                    receiveId:
+                                                        user.users![index].sId!)
+                                                .then((value) =>
+                                                    Navigator.pop(context_1));
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: HexColor("#6823D0"),
+                        child: const Text(
+                          'Cancel request',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     )
                   else
-                    MaterialButton(
-                      onPressed: () {},
-                      color: Colors.blueGrey,
-                      child: const Text(
-                        'Cancel Friend',
-                        style: TextStyle(color: Colors.white),
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: Text(
+                                          'Accept request ${user.users![index].firstName} ${user.users![index].lastName} '),
+                                      content: const Text(
+                                          'Are you sure you want to Accept request?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .acceptFriendRequest(
+                                                    id: user.users![index].sId!)
+                                                .then((value) =>
+                                                    Navigator.pop(context_1));
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: HexColor("#6823D0"),
+                        child: const Text(
+                          'Accept request',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     )
               ],
@@ -1107,14 +1447,226 @@ class AccountScreen extends StatelessWidget {
         ),
       );
 
-  Widget buildFoodShimmer()=>ListView.builder(
-    physics: const NeverScrollableScrollPhysics(),
-    shrinkWrap: true,
-    itemBuilder:(context,index)=> ListTile(
-      leading: ShimmerWidget.circular(width: 64, height: 64,shapeBorder: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),),
-      title: const ShimmerWidget.rectangular(height: 16),
-      subtitle: const ShimmerWidget.rectangular(height: 14),
-    ),
-    itemCount: 10,
-  );
+  Widget buildLikesComment(
+          CommentLikesModule commentLike, int index, context_1) =>
+      Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                    radius: 25,
+                    backgroundImage: commentLike
+                            .users![index].imageMini!.data!.data!.isNotEmpty
+                        ? Image.memory(Uint8List.fromList(commentLike
+                                .users![index].imageMini!.data!.data!))
+                            .image
+                        : const AssetImage('assets/image/user.jpg')),
+                const SizedBox(
+                  width: 10,
+                ),
+                Expanded(
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context_1,
+                          MaterialPageRoute(
+                              builder: (context) => UserProfileScreen(
+                                  id: commentLike.users![index].sId!)));
+                    },
+                    child: Text(
+                      '${commentLike.users![index].firstName} ${commentLike.users![index].lastName}',
+                      style: const TextStyle(
+                          height: 1.3,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 17),
+                    ),
+                  ),
+                ),
+                if (commentLike.users![index].sId != userId)
+                  if (commentLike.users![index].friendState == 'NOT_FRIEND')
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: const Text('Add Friend'),
+                                      content: Text(
+                                          'Are you sure you want to sent request to ${commentLike.users![index].firstName} ${commentLike.users![index].lastName} ?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .sendRequestFriend(
+                                                    id: commentLike
+                                                        .users![index].sId!);
+                                            Navigator.pop(context, 'OK');
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: HexColor("#6823D0"),
+                        child: const Text(
+                          'Add Friend',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  else if (commentLike.users![index].friendState == 'FRIEND')
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: const Text('Cancel Friend'),
+                                      content: Text(
+                                          'Are you sure you want to remove ${commentLike.users![index].firstName} ${commentLike.users![index].lastName} from your list friends?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .cancelFriend(
+                                                    receiveId: commentLike
+                                                        .users![index].sId!)
+                                                .then((value) => Navigator.pop(
+                                                    context, 'OK'));
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: Colors.grey.shade300,
+                        child: const Text(
+                          'Cancel Friend',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                      ),
+                    )
+                  else if (commentLike.users![index].friendState ==
+                      'FRIEND_REQUEST_SENT')
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: Text(
+                                          'Friend request ${commentLike.users![index].firstName} ${commentLike.users![index].lastName}'),
+                                      content: const Text(
+                                          'Are you sure you want to cancel request sent?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .cancelSendRequestFriend(
+                                                    receiveId: commentLike
+                                                        .users![index].sId!)
+                                                .then((value) =>
+                                                    Navigator.pop(context_1));
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: HexColor("#6823D0"),
+                        child: const Text(
+                          'Cancel request',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+                  else
+                    Expanded(
+                      child: MaterialButton(
+                        onPressed: () {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: Text(
+                                          'Accept request ${commentLike.users![index].firstName} ${commentLike.users![index].lastName} '),
+                                      content: const Text(
+                                          'Are you sure you want to Accept request?'),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .acceptFriendRequest(
+                                                    id: commentLike
+                                                        .users![index].sId!)
+                                                .then((value) =>
+                                                    Navigator.pop(context_1));
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        },
+                        color: HexColor("#6823D0"),
+                        child: const Text(
+                          'Accept request',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    )
+              ],
+            ),
+          ],
+        ),
+      );
 }
