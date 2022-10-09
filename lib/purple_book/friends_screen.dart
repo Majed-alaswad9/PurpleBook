@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
@@ -6,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/modules/friend_recommendation_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
-import 'package:purplebook/purple_book/users/user_profile.dart';
+import 'package:purplebook/purple_book/user_profile.dart';
 import '../components/const.dart';
 import '../modules/friends_request_module.dart';
 import 'cubit/purplebook_state.dart';
@@ -21,7 +22,19 @@ class FriendsScreen extends StatelessWidget {
         ..getFriendRequest()
         ..getFriendRecommendation(),
       child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
-        listener: (context, state) {},
+        listener: (context, state) {
+          if (state is GetFriendsRequestSuccessState) {
+            Future.delayed(const Duration(seconds: 3)).then((value) {
+              PurpleBookCubit.get(context).viewedFriendRequest();
+            });
+          }
+
+          if (state is RemoveFriendRequestSuccessState) {
+            showMsg(msg: 'Delete Successfully', color: ColorMsg.inCorrect);
+          } else if (state is RemoveFriendRequestSuccessState) {
+            showMsg(msg: 'Delete Failed', color: ColorMsg.error);
+          }
+        },
         builder: (context, state) => SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           child: Padding(
@@ -89,10 +102,9 @@ class FriendsScreen extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) => Card(
-                  surfaceTintColor:
-                      request.friendRequests![index].viewed == true
-                          ? const Color.fromARGB(238, 215, 216, 216)
-                          : Colors.white,
+                  color: request.friendRequests![index].viewed == false
+                      ? HexColor("#6823D0").withOpacity(0.5)
+                      : Colors.white,
                   elevation: 5,
                   clipBehavior: Clip.antiAliasWithSaveLayer,
                   child: Padding(
@@ -128,7 +140,7 @@ class FriendsScreen extends StatelessWidget {
                                               .data!))
                                           .image
                                       : const AssetImage(
-                                          'asstes/image/logo_2.jpg'),
+                                          'assets/image/user.jpg'),
                                 ),
                               ),
                               const SizedBox(
@@ -167,18 +179,18 @@ class FriendsScreen extends StatelessWidget {
                                         builder: (BuildContext context) =>
                                             AlertDialog(
                                                 title: const Text(
-                                                    'friend request'),
+                                                    'Delete friend request'),
                                                 content: const Text(
-                                                    'Are you sure you want to cancel this request?'),
+                                                    'Are you sure you want to Delete this request?'),
                                                 elevation: 10,
                                                 actions: [
                                                   TextButton(
                                                     onPressed: () {
                                                       Navigator.pop(
-                                                          context, 'Cancel');
+                                                          context, 'No');
                                                     },
                                                     child: Text(
-                                                      'Cancel',
+                                                      'No',
                                                       style: TextStyle(
                                                           color: HexColor(
                                                               "#6823D0")),
@@ -186,6 +198,14 @@ class FriendsScreen extends StatelessWidget {
                                                   ),
                                                   TextButton(
                                                     onPressed: () {
+                                                      PurpleBookCubit.get(
+                                                              context_1)
+                                                          .removeRequest(
+                                                              id: request
+                                                                  .friendRequests![
+                                                                      index]
+                                                                  .user!
+                                                                  .sId!);
                                                       Navigator.pop(
                                                           context, 'Yes');
                                                     },
@@ -198,7 +218,7 @@ class FriendsScreen extends StatelessWidget {
                                   },
                                   color: Colors.grey.shade300,
                                   child: const Text(
-                                    'Cancel Request',
+                                    'Delete',
                                     style: TextStyle(color: Colors.black),
                                   ),
                                 ),
@@ -217,7 +237,7 @@ class FriendsScreen extends StatelessWidget {
                                   },
                                   color: HexColor("#6823D0"),
                                   child: const Text(
-                                    'Accept Request',
+                                    'Confrim',
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ),
@@ -244,16 +264,23 @@ class FriendsScreen extends StatelessWidget {
             itemBuilder: (context, index) => Card(
                   elevation: 5,
                   clipBehavior: Clip.antiAliasWithSaveLayer,
-                  //  margin: const EdgeInsets.symmetric(horizontal: 10),
                   child: Padding(
                       padding: const EdgeInsets.all(10),
                       child: Row(
                         children: [
-                          const CircleAvatar(
-                            radius: 35,
-                            backgroundImage: NetworkImage(
-                                'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
-                          ),
+                          CircleAvatar(
+                              radius: 35,
+                              backgroundImage: request
+                                      .friendRecommendation![index]
+                                      .imageMini!
+                                      .data!
+                                      .isNotEmpty
+                                  ? Image.memory(base64Decode(request
+                                          .friendRecommendation![index]
+                                          .imageMini!
+                                          .data!))
+                                      .image
+                                  : const AssetImage('assets/image/user.jpg')),
                           const SizedBox(
                             width: 10,
                           ),
@@ -332,7 +359,7 @@ class FriendsScreen extends StatelessWidget {
                                         .getFriendRecommendation();
                                   });
                                 },
-                                color: Colors.grey,
+                                color: Colors.grey.shade400,
                                 child: const Text(
                                   'request sent',
                                   style: TextStyle(color: Colors.white),
@@ -349,9 +376,9 @@ class FriendsScreen extends StatelessWidget {
                                               .friendRecommendation![index]
                                               .sId!);
                                 },
-                                color: Colors.grey,
+                                color: Colors.grey.shade300,
                                 child: const Text(
-                                  'accept request',
+                                  'Confrim',
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ),

@@ -1,8 +1,8 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
 
+// ignore: must_be_immutable
 class SignInScreen extends StatelessWidget {
    SignInScreen({Key? key}) : super(key: key);
   var emailController = TextEditingController();
@@ -138,7 +138,7 @@ class SignInScreen extends StatelessWidget {
                             print('Ok');
                           }
                         },
-                        child: Text('SIGNUP',style: TextStyle(fontSize: 25,color: Colors.white),),
+                        child: const Text('SIGNUP',style: TextStyle(fontSize: 25,color: Colors.white),),
                       ),
                     ) ,
                     fallback: (context)=>Center(

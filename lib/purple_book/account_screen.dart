@@ -9,14 +9,14 @@ import 'package:html/parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:purplebook/login_sigin/login_screen.dart';
 import 'package:purplebook/modules/comment_likes_module.dart';
-import 'package:purplebook/modules/comments_module.dart';
 import 'package:purplebook/modules/user_comments_module.dart';
 import 'package:purplebook/modules/user_friends_module.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
-import 'package:purplebook/purple_book/users/user_profile.dart';
-import 'package:purplebook/purple_book/users/view_post_user_screen.dart';
+import 'package:purplebook/purple_book/user_profile.dart';
+import 'package:purplebook/purple_book/view_list_image.dart';
+import 'package:purplebook/purple_book/view_string_iamge.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
 
 import '../components/const.dart';
@@ -102,20 +102,30 @@ class AccountScreen extends StatelessWidget {
                               CircleAvatar(
                                 backgroundColor: HexColor("#6823D0"),
                                 radius: 90,
-                                child: CircleAvatar(
-                                  radius: 85,
-                                  backgroundImage: cubit.profileImage == null
-                                      ? Image.memory(Uint8List.fromList(cubit
-                                              .userProfile!
-                                              .user!
-                                              .imageFull!
-                                              .data!
-                                              .data!))
-                                          .image
-                                      : Image(
-                                              image: FileImage(
-                                                  cubit.profileImage!))
-                                          .image,
+                                child: InkWell(
+                                  onTap: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) => ViewListImage(
+                                                image: cubit.userProfile!.user!
+                                                    .imageFull!.data!.data!)));
+                                  },
+                                  child: CircleAvatar(
+                                    radius: 85,
+                                    backgroundImage: cubit.profileImage == null
+                                        ? Image.memory(Uint8List.fromList(cubit
+                                                .userProfile!
+                                                .user!
+                                                .imageFull!
+                                                .data!
+                                                .data!))
+                                            .image
+                                        : Image(
+                                                image: FileImage(
+                                                    cubit.profileImage!))
+                                            .image,
+                                  ),
                                 ),
                               ),
                               CircleAvatar(
@@ -123,7 +133,16 @@ class AccountScreen extends StatelessWidget {
                                 radius: 25,
                                 child: IconButton(
                                     onPressed: () {
-                                      cubit.imageProfile(ImageSource.gallery);
+                                      showModalBottomSheet(
+                                          context: context,
+                                          isScrollControlled: true,
+                                          shape: const RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.vertical(
+                                                      top:
+                                                          Radius.circular(20))),
+                                          builder: (context_1) =>
+                                              buildImagePicker(context));
                                     },
                                     icon:
                                         const Icon(Icons.camera_alt_outlined)),
@@ -409,7 +428,7 @@ class AccountScreen extends StatelessWidget {
                                                       onPressed: () {
                                                         cubit.deleteUser();
                                                         Navigator.pop(
-                                                            context, 'OK');
+                                                            context, 'Yes');
                                                       },
                                                       child: const Text('Yes',
                                                           style: TextStyle(
@@ -1011,9 +1030,8 @@ class AccountScreen extends StatelessWidget {
                       Navigator.push(
                           context_1,
                           MaterialPageRoute(
-                              builder: (context) => ViewPostUserScreen(
-                                    id: user.posts![index].sId!,
-                                    count: index,
+                              builder: (context) => ViewStringImage(
+                                    image: user.posts![index].image!.data!,
                                   )));
                     },
                     child: Container(
@@ -1118,9 +1136,9 @@ class AccountScreen extends StatelessWidget {
                                       context_1,
                                       MaterialPageRoute(
                                           builder: (context_1) =>
-                                              ViewPostUserScreen(
+                                              ViewPostScreen(
                                                   id: user.posts![index].sId!,
-                                                  count: index)));
+                                                  isFocus: false,addComent: false,)));
                                 },
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -1669,4 +1687,52 @@ class AccountScreen extends StatelessWidget {
           ],
         ),
       );
+
+  Widget buildImagePicker(context) {
+    return Card(
+      clipBehavior: Clip.antiAliasWithSaveLayer,
+      elevation: 5,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            margin: const EdgeInsets.all(8),
+            width: double.infinity,
+            child: MaterialButton(
+              onPressed: () {
+                PurpleBookCubit.get(context)
+                    .imageProfile(ImageSource.gallery)
+                    .then((value) {
+                  Navigator.pop(context);
+                });
+              },
+              color: Colors.grey.shade300,
+              child: const Text(
+                'Gallery',
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.all(8),
+            width: double.infinity,
+            child: MaterialButton(
+              onPressed: () {
+                PurpleBookCubit.get(context)
+                    .imageProfile(ImageSource.camera)
+                    .then((value) => Navigator.pop(context));
+              },
+              color: Colors.grey.shade300,
+              child: const Text(
+                'Camera',
+                style: TextStyle(fontSize: 18),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

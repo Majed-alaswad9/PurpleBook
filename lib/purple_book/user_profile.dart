@@ -11,12 +11,11 @@ import 'package:html/parser.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
-import 'package:purplebook/purple_book/users/view_post_user_screen.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
 
-import '../../components/const.dart';
-import '../../components/end_points.dart';
-import '../../modules/likes_module.dart';
+import '../components/const.dart';
+import '../components/end_points.dart';
+import '../modules/likes_module.dart';
 
 class UserProfileScreen extends StatelessWidget {
   final String id;
@@ -59,12 +58,20 @@ class UserProfileScreen extends StatelessWidget {
                       margin: const EdgeInsets.symmetric(horizontal: 10),
                       child: Column(
                         children: [
-                          const Center(
+                          Center(
                             child: CircleAvatar(
-                              radius: 85,
-                              backgroundImage: NetworkImage(
-                                  'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
-                            ),
+                                radius: 85,
+                                backgroundImage: cubit.userProfile!.user!
+                                        .imageFull!.data!.data!.isNotEmpty
+                                    ? Image.memory(Uint8List.fromList(cubit
+                                            .userProfile!
+                                            .user!
+                                            .imageFull!
+                                            .data!
+                                            .data!))
+                                        .image
+                                    : const AssetImage(
+                                        'assets/image/user.jpg')),
                           ),
                           const SizedBox(
                             height: 20,
@@ -90,7 +97,7 @@ class UserProfileScreen extends StatelessWidget {
                                     builder: (BuildContext context) =>
                                         AlertDialog(
                                             title: Text(
-                                                'unfriend with ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}'),
+                                                'unfriend ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}'),
                                             content: Text(
                                                 'Are you sure you want to remove ${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName} from friends list?'),
                                             elevation: 10,
@@ -343,7 +350,8 @@ class UserProfileScreen extends StatelessWidget {
                                 builder: (context) => ViewPostScreen(
                                       id: cubit.userComments!.comments![index]
                                           .post!.sId!,
-                                      addComent: false,isFocus: false,
+                                      addComent: false,
+                                      isFocus: false,
                                     )));
                       },
                       child: Column(
@@ -684,9 +692,10 @@ class UserProfileScreen extends StatelessWidget {
                     Navigator.push(
                         context_1,
                         MaterialPageRoute(
-                            builder: (context) => ViewPostUserScreen(
+                            builder: (context) => ViewPostScreen(
                                   id: user.posts![index].sId!,
-                                  count: index,
+                                  addComent: false,
+                                  isFocus: false,
                                 )));
                   },
                   child: Text(
@@ -705,9 +714,10 @@ class UserProfileScreen extends StatelessWidget {
                       Navigator.push(
                           context_1,
                           MaterialPageRoute(
-                              builder: (context) => ViewPostUserScreen(
+                              builder: (context) => ViewPostScreen(
                                     id: user.posts![index].sId!,
-                                    count: index,
+                                    addComent: false,
+                                    isFocus: false,
                                   )));
                     },
                     child: Container(
@@ -799,46 +809,49 @@ class UserProfileScreen extends StatelessWidget {
                           ),
                         ),
                       ),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: SizedBox(
-                            height: 30,
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                    context_1,
-                                    MaterialPageRoute(
-                                        builder: (context_1) =>
-                                            ViewPostUserScreen(
+                      if (user.posts![index].commentsCount != 0)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: SizedBox(
+                              height: 30,
+                              child: InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                      context_1,
+                                      MaterialPageRoute(
+                                          builder: (context_1) =>
+                                              ViewPostScreen(
                                                 id: user.posts![index].sId!,
-                                                count: index)));
-                              },
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  const Icon(
-                                    Icons.chat_rounded,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    '${user.posts![index].commentsCount} comment',
-                                    style: Theme.of(context_1)
-                                        .textTheme
-                                        .caption!
-                                        .copyWith(
-                                            color: Colors.grey, fontSize: 17),
-                                  )
-                                ],
+                                                addComent: false,
+                                                isFocus: false,
+                                              )));
+                                },
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    const Icon(
+                                      Icons.chat_rounded,
+                                      size: 20,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(
+                                      width: 5,
+                                    ),
+                                    Text(
+                                      '${user.posts![index].commentsCount} comment',
+                                      style: Theme.of(context_1)
+                                          .textTheme
+                                          .caption!
+                                          .copyWith(
+                                              color: Colors.grey, fontSize: 17),
+                                    )
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
                     ],
                   ),
                 ),
@@ -854,32 +867,30 @@ class UserProfileScreen extends StatelessWidget {
                   children: [
                     Expanded(
                       child: InkWell(
-                        child: Row(
-                          children: const [
-                            CircleAvatar(
-                              radius: 20,
-                              backgroundImage: NetworkImage(
-                                  'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
-                            ),
-                            SizedBox(
-                              width: 10,
-                            ),
-                            Text(
-                              'Write Comment...',
-                              style:
-                                  TextStyle(fontSize: 15, color: Colors.grey),
-                            ),
-                          ],
+                        child: Container(
+                          padding: EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                              color: Colors.grey.shade300,
+                              borderRadius: BorderRadius.circular(15)),
+                          child: const Text(
+                            'Write Comment...',
+                            style: TextStyle(fontSize: 15, color: Colors.black),
+                          ),
                         ),
                         onTap: () {
                           Navigator.push(
                               context_1,
                               MaterialPageRoute(
-                                  builder: (context_1) => ViewPostUserScreen(
-                                      id: user.posts![index].sId!,
-                                      count: index)));
+                                  builder: (context_1) => ViewPostScreen(
+                                        id: user.posts![index].sId!,
+                                        isFocus: false,
+                                        addComent: true,
+                                      )));
                         },
                       ),
+                    ),
+                    const SizedBox(
+                      width: 10,
                     ),
                     InkWell(
                       child: Row(

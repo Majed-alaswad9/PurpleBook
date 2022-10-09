@@ -24,7 +24,8 @@ class FeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PurpleBookCubit()..getFeed(),
+      create: (context) => PurpleBookCubit()
+        ..getFeed(),
       child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
         listener: (context, state) {
           if (state is PostDeleteSuccessState) {
@@ -433,7 +434,7 @@ class FeedScreen extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     child: Container(
-                      padding: const EdgeInsets.only(top: 10, left: 10),
+                      padding: const EdgeInsets.all(10),
                       height: 40,
                       decoration: BoxDecoration(
                           color: Colors.grey.shade200,

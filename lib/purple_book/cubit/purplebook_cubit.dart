@@ -437,11 +437,10 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
     DioHelper.patchFormData(url: '$users$id', data: formData, token: token)
         .then((value) {
+      deletePhotoProfile();
       getUserProfile(id: id);
-      print(value.statusMessage);
       emit(UpdateUserProfileSuccessState());
     }).catchError((error) {
-      print(error.toString());
       emit(UpdateUserProfileErrorState());
     });
   }
@@ -480,6 +479,17 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
+  void removeRequest({required String id}) {
+    emit(RemoveFriendRequestLoadingState());
+    DioHelper.deleteData(url: '$users$userId$friendRequests/$id', token: token)
+        .then((value) {
+      getFriendRequest();
+      emit(RemoveFriendRequestSuccessState());
+    }).catchError((error) {
+      emit(RemoveFriendRequestErrorState());
+    });
+  }
+
   void deleteUser() {
     emit(DeleteUserLoadingState());
     DioHelper.deleteData(url: '$users$userId', token: token).then((value) {
@@ -490,15 +500,33 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   FriendsRequestModule? friendRequest;
+  int? friendeRequestCount;
   void getFriendRequest() {
+    friendeRequestCount = 0;
     emit(GetFriendsRequestLoadingState());
     DioHelper.getData(url: '$users$userId$friendRequests', token: token)
         .then((value) {
       friendRequest = FriendsRequestModule.fromJson(value.data);
-      viewedFriendRequest();
       emit(GetFriendsRequestSuccessState());
     }).catchError((error) {
       emit(GetFriendsRequestErrorState());
+    });
+  }
+
+  void getFriendRequestFromAnyScreen() {
+    friendeRequestCount = 0;
+    emit(GetFriendsRequestAllScreenLoadingState());
+    DioHelper.getData(url: '$users$userId$friendRequests', token: token)
+        .then((value) {
+      friendRequest = FriendsRequestModule.fromJson(value.data);
+      for (var element in friendRequest!.friendRequests!) {
+        if (element.viewed == false) {
+          friendeRequestCount = friendeRequestCount! + 1;
+        }
+      }
+      emit(GetFriendsRequestAllScreenSuccessState());
+    }).catchError((error) {
+      emit(GetFriendsRequestAllScreenErrorState());
     });
   }
 
@@ -531,6 +559,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(ViewedFriendRequestLoadingState());
     DioHelper.patchData(url: '$users$userId$friendRequests/', token: token)
         .then((value) {
+      getFriendRequestFromAnyScreen();
       emit(ViewedFriendRequestSuccessState());
     }).catchError((error) {
       emit(ViewedFriendRequestErrorState());
@@ -540,6 +569,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   void viewedAllNotifications() {
     emit(ViewedAllNotificationsLoadingState());
     DioHelper.patchData(url: notifications, token: token).then((value) {
+      getNotificationsFromAnyScreen();
       emit(ViewedAllNotificationsSuccessState());
     }).catchError((error) {
       emit(ViewedAllNotificationsErrorState());
@@ -547,16 +577,34 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   NotificationsModule? notificationsModule;
-  List<String> linkUser = [];
-  List<String> linkPost = [];
-  List<String> linkComment = [];
+  int notificationsCount = 0;
   void getNotifications() {
+    notificationsCount = 0;
     emit(GetNotificationsLoadingState());
     DioHelper.getData(url: notifications, token: token).then((value) {
       notificationsModule = NotificationsModule.fromJson(value.data);
       emit(GetNotificationsSuccessState());
     }).catchError((error) {
       emit(GetNotificationsErrorState());
+    });
+  }
+
+  void getNotificationsFromAnyScreen() {
+    notificationsCount = 0;
+    emit(GetNotifFromAnyScreenLoadingState());
+    DioHelper.getData(url: notifications, token: token).then((value) {
+      notificationsModule = NotificationsModule.fromJson(value.data);
+      for (var element in notificationsModule!.notifications!) {
+        if (element.viewed == false) {
+          print(element.viewed);
+          notificationsCount = notificationsCount + 1;
+        } else {
+          break;
+        }
+      }
+      emit(GetNotifFromAnyScreenSuccessState());
+    }).catchError((error) {
+      emit(GetNotifFromAnyScreenErrorState());
     });
   }
 }

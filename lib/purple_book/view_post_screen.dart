@@ -10,7 +10,7 @@ import 'package:purplebook/modules/comment_likes_module.dart';
 import 'package:purplebook/modules/comments_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
-import 'package:purplebook/purple_book/users/user_profile.dart';
+import 'package:purplebook/purple_book/user_profile.dart';
 import '../components/const.dart';
 import '../components/end_points.dart';
 import '../modules/likes_module.dart';
@@ -31,10 +31,10 @@ class ViewPostScreen extends StatelessWidget {
         super(key: key);
 
   ViewPostScreen.focusComment(
-      {required this.id,
+      {Key? key, required this.id,
       required this.idComment,
       required this.addComent,
-      required this.isFocus});
+      required this.isFocus}) : super(key: key);
   var contentController = TextEditingController();
   var editCommentController = TextEditingController();
   var editPostController = TextEditingController();

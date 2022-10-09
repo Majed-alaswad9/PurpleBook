@@ -146,6 +146,10 @@ class GetFriendsRequestLoadingState extends PurpleBookState{}
 class GetFriendsRequestSuccessState extends PurpleBookState{}
 class GetFriendsRequestErrorState extends PurpleBookState{}
 
+class GetFriendsRequestAllScreenLoadingState extends PurpleBookState{}
+class GetFriendsRequestAllScreenSuccessState extends PurpleBookState{}
+class GetFriendsRequestAllScreenErrorState extends PurpleBookState{}
+
 class GetFriendRecommendationLoadingState extends PurpleBookState{}
 class GetFriendRecommendationSuccessState extends PurpleBookState{}
 class GetFriendRecommendationErrorState extends PurpleBookState{}
@@ -153,6 +157,10 @@ class GetFriendRecommendationErrorState extends PurpleBookState{}
 class AcceptFriendRequestLoadingState extends PurpleBookState{}
 class AcceptFriendRequestSuccessState extends PurpleBookState{}
 class AcceptFriendRequestErrorState extends PurpleBookState{}
+
+class RemoveFriendRequestLoadingState extends PurpleBookState{}
+class RemoveFriendRequestSuccessState extends PurpleBookState{}
+class RemoveFriendRequestErrorState extends PurpleBookState{}
 
 class ViewedFriendRequestLoadingState extends PurpleBookState{}
 class ViewedFriendRequestSuccessState extends PurpleBookState{}
@@ -165,4 +173,8 @@ class ViewedAllNotificationsErrorState extends PurpleBookState{}
 class GetNotificationsLoadingState extends PurpleBookState{}
 class GetNotificationsSuccessState extends PurpleBookState{}
 class GetNotificationsErrorState extends PurpleBookState{}
+
+class GetNotifFromAnyScreenLoadingState extends PurpleBookState{}
+class GetNotifFromAnyScreenSuccessState extends PurpleBookState{}
+class GetNotifFromAnyScreenErrorState extends PurpleBookState{}
 

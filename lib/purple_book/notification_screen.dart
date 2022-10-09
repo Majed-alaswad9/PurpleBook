@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
@@ -7,44 +8,66 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:purplebook/components/const.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
-import 'package:purplebook/purple_book/users/user_profile.dart';
+import 'package:purplebook/purple_book/user_profile.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
 
 import 'cubit/purplebook_state.dart';
 
-class NotificationScreen extends StatelessWidget {
+class NotificationScreen extends StatefulWidget {
   const NotificationScreen({Key? key}) : super(key: key);
 
   @override
+  State<NotificationScreen> createState() => _NotificationScreenState();
+}
+
+class _NotificationScreenState extends State<NotificationScreen> {
+  @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => PurpleBookCubit()..getNotifications(),
+      create: (context) => PurpleBookCubit()
+        ..getNotifications(),
       child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
-          listener: ((context, state) {}),
-          builder: (context, state) {
-            var cubit = PurpleBookCubit.get(context);
-            return SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: ConditionalBuilder(
-                condition: cubit.notificationsModule != null,
-                builder: (context) => ListView.separated(
-                  physics: const NeverScrollableScrollPhysics(),
-                  shrinkWrap: true,
-                  itemBuilder: (context, index) =>
-                      buildNotification(index, context),
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(height: 5),
-                  itemCount: cubit.notificationsModule!.notifications!.length,
-                ),
-                fallback: (context) => Center(child: buildFoodShimmer()),
+          listener: ((context, state) {
+        if (state is GetNotificationsSuccessState) {
+          Future.delayed(const Duration(seconds: 5)).then((value) {
+            PurpleBookCubit.get(context).viewedAllNotifications();
+          });
+        }
+      }), builder: (context, state) {
+        var cubit = PurpleBookCubit.get(context);
+        return SingleChildScrollView(
+          physics: const BouncingScrollPhysics(),
+          child: ConditionalBuilder(
+            condition: cubit.notificationsModule != null,
+            builder: (context) => ConditionalBuilder(
+              condition: cubit.notificationsModule!.notifications!.isNotEmpty,
+              builder: (context) => ListView.separated(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                itemBuilder: (context, index) =>
+                    buildNotification(index, context),
+                separatorBuilder: (context, index) => const SizedBox(height: 5),
+                itemCount: cubit.notificationsModule!.notifications!.length,
               ),
-            );
-          }),
+              fallback: (context) => const Center(
+                child: Text('No Notification for now (•_•)'),
+              ),
+            ),
+            fallback: (context) => Center(child: buildFoodShimmer()),
+          ),
+        );
+      }),
     );
   }
 
   Widget buildNotification(index, context_1) => Card(
         clipBehavior: Clip.antiAliasWithSaveLayer,
+        color: !PurpleBookCubit.get(context_1)
+                .notificationsModule!
+                .notifications![index]
+                .viewed!
+            ? HexColor("#6823D0").withOpacity(0.6)
+            : null,
         elevation: 5,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
