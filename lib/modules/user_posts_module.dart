@@ -1,15 +1,15 @@
 import 'package:html_unescape/html_unescape.dart';
 
 class UserPostsModule {
-  List<Posts>? posts;
+  List<UserPosts>? posts;
 
   UserPostsModule({this.posts});
 
   UserPostsModule.fromJson(Map<String, dynamic> json) {
     if (json['posts'] != null) {
-      posts = <Posts>[];
+      posts = <UserPosts>[];
       json['posts'].forEach((v) {
-        posts!.add(Posts.fromJson(v));
+        posts!.add(UserPosts.fromJson(v));
       });
     }
   }
@@ -23,7 +23,7 @@ class UserPostsModule {
   }
 }
 var unescape = HtmlUnescape();
-class Posts {
+class UserPosts {
   String? sId;
   String? content;
   ImageModule? image;
@@ -32,7 +32,7 @@ class Posts {
   int? likesCount;
   int? commentsCount;
 
-  Posts(
+  UserPosts(
       {this.sId,
         this.content,
         this.image,
@@ -41,7 +41,7 @@ class Posts {
         this.likesCount,
         this.commentsCount});
 
-  Posts.fromJson(Map<String, dynamic> json) {
+  UserPosts.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     content = unescape.convert(json['content']);
     image = json['image'] != null ? ImageModule.fromJson(json['image']) : null;

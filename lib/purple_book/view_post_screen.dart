@@ -11,6 +11,7 @@ import 'package:purplebook/modules/comments_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
 import 'package:purplebook/purple_book/user_profile.dart';
+import 'package:purplebook/purple_book/view_string_iamge.dart';
 import '../components/const.dart';
 import '../components/end_points.dart';
 import '../modules/likes_module.dart';
@@ -31,10 +32,12 @@ class ViewPostScreen extends StatelessWidget {
         super(key: key);
 
   ViewPostScreen.focusComment(
-      {Key? key, required this.id,
+      {Key? key,
+      required this.id,
       required this.idComment,
       required this.addComent,
-      required this.isFocus}) : super(key: key);
+      required this.isFocus})
+      : super(key: key);
   var contentController = TextEditingController();
   var editCommentController = TextEditingController();
   var editPostController = TextEditingController();
@@ -59,68 +62,58 @@ class ViewPostScreen extends StatelessWidget {
 
           //delete post
           if (state is PostDeleteSuccessState) {
-            showMsg(msg: 'deleted Successfully', color: ColorMsg.success);
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Delete successfully')));
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
                     builder: (context) => const PurpleBookScreen()),
                 (route) => false);
           } else if (state is PostDeleteErrorState) {
-            showMsg(msg: 'Failed delete', color: ColorMsg.error);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Deleted Failed')));
           }
 
           //Edit post
           if (state is EditPostSuccessState) {
-            showMsg(msg: 'Edited Successfully', color: ColorMsg.success);
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Editing successfully')));
             PurpleBookCubit.get(context).viewPosts(id: id);
           } else if (state is EditPostErrorState) {
-            showMsg(msg: 'Failed Edited', color: ColorMsg.error);
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Editing Failed')));
           }
 
           //send friend request
           if (state is SendRequestSuccessState) {
-            showMsg(msg: 'Sent Successfully', color: ColorMsg.inCorrect);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Sent successfully')));
           } else if (state is SendRequestErrorState) {
-            showMsg(msg: 'Sent Failed', color: ColorMsg.error);
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Sent Failed')));
           }
 
           //cancel friend
           if (state is CancelFriendSuccessState) {
-            showMsg(
-                msg: 'Cancel friend Successfully', color: ColorMsg.inCorrect);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ unFriend successfully')));
           } else if (state is CancelFriendErrorState) {
-            showMsg(msg: 'Cancel friend Failed', color: ColorMsg.error);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ unFriend Failed')));
           }
 
           //cancel friend request
           if (state is CancelSendRequestSuccessState) {
-            showMsg(
-                msg: 'Cancel request Successfully', color: ColorMsg.inCorrect);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Cancel sent successfully')));
           } else if (state is CancelSendRequestErrorState) {
-            showMsg(msg: 'Cancel request Failed', color: ColorMsg.error);
-          }
-          //cancel friend request
-          if (state is CancelSendRequestSuccessState) {
-            showMsg(
-                msg: 'Cancel request Successfully', color: ColorMsg.inCorrect);
-          } else if (state is CancelSendRequestErrorState) {
-            showMsg(msg: 'Cancel request Failed', color: ColorMsg.error);
+             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Cancel sent Failed')));
           }
 
           //accept friend request
           if (state is AcceptFriendRequestSuccessState) {
-            showMsg(
-                msg: 'Accept request Successfully', color: ColorMsg.inCorrect);
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Confrim successfully')));
           } else if (state is AcceptFriendRequestErrorState) {
-            showMsg(msg: 'Accept request Failed', color: ColorMsg.error);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Confrim Failed')));
           }
 
           //add comment
           if (state is AddCommentPostSuccessState) {
-            showMsg(msg: 'Added Successfully', color: ColorMsg.inCorrect);
+           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Add comment successfully')));
             contentController.text = '';
           } else if (state is AddCommentPostErrorState) {
-            showMsg(msg: 'Added Failed', color: ColorMsg.error);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Add comment Failed')));
           }
         },
         builder: (context_1, state) {
@@ -211,13 +204,38 @@ class ViewPostScreen extends StatelessWidget {
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 20),
                                               ),
-                                              Text(
-                                                  '${cubit.postView!.post!.createdAt!.year.toString()}-'
-                                                  '${cubit.postView!.post!.createdAt!.month.toString()}-'
-                                                  '${cubit.postView!.post!.createdAt!.day.toString()}',
-                                                  style: const TextStyle(
-                                                      height: 1.3,
-                                                      color: Colors.grey))
+                                              if (DateTime.now()
+                                                      .difference(cubit
+                                                          .postView!
+                                                          .post!
+                                                          .createdAt!)
+                                                      .inHours <
+                                                  24)
+                                                Text(
+                                                    '${DateTime.now().difference(cubit.postView!.post!.createdAt!).inHours} hours ago',
+                                                    style: const TextStyle(
+                                                        height: 1.3,
+                                                        color: Colors.grey))
+                                              else if (DateTime.now()
+                                                      .difference(cubit
+                                                          .postView!
+                                                          .post!
+                                                          .createdAt!)
+                                                      .inDays <
+                                                  7)
+                                                Text(
+                                                    '${DateTime.now().difference(cubit.postView!.post!.createdAt!).inDays} days ago',
+                                                    style: const TextStyle(
+                                                        height: 1.3,
+                                                        color: Colors.grey))
+                                              else
+                                                Text(
+                                                    '${cubit.postView!.post!.createdAt!.year}-'
+                                                    '${cubit.postView!.post!.createdAt!.month}-'
+                                                    '${cubit.postView!.post!.createdAt!.day}',
+                                                    style: const TextStyle(
+                                                        height: 1.3,
+                                                        color: Colors.grey))
                                             ],
                                           ),
                                         ),
@@ -382,18 +400,35 @@ class ViewPostScreen extends StatelessWidget {
                                   ),
                                   if (cubit
                                       .postView!.post!.image!.data!.isNotEmpty)
-                                    Container(
-                                      width: double.infinity,
-                                      height: 250,
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          image: DecorationImage(
-                                              fit: BoxFit.fill,
-                                              image: Image.memory(base64Decode(
-                                                      cubit.postView!.post!
-                                                          .image!.data!))
-                                                  .image)),
+                                    InkWell(
+                                      onTap: () {
+                                        Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ViewStringImage(
+                                                        image: cubit
+                                                            .postView!
+                                                            .post!
+                                                            .image!
+                                                            .data!)));
+                                      },
+                                      child: Container(
+                                        width: double.infinity,
+                                        height: 250,
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            image: DecorationImage(
+                                                fit: BoxFit.fill,
+                                                image: Image.memory(
+                                                        base64Decode(cubit
+                                                            .postView!
+                                                            .post!
+                                                            .image!
+                                                            .data!))
+                                                    .image)),
+                                      ),
                                     ),
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
@@ -581,251 +616,267 @@ class ViewPostScreen extends StatelessWidget {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context_1, index) => Card(
-              elevation: 5,
-              clipBehavior: Clip.antiAliasWithSaveLayer,
-              margin: const EdgeInsets.symmetric(horizontal: 10),
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                  elevation: 5,
+                  clipBehavior: Clip.antiAliasWithSaveLayer,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                            radius: 25,
-                            backgroundImage: user.comments![index].author!
-                                    .imageMini!.data!.isNotEmpty
-                                ? Image.memory(base64Decode(user
-                                        .comments![index]
-                                        .author!
-                                        .imageMini!
-                                        .data!))
-                                    .image
-                                : const AssetImage(
-                                    'assets/image/user.jpg')),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                '${user.comments![index].author!.firstName} ${user.comments![index].author!.lastName}',
-                                style: const TextStyle(
-                                    height: 1.3,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17),
-                              ),
-                              Text(
-                                  '${user.comments![index].createdAt!.year.toString()}-'
-                                  '${user.comments![index].createdAt!.month.toString()}-'
-                                  '${user.comments![index].createdAt!.day.toString()}  ',
-                                  style: const TextStyle(
-                                      height: 1.3, color: Colors.grey))
-                            ],
-                          ),
-                        ),
-                        if (userId == user.comments![index].author!.sId)
-                          PopupMenuButton(onSelected: (value) {
-                            if (value == Constants.edit) {
-                              editCommentController.text =
-                                  user.comments![index].content!;
-                              showDialog<String>(
-                                  context: context_1,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                          title: const Text('Edit'),
-                                          content: TextFormField(
-                                            controller:
-                                                editCommentController,
-                                            maxLines: 100,
-                                            minLines: 1,
-                                            keyboardType:
-                                                TextInputType.multiline,
-                                            decoration: InputDecoration(
-                                                label: const Text(
-                                                    'Write comment'),
-                                                labelStyle: TextStyle(
-                                                    color: HexColor(
-                                                        "#6823D0")),
-                                                hintStyle:
-                                                    Theme.of(context)
-                                                        .textTheme
-                                                        .subtitle2,
-                                                border:
-                                                    const OutlineInputBorder(),
-                                                enabledBorder:
-                                                    const OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: Colors.grey),
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(
-                                                              10.0)),
-                                                ),
-                                                focusedBorder:
-                                                    OutlineInputBorder(
-                                                  borderSide: BorderSide(
-                                                      color: HexColor(
-                                                          "#6823D0")),
-                                                  borderRadius:
-                                                      const BorderRadius
-                                                              .all(
-                                                          Radius.circular(
-                                                              10.0)),
-                                                ),
-                                                contentPadding:
-                                                    const EdgeInsets.all(
-                                                        10)),
-                                          ),
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(
-                                                    context, 'Cancel');
-                                              },
-                                              child: Text(
-                                                'Cancel',
-                                                style: TextStyle(
-                                                    color: HexColor(
-                                                        "#6823D0")),
-                                              ),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                PurpleBookCubit.get(
-                                                        context_1)
-                                                    .editComment(
-                                                        postId: postId,
-                                                        commentId: user
-                                                            .comments![
-                                                                index]
-                                                            .sId!,
-                                                        text:
-                                                            editCommentController
-                                                                .text)
-                                                    .then((value) {
-                                                  showMsg(
-                                                      msg:
-                                                          'editing successfully',
-                                                      color: ColorMsg
-                                                          .inCorrect);
-                                                  Navigator.pop(
-                                                      context, 'OK');
-                                                });
-                                              },
-                                              child: Text('OK',
-                                                  style: TextStyle(
-                                                      color: HexColor(
-                                                          "#6823D0"))),
-                                            ),
-                                          ]));
-                            } else if (Constants.delete == value) {
-                              PurpleBookCubit.get(context_1)
-                                  .deleteComment(
-                                      postId: id,
-                                      commentId:
-                                          user.comments![index].sId!);
-                            }
-                          }, itemBuilder: (BuildContext context) {
-                            return Constants.chose.map((e) {
-                              return PopupMenuItem<String>(
-                                value: e,
-                                child: Text(e),
-                              );
-                            }).toList();
-                          })
-                      ],
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: Container(
-                        width: double.infinity,
-                        height: 1,
-                        color: Colors.grey,
-                      ),
-                    ),
-                    Text(
-                      parseFragment(user.comments![index].content).text!,
-                      style: const TextStyle(fontSize: 20),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            PurpleBookCubit.get(context_1)
-                                .likeComment(
-                                    idPost: id,
-                                    idComment:
-                                        PurpleBookCubit.get(context_1)
-                                            .comment!
+                        Row(
+                          children: [
+                            CircleAvatar(
+                                radius: 25,
+                                backgroundImage: user.comments![index].author!
+                                        .imageMini!.data!.isNotEmpty
+                                    ? Image.memory(base64Decode(user
                                             .comments![index]
-                                            .sId!,
-                                    index: index)
-                                .then((value) {
-                              PurpleBookCubit.get(context_1)
-                                  .getComments(id: id);
-                            });
-                            PurpleBookCubit.get(context_1)
-                                .changeLikeComment(index);
-                          },
-                          icon: const Icon(Icons.thumb_up_alt_outlined),
-                          color: PurpleBookCubit.get(context_1)
-                                  .comment!
-                                  .comments![index]
-                                  .likedByUser!
-                              ? HexColor("#6823D0")
-                              : Colors.grey,
-                        ),
-                        if (user.comments![index].likesCount != 0)
-                          Expanded(
-                            child: InkWell(
-                              splashColor: HexColor("#6823D0"),
-                              onTap: () {
-                                PurpleBookCubit.get(context_1)
-                                    .getLikeComments(
-                                        commentId:
-                                            user.comments![index].sId!,
-                                        postId: id)
-                                    .then((value) => showModalBottomSheet(
-                                          context: context_1,
-                                          isScrollControlled: true,
-                                          shape:
-                                              const RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.vertical(
-                                                          top: Radius
-                                                              .circular(
-                                                                  20))),
-                                          builder: (context) =>
-                                              buildLikesComment(
-                                                  PurpleBookCubit.get(
-                                                          context_1)
-                                                      .commentLikes!,
-                                                  context_1),
-                                        ));
-                              },
-                              child: Text(
-                                '${PurpleBookCubit.get(context_1).comment!.comments![index].likesCount} like',
-                                style: Theme.of(context_1)
-                                    .textTheme
-                                    .caption!
-                                    .copyWith(
-                                        color: Colors.grey, fontSize: 15),
+                                            .author!
+                                            .imageMini!
+                                            .data!))
+                                        .image
+                                    : const AssetImage(
+                                        'assets/image/user.jpg')),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    '${user.comments![index].author!.firstName} ${user.comments![index].author!.lastName}',
+                                    style: const TextStyle(
+                                        height: 1.3,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 17),
+                                  ),
+                                  if (DateTime.now()
+                                          .difference(
+                                              user.comments![index].createdAt!)
+                                          .inHours <
+                                      24)
+                                    Text(
+                                        '${DateTime.now().difference(user.comments![index].createdAt!).inHours} hours ago',
+                                        style: const TextStyle(
+                                            height: 1.3, color: Colors.grey))
+                                  else if (DateTime.now()
+                                          .difference(
+                                              user.comments![index].createdAt!)
+                                          .inDays <
+                                      7)
+                                    Text(
+                                        '${DateTime.now().difference(user.comments![index].createdAt!).inDays} days ago',
+                                        style: const TextStyle(
+                                            height: 1.3, color: Colors.grey))
+                                  else
+                                    Text(
+                                        '${user.comments![index].createdAt!.year}-'
+                                        '${user.comments![index].createdAt!.month}-'
+                                        '${user.comments![index].createdAt!.day}',
+                                        style: const TextStyle(
+                                            height: 1.3, color: Colors.grey))
+                                ],
                               ),
                             ),
-                          )
+                            if (userId == user.comments![index].author!.sId)
+                              PopupMenuButton(onSelected: (value) {
+                                if (value == Constants.edit) {
+                                  editCommentController.text =
+                                      user.comments![index].content!;
+                                  showDialog<String>(
+                                      context: context_1,
+                                      builder: (BuildContext context) =>
+                                          AlertDialog(
+                                              title: const Text('Edit'),
+                                              content: TextFormField(
+                                                controller:
+                                                    editCommentController,
+                                                maxLines: 100,
+                                                minLines: 1,
+                                                keyboardType:
+                                                    TextInputType.multiline,
+                                                decoration: InputDecoration(
+                                                    label: const Text(
+                                                        'Write comment'),
+                                                    labelStyle: TextStyle(
+                                                        color: HexColor(
+                                                            "#6823D0")),
+                                                    hintStyle: Theme.of(context)
+                                                        .textTheme
+                                                        .subtitle2,
+                                                    border:
+                                                        const OutlineInputBorder(),
+                                                    enabledBorder:
+                                                        const OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: Colors.grey),
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                              Radius.circular(
+                                                                  10.0)),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                      borderSide: BorderSide(
+                                                          color: HexColor(
+                                                              "#6823D0")),
+                                                      borderRadius:
+                                                          const BorderRadius
+                                                                  .all(
+                                                              Radius.circular(
+                                                                  10.0)),
+                                                    ),
+                                                    contentPadding:
+                                                        const EdgeInsets.all(
+                                                            10)),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, 'Cancel');
+                                                  },
+                                                  child: Text(
+                                                    'Cancel',
+                                                    style: TextStyle(
+                                                        color: HexColor(
+                                                            "#6823D0")),
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    PurpleBookCubit.get(
+                                                            context_1)
+                                                        .editComment(
+                                                            postId: postId,
+                                                            commentId: user
+                                                                .comments![
+                                                                    index]
+                                                                .sId!,
+                                                            text:
+                                                                editCommentController
+                                                                    .text)
+                                                        .then((value) {
+                                                      showMsg(
+                                                          msg:
+                                                              'editing successfully',
+                                                          color: ColorMsg
+                                                              .inCorrect);
+                                                      Navigator.pop(
+                                                          context, 'OK');
+                                                    });
+                                                  },
+                                                  child: Text('OK',
+                                                      style: TextStyle(
+                                                          color: HexColor(
+                                                              "#6823D0"))),
+                                                ),
+                                              ]));
+                                } else if (Constants.delete == value) {
+                                  PurpleBookCubit.get(context_1).deleteComment(
+                                      postId: id,
+                                      commentId: user.comments![index].sId!);
+                                }
+                              }, itemBuilder: (BuildContext context) {
+                                return Constants.chose.map((e) {
+                                  return PopupMenuItem<String>(
+                                    value: e,
+                                    child: Text(e),
+                                  );
+                                }).toList();
+                              })
+                          ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(10.0),
+                          child: Container(
+                            width: double.infinity,
+                            height: 1,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Text(
+                          parseFragment(user.comments![index].content).text!,
+                          style: const TextStyle(fontSize: 20),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                PurpleBookCubit.get(context_1)
+                                    .likeComment(
+                                        idPost: id,
+                                        idComment:
+                                            PurpleBookCubit.get(context_1)
+                                                .comment!
+                                                .comments![index]
+                                                .sId!,
+                                        index: index)
+                                    .then((value) {
+                                  PurpleBookCubit.get(context_1)
+                                      .getComments(id: id);
+                                });
+                                PurpleBookCubit.get(context_1)
+                                    .changeLikeComment(index);
+                              },
+                              icon: const Icon(Icons.thumb_up_alt_outlined),
+                              color: PurpleBookCubit.get(context_1)
+                                      .comment!
+                                      .comments![index]
+                                      .likedByUser!
+                                  ? HexColor("#6823D0")
+                                  : Colors.grey,
+                            ),
+                            if (user.comments![index].likesCount != 0)
+                              Expanded(
+                                child: InkWell(
+                                  splashColor: HexColor("#6823D0"),
+                                  onTap: () {
+                                    PurpleBookCubit.get(context_1)
+                                        .getLikeComments(
+                                            commentId:
+                                                user.comments![index].sId!,
+                                            postId: id)
+                                        .then((value) => showModalBottomSheet(
+                                              context: context_1,
+                                              isScrollControlled: true,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.vertical(
+                                                              top: Radius
+                                                                  .circular(
+                                                                      20))),
+                                              builder: (context) =>
+                                                  buildLikesComment(
+                                                      PurpleBookCubit.get(
+                                                              context_1)
+                                                          .commentLikes!,
+                                                      context_1),
+                                            ));
+                                  },
+                                  child: Text(
+                                    '${PurpleBookCubit.get(context_1).comment!.comments![index].likesCount} like',
+                                    style: Theme.of(context_1)
+                                        .textTheme
+                                        .caption!
+                                        .copyWith(
+                                            color: Colors.grey, fontSize: 15),
+                                  ),
+                                ),
+                              )
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
             separatorBuilder: (context_1, index) => const SizedBox(
                   height: 10,
                 ),

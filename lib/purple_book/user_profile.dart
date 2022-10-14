@@ -11,7 +11,9 @@ import 'package:html/parser.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
+import 'package:purplebook/purple_book/view_list_image.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
+import 'package:purplebook/purple_book/view_string_iamge.dart';
 
 import '../components/const.dart';
 import '../components/end_points.dart';
@@ -23,6 +25,8 @@ class UserProfileScreen extends StatelessWidget {
   UserProfileScreen({Key? key, required this.id}) : super(key: key);
 
   var contentController = TextEditingController();
+  var editPostController = TextEditingController();
+
   final pageController = PageController(initialPage: 0);
   int indexWidget = 0;
 
@@ -35,7 +39,44 @@ class UserProfileScreen extends StatelessWidget {
       child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
         listener: (context, state) {
           if (state is SendRequestSuccessState) {
-            showMsg(msg: 'request sent', color: ColorMsg.inCorrect);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('✅ request Successfully'),
+            ));
+          } else if (state is SendRequestErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('❌ request Failed'),
+            ));
+          }
+
+          if (state is CancelSendRequestSuccessState) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('✅ Cancel request Successfully'),
+            ));
+          } else if (state is CancelSendRequestErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('❌ Cancel request Failed'),
+            ));
+          }
+
+          if (state is PostDeleteSuccessState) {
+            PurpleBookCubit.get(context).getUserPosts(userId: id);
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('✅ Deleted Successfully'),
+            ));
+          } else if (state is PostDeleteErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('❌ Deleted Failed'),
+            ));
+          }
+
+          if (state is EditUserPostSuccessState) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('✅ Editing Successfully'),
+            ));
+          } else if (state is EditUserPostErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+              content: Text('❌ Editing Failed'),
+            ));
           }
         },
         builder: (context, state) {
@@ -59,19 +100,32 @@ class UserProfileScreen extends StatelessWidget {
                       child: Column(
                         children: [
                           Center(
-                            child: CircleAvatar(
-                                radius: 85,
-                                backgroundImage: cubit.userProfile!.user!
-                                        .imageFull!.data!.data!.isNotEmpty
-                                    ? Image.memory(Uint8List.fromList(cubit
-                                            .userProfile!
-                                            .user!
-                                            .imageFull!
-                                            .data!
-                                            .data!))
-                                        .image
-                                    : const AssetImage(
-                                        'assets/image/user.jpg')),
+                            child: InkWell(
+                              onTap: () {
+                                if (cubit.userProfile!.user!.imageFull!.data!
+                                    .data!.isNotEmpty) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => ViewListImage(
+                                              image: cubit.userProfile!.user!
+                                                  .imageFull!.data!.data!)));
+                                }
+                              },
+                              child: CircleAvatar(
+                                  radius: 85,
+                                  backgroundImage: cubit.userProfile!.user!
+                                          .imageFull!.data!.data!.isNotEmpty
+                                      ? Image.memory(Uint8List.fromList(cubit
+                                              .userProfile!
+                                              .user!
+                                              .imageFull!
+                                              .data!
+                                              .data!))
+                                          .image
+                                      : const AssetImage(
+                                          'assets/image/user.jpg')),
+                            ),
                           ),
                           const SizedBox(
                             height: 20,
@@ -490,10 +544,31 @@ class UserProfileScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   child: Row(
                     children: [
-                      const CircleAvatar(
-                        radius: 35,
-                        backgroundImage: NetworkImage(
-                            'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
+                      InkWell(
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserProfileScreen(
+                                      id: cubit
+                                          .userFriends!.friends![index].sId!)));
+                        },
+                        child: CircleAvatar(
+                            radius: 35,
+                            backgroundImage: PurpleBookCubit.get(context)
+                                    .userFriends!
+                                    .friends![index]
+                                    .imageMini!
+                                    .data!
+                                    .isNotEmpty
+                                ? Image.memory(base64Decode(
+                                        PurpleBookCubit.get(context)
+                                            .userFriends!
+                                            .friends![index]
+                                            .imageMini!
+                                            .data!))
+                                    .image
+                                : const AssetImage('assets/image/user.jpg')),
                       ),
                       const SizedBox(
                         width: 10,
@@ -518,51 +593,58 @@ class UserProfileScreen extends StatelessWidget {
                       if (cubit.userFriends!.friends![index].sId! != userId)
                         if (cubit.userFriends!.friends![index].friendState ==
                             'FRIEND')
-                          MaterialButton(
-                            onPressed: () {
-                              showDialog<String>(
-                                  context: context,
-                                  builder: (BuildContext context) =>
-                                      AlertDialog(
-                                          title: Text(
-                                              'unfriend with ${cubit.userFriends!.friends![index].firstName} ${cubit.userFriends!.friends![index].lastName}'),
-                                          content: Text(
-                                              'Are you sure you want to remove ${cubit.userFriends!.friends![index].firstName} ${cubit.userFriends!.friends![index].lastName} from friends list?'),
-                                          elevation: 10,
-                                          actions: [
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(
-                                                    context, 'Cancel');
-                                              },
-                                              child: Text(
-                                                'Cancel',
-                                                style: TextStyle(
-                                                    color: HexColor("#6823D0")),
-                                              ),
-                                            ),
-                                            TextButton(
-                                              onPressed: () {
-                                                cubit
-                                                    .cancelFriend(receiveId: id)
-                                                    .then((value) {
-                                                  cubit.getUSerFriends(
-                                                      id: cubit.userFriends!
-                                                          .friends![index].sId);
-                                                  Navigator.pop(context, 'OK');
-                                                });
-                                              },
-                                              child: Text('OK',
+                          Expanded(
+                            child: MaterialButton(
+                              onPressed: () {
+                                showDialog<String>(
+                                    context: context,
+                                    builder: (BuildContext context) =>
+                                        AlertDialog(
+                                            title: Text(
+                                                'unfriend ${cubit.userFriends!.friends![index].firstName} ${cubit.userFriends!.friends![index].lastName}'),
+                                            content: Text(
+                                                'Are you sure you want to remove ${cubit.userFriends!.friends![index].firstName} ${cubit.userFriends!.friends![index].lastName} from friends list?'),
+                                            elevation: 10,
+                                            actions: [
+                                              TextButton(
+                                                onPressed: () {
+                                                  Navigator.pop(
+                                                      context, 'Cancel');
+                                                },
+                                                child: Text(
+                                                  'Cancel',
                                                   style: TextStyle(
                                                       color:
-                                                          HexColor("#6823D0"))),
-                                            ),
-                                          ]));
-                            },
-                            color: Colors.grey.shade300,
-                            child: const Text(
-                              'Cancel Friend',
-                              style: TextStyle(color: Colors.black),
+                                                          HexColor("#6823D0")),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () {
+                                                  cubit
+                                                      .cancelFriend(
+                                                          receiveId: id)
+                                                      .then((value) {
+                                                    cubit.getUSerFriends(
+                                                        id: cubit
+                                                            .userFriends!
+                                                            .friends![index]
+                                                            .sId);
+                                                    Navigator.pop(
+                                                        context, 'OK');
+                                                  });
+                                                },
+                                                child: Text('OK',
+                                                    style: TextStyle(
+                                                        color: HexColor(
+                                                            "#6823D0"))),
+                                              ),
+                                            ]));
+                              },
+                              color: Colors.grey.shade300,
+                              child: const Text(
+                                'Cancel Friend',
+                                style: TextStyle(color: Colors.black),
+                              ),
                             ),
                           )
                         else if (cubit
@@ -586,7 +668,9 @@ class UserProfileScreen extends StatelessWidget {
                               ),
                             ),
                           )
-                        else
+                        else if (cubit
+                                .userFriends!.friends![index].friendState ==
+                            'FRIEND_REQUEST_SENT')
                           Expanded(
                             child: MaterialButton(
                               onPressed: () {
@@ -634,9 +718,24 @@ class UserProfileScreen extends StatelessWidget {
                                               ),
                                             ]));
                               },
+                              color: Colors.white,
+                              child: Text(
+                                'request sent',
+                                style: TextStyle(color: HexColor("#6823D0")),
+                              ),
+                            ),
+                          )
+                        else
+                          Expanded(
+                            child: MaterialButton(
+                              onPressed: () {
+                                cubit.acceptFriendRequest(
+                                    id: cubit
+                                        .userFriends!.friends![index].sId!);
+                              },
                               color: Colors.blueGrey,
                               child: const Text(
-                                'request sent',
+                                'Confrim',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -667,16 +766,152 @@ class UserProfileScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Text(
-                          '${user!.posts![index].createdAt!.year.toString()}-'
-                          '${user.posts![index].createdAt!.month.toString()}-'
-                          '${user.posts![index].createdAt!.day.toString()}  '
-                          '${user.posts![index].createdAt!.hour.toString()}:'
-                          '${user.posts![index].createdAt!.minute.toString()}',
-                          style:
-                              const TextStyle(height: 1.3, color: Colors.grey)),
-                    ),
+                    if (DateTime.now()
+                            .difference(user!.posts![index].createdAt!)
+                            .inHours <
+                        24)
+                      Expanded(
+                        child: Text(
+                            '${DateTime.now().difference(user.posts![index].createdAt!).inHours} hours ago',
+                            style: const TextStyle(
+                                height: 1.3, color: Colors.grey)),
+                      )
+                    else if (DateTime.now()
+                            .difference(user.posts![index].createdAt!)
+                            .inDays <
+                        7)
+                      Expanded(
+                        child: Text(
+                            '${DateTime.now().difference(user.posts![index].createdAt!).inDays} days ago',
+                            style: const TextStyle(
+                                height: 1.3, color: Colors.grey)),
+                      )
+                    else
+                      Expanded(
+                        child: Text(
+                            '${user.posts![index].createdAt!.year}-'
+                            '${user.posts![index].createdAt!.month}-'
+                            '${user.posts![index].createdAt!.day}',
+                            style: const TextStyle(
+                                height: 1.3, color: Colors.grey)),
+                      ),
+                    if (isAdmin!)
+                      PopupMenuButton(onSelected: (value) {
+                        if (value == Constants.edit) {
+                          editPostController.text =
+                              parseFragment(user.posts![index].content!).text!;
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: const Text('Edit'),
+                                      content: TextFormField(
+                                        controller: editPostController,
+                                        maxLines: 100,
+                                        minLines: 1,
+                                        keyboardType: TextInputType.multiline,
+                                        decoration: InputDecoration(
+                                            label: const Text('Edit post'),
+                                            labelStyle: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                            border: const OutlineInputBorder(),
+                                            enabledBorder:
+                                                const OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: Colors.grey),
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(10.0)),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(
+                                                  color: HexColor("#6823D0")),
+                                              borderRadius:
+                                                  const BorderRadius.all(
+                                                      Radius.circular(10.0)),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.all(10)),
+                                      ),
+                                      elevation: 10,
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: Text(
+                                            'Cancel',
+                                            style: TextStyle(
+                                                color: HexColor("#6823D0")),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .editUserPosts(
+                                                    edit:
+                                                        editPostController.text,
+                                                    id: user.posts![index].sId!,
+                                                    userId: PurpleBookCubit.get(
+                                                            context_1)
+                                                        .userProfile!
+                                                        .user!
+                                                        .sId!,
+                                                    index: index);
+                                            Navigator.pop(context, 'OK');
+                                          },
+                                          child: Text('OK',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0"))),
+                                        ),
+                                      ]));
+                        } else if (Constants.delete == value) {
+                          showDialog<String>(
+                              context: context_1,
+                              builder: (BuildContext context) => AlertDialog(
+                                      title: const Text('Delete'),
+                                      elevation: 10,
+                                      content: const Text(
+                                          'Are you sure you want to delete this post?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'Cancel');
+                                          },
+                                          child: const Text(
+                                            'Cancel',
+                                            style:
+                                                TextStyle(color: Colors.black),
+                                          ),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            PurpleBookCubit.get(context_1)
+                                                .deletePost(
+                                                    id: user.posts![index].sId!)
+                                                .then((value) => PurpleBookCubit
+                                                        .get(context_1)
+                                                    .getUserPosts(
+                                                        userId:
+                                                            PurpleBookCubit.get(
+                                                                    context_1)
+                                                                .userProfile!
+                                                                .user!
+                                                                .sId!));
+                                            Navigator.pop(context, 'Yes');
+                                          },
+                                          child: const Text('Yes',
+                                              style:
+                                                  TextStyle(color: Colors.red)),
+                                        ),
+                                      ]));
+                        }
+                      }, itemBuilder: (BuildContext context) {
+                        return Constants.chose.map((e) {
+                          return PopupMenuItem<String>(
+                            value: e,
+                            child: Text(e),
+                          );
+                        }).toList();
+                      })
                   ],
                 ),
                 Padding(
@@ -714,10 +949,8 @@ class UserProfileScreen extends StatelessWidget {
                       Navigator.push(
                           context_1,
                           MaterialPageRoute(
-                              builder: (context) => ViewPostScreen(
-                                    id: user.posts![index].sId!,
-                                    addComent: false,
-                                    isFocus: false,
+                              builder: (context) => ViewStringImage(
+                                    image: user.posts![index].image!.data!,
                                   )));
                     },
                     child: Container(
@@ -868,7 +1101,7 @@ class UserProfileScreen extends StatelessWidget {
                     Expanded(
                       child: InkWell(
                         child: Container(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                               color: Colors.grey.shade300,
                               borderRadius: BorderRadius.circular(15)),

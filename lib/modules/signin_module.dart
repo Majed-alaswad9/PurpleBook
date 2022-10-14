@@ -1,9 +1,9 @@
-class SignInModule {
+class SignupModule {
   String? userId;
 
-  SignInModule({this.userId});
+  SignupModule({this.userId});
 
-  SignInModule.fromJson(Map<String, dynamic> json) {
+  SignupModule.fromJson(Map<String, dynamic> json) {
     userId = json['userId'];
   }
 

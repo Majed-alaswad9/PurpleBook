@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -5,38 +7,55 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
+import 'package:purplebook/purple_book/purple_book_screen.dart';
+import 'package:purplebook/purple_book/user_profile.dart';
 
-import '../modules/feed_moduel.dart';
-
+// ignore: must_be_immutable
 class EditPostScreen extends StatelessWidget {
   final String id;
-  final Posts post;
-  final int index;
-   EditPostScreen( {Key? key, required this.id, required this.post, required this.index}): super(key: key);
+  final String content;
+  EditPostScreen(
+      {Key? key, required this.id, required this.content})
+      : super(key: key);
   var editPostController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(create:(context)=> PurpleBookCubit()..getFeed(),
-    child: BlocConsumer<PurpleBookCubit,PurpleBookState>(
-        listener: (context,state){
-          if(state is GetFeedSuccessState){
-            editPostController.text=parseFragment(state.feed.posts![index].content!).text!;
-          }
-        },
-        builder: (context,state){
-          return Scaffold(
-            appBar: AppBar(
-              title: const Text('edit Post'),
-              backgroundColor: HexColor("#6823D0") ,
-              actions: [
-                TextButton(onPressed: (){
-                  PurpleBookCubit.get(context).editPosts(edit: editPostController.text,id: post.sId!);
-                }, child: const Text('edit',style: TextStyle(color: Colors.white,fontSize: 20)),)
-              ],
-            ),
-            body: ConditionalBuilder(
-              condition: state is! EditPostLoadingState,
-              builder: (context)=>SingleChildScrollView(
+    return BlocProvider(
+      create: (context) => PurpleBookCubit()..viewPosts(id: id),
+      child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
+          listener: (context, state) {
+        if (state is EditPostSuccessState) {
+          ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('✅ Editing Successfully')));
+          Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const PurpleBookScreen()),
+              (route) => false);
+        } else if (state is EditPostErrorState) {
+          ScaffoldMessenger.of(context)
+              .showSnackBar(const SnackBar(content: Text('❌ Editing Failed')));
+        }
+      }, builder: (context, state) {
+        var cubit = PurpleBookCubit.get(context);
+        editPostController.text = parseFragment(content).text!;
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('edit Post'),
+            backgroundColor: HexColor("#6823D0"),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  PurpleBookCubit.get(context)
+                      .editPosts(edit: editPostController.text, id: id);
+                },
+                child: const Text('edit',
+                    style: TextStyle(color: Colors.white, fontSize: 20)),
+              )
+            ],
+          ),
+          body: ConditionalBuilder(
+            condition: cubit.postView != null,
+            builder: (context) => SingleChildScrollView(
                 child: Card(
                     elevation: 10,
                     clipBehavior: Clip.antiAliasWithSaveLayer,
@@ -46,34 +65,60 @@ class EditPostScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              const CircleAvatar(
-                                radius: 25,
-                                backgroundImage: NetworkImage(
-                                    'https://img.freepik.com/free-photo/woman-using-smartphone-social-media-conecpt_53876-40967.jpg?t=st=1647704509~exp=1647705109~hmac=f1ae56f2218ca7938f19ae0fbd675b8c6b2e21d3d25548429a500e43f89ce211&w=740'),
-                              ),
-                              const SizedBox(
-                                width: 10,
-                              ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children:  [
-                                    Text(
-                                      '${post.author!.firstName} ${post.author!.lastName}',
-                                      style: const TextStyle(
-                                          height: 1.3,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 17),
-                                    ),
-                                    Text('${post.createdAt}',
-                                        style: const TextStyle(
-                                            height: 1.3, color: Colors.grey))
-                                  ],
+                          if (state is EditPostLoadingState)
+                            LinearProgressIndicator(
+                              color: HexColor("#6823D0"),
+                            ),
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => UserProfileScreen(
+                                          id: cubit
+                                              .postView!.post!.author!.sId!)));
+                            },
+                            child: Row(
+                              children: [
+                                CircleAvatar(
+                                    radius: 25,
+                                    backgroundImage: cubit.postView!.post!
+                                            .author!.imageMini!.data!.isNotEmpty
+                                        ? Image.memory(base64Decode(cubit
+                                                .postView!
+                                                .post!
+                                                .author!
+                                                .imageMini!
+                                                .data!))
+                                            .image
+                                        : const AssetImage(
+                                            'assets/image/user.jpg')),
+                                const SizedBox(
+                                  width: 10,
                                 ),
-                              ),
-                            ],
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${cubit.postView!.post!.author!.firstName} ${cubit.postView!.post!.author!.lastName}',
+                                        style: const TextStyle(
+                                            height: 1.3,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 17),
+                                      ),
+                                      Text(
+                                          '${cubit.postView!.post!.createdAt!.year}-'
+                                          '${cubit.postView!.post!.createdAt!.month}-'
+                                          '${cubit.postView!.post!.createdAt!.day}',
+                                          style: const TextStyle(
+                                              height: 1.3, color: Colors.grey))
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                           Padding(
                             padding: const EdgeInsets.all(10.0),
@@ -84,78 +129,51 @@ class EditPostScreen extends StatelessWidget {
                             ),
                           ),
                           TextFormField(
+                            autofocus: true,
                             controller: editPostController,
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             maxLength: null,
-
                           ),
-                          if(post.image!=null)
+                          if (cubit.postView!.post!.image!.data!.isNotEmpty)
                             Container(
                               width: double.infinity,
                               height: 200,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
-                                  image: const DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: NetworkImage(
-                                        'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
-                                  )),
+                                  image: DecorationImage(
+                                      fit: BoxFit.contain,
+                                      image: Image.memory(base64Decode(cubit
+                                              .postView!.post!.image!.data!))
+                                          .image)),
                             ),
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 5.0),
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.thumb_up,
-                                          size: 20,
-                                          color: Colors.grey,
-                                        ),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        Text(
-                                          '${post.likesCount}',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .caption!
-                                              .copyWith(color: Colors.grey, fontSize: 15),
-                                        )
-                                      ],
+                            child: Expanded(
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 10.0),
+                                child: Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.thumb_up,
+                                      size: 20,
+                                      color: Colors.grey,
                                     ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                                    child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
-                                      children: [
-                                        const Icon(
-                                          Icons.chat_rounded,
-                                          size: 20,
-                                          color: Colors.grey,
-                                        ),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        Text(
-                                          'comment',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .caption!
-                                              .copyWith(color: Colors.grey, fontSize: 17),
-                                        )
-                                      ],
+                                    const SizedBox(
+                                      width: 5,
                                     ),
-                                  ),
+                                    Text(
+                                      '${cubit.postView!.post!.likesCount}',
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .caption!
+                                          .copyWith(
+                                              color: Colors.grey, fontSize: 15),
+                                    )
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                           Padding(
@@ -166,49 +184,19 @@ class EditPostScreen extends StatelessWidget {
                               color: Colors.grey,
                             ),
                           ),
-                          Row(
-                            children:  [
-                              Expanded(
-                                child: InkWell(
-                                  child: Row(
-                                    children: const [
-                                      CircleAvatar(
-                                        radius: 20,
-                                        backgroundImage: NetworkImage(
-                                            'https://student.valuxapps.com/storage/assets/defaults/user.jpg'),
-                                      ),
-                                      SizedBox(width: 10,),
-                                      Text('Write Comment...',style: TextStyle(fontSize: 15,color: Colors.grey),),
-                                    ],
-                                  ),
-                                  onTap: (){
-                                  },
-                                ),
-                              ),
-                              InkWell(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: const [
-                                    Icon(Icons.thumb_up,size: 20,color: Colors.grey,),
-                                    SizedBox(width: 5,),
-                                    Text('like',style: TextStyle(fontSize: 15,color: Colors.grey))
-                                  ],
-                                ),
-                                onTap: (){
-
-                                },
-                              )
-                            ],
-                          )
                         ],
                       ),
-                    ))
+                    ))),
+            fallback: (context) => Center(
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: HexColor("#6823D0"),
+                ),
               ),
-              fallback: (context)=> Center(child: CircularProgressIndicator(color: HexColor("#6823D0"),),),
             ),
-          );
-        }
-    ),
+          ),
+        );
+      }),
     );
   }
 }

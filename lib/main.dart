@@ -1,8 +1,15 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:purplebook/cubit/cubit.dart';
+import 'package:purplebook/cubit/state.dart';
+import 'package:purplebook/login_sigin/signin_screen.dart';
 import 'package:purplebook/network/remote/dio_helper.dart';
+import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
+import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
 
 import 'bloc_provider.dart';
@@ -19,7 +26,7 @@ void main() async {
   token = CachHelper.getData(key: 'token');
   userId = CachHelper.getData(key: 'userId');
   isAdmin = CachHelper.getData(key: 'isAdmin');
-  bool? isDark = CachHelper.getData(key: 'isDark') ?? false;
+  bool isDark = CachHelper.getData(key: 'isDark');
   if (token != null) {
     widget = const PurpleBookScreen();
   } else {
@@ -27,7 +34,7 @@ void main() async {
   }
   runApp(MyApp(
     widget: widget,
-    isDark: isDark!,
+    isDark: isDark,
   ));
 }
 
@@ -40,13 +47,61 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: AnimatedSplashScreen(
-        splash: Tab(icon: Image.asset("assets/image/logo_2.jpg")),
-        duration: 3000,
-        backgroundColor: HexColor("#6823D0"),
-        nextScreen: widget,
+    return BlocProvider(
+      create: (context) => MainCubit()..changeThemeMode(fromShared: isDark),
+      child: BlocConsumer<MainCubit, MainState>(
+        listener: (context, state) {},
+        builder: (context, state) => MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+              scaffoldBackgroundColor: Colors.white,
+              appBarTheme: AppBarTheme(
+                  systemOverlayStyle: SystemUiOverlayStyle(
+                      statusBarColor: HexColor("#6823D0"),
+                      statusBarIconBrightness: Brightness.light)),
+              bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                  type: BottomNavigationBarType.fixed,
+                  selectedItemColor: HexColor("#6823D0"),
+                  elevation: 10)),
+          darkTheme: ThemeData(
+              dialogTheme: DialogTheme(backgroundColor: HexColor("#242F3D")),
+              drawerTheme:
+                  DrawerThemeData(backgroundColor: (HexColor("#17212B"))),
+              popupMenuTheme: PopupMenuThemeData(
+                  color: HexColor("#242F3D"),
+                  textStyle: const TextStyle(color: Colors.white)),
+              scaffoldBackgroundColor: HexColor("#0E1621"),
+              cardColor: HexColor("#242F3D"),
+              listTileTheme: const ListTileThemeData(
+                  iconColor: Colors.white, textColor: Colors.white),
+              textTheme: TextTheme(
+                  headline5: const TextStyle(color: Colors.white),
+                  headline4: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold),
+                  subtitle1: const TextStyle(color: Colors.white),
+                  subtitle2: TextStyle(color: Colors.grey.shade300),
+                  headline6: const TextStyle(
+                      color: Colors.white, fontWeight: FontWeight.bold)),
+              appBarTheme: AppBarTheme(
+                  systemOverlayStyle: SystemUiOverlayStyle(
+                      statusBarColor: HexColor("#6823D0"),
+                      statusBarIconBrightness: Brightness.dark)),
+              bottomNavigationBarTheme: BottomNavigationBarThemeData(
+                  type: BottomNavigationBarType.fixed,
+                  selectedItemColor: HexColor("#6823D0"),
+                  backgroundColor: HexColor("#242F3D"),
+                  elevation: 10)),
+          themeMode:
+              MainCubit.get(context).isDark ? ThemeMode.dark : ThemeMode.light,
+          home: AnimatedSplashScreen(
+            splash: Tab(icon: Image.asset("assets/image/logo_2.jpg")),
+            duration: 3000,
+            backgroundColor: HexColor("#6823D0"),
+            nextScreen: widget,
+          ),
+        ),
       ),
     );
   }

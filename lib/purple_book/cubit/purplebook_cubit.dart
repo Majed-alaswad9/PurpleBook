@@ -17,6 +17,7 @@ import 'package:purplebook/modules/user_friends_module.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
 import 'package:purplebook/modules/user_profile_module.dart';
 import 'package:purplebook/modules/view_post_module.dart';
+import 'package:purplebook/network/local/cach_helper.dart';
 import 'package:purplebook/network/remote/dio_helper.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/feed_screen.dart';
@@ -39,6 +40,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   ];
 
   int indexBottom = 0;
+  //* this indexWidget for buttons [posts,comments,friends] in account screen
   int indexWidget = 0;
   void changeBottom(index) {
     indexBottom = index;
@@ -46,13 +48,38 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(ChangeBottomState());
   }
 
-  FeedModule? feedModule;
-  List<bool>? isLikePost = [];
-  List<int>? likesCount = [];
+  IconData darkMode = Icons.light_mode;
+  bool isDark=false;
+  void changeThemeMode({bool? fromShared}) {
+    if (fromShared != null) {
+      isDark = fromShared;
+      darkMode = fromShared ? Icons.dark_mode : Icons.light_mode;
+      print('from sharde $fromShared');
+      emit(ChangeThemeModeState());
+    } else {
+      print(isDark);
+      isDark = !isDark;
+      darkMode = isDark ? Icons.dark_mode : Icons.light_mode;
+      print('else $isDark');
+      CachHelper.saveData(key: 'isDark', value: isDark).then((value) {
+        emit(ChangeThemeModeState());
+      });
+    }
+  }
 
+  FeedModule? feedModule;
+  List<bool>? isLikePost;
+  List<int>? likesCount;
+  int skip = 0;
+  bool isEnd = false;
   Future<void> getFeed() async {
+    isLikePost = [];
+    likesCount = [];
+    skip = 3;
+    isEnd = false;
     emit(GetFeedLoadingState());
-    return await DioHelper.getData(url: feed, token: token).then((value) {
+    return await DioHelper.getData(url: '$feed?skip=0&limit=3', token: token)
+        .then((value) {
       feedModule = FeedModule.fromJson(value.data);
       for (var element in feedModule!.posts!) {
         isLikePost!.add(element.likedByUser!);
@@ -64,11 +91,36 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
+  Future<void> getMoreFeed() async {
+    emit(GetMoreFeedLoadingState());
+    return await DioHelper.getData(
+            url: '$feed?skip=$skip&limit=3', token: token)
+        .then((value) {
+      if (value.data['posts'].isNotEmpty) {
+        skip += 3;
+        print(skip);
+        value.data['posts'].forEach((v) {
+          feedModule!.posts!.add(Posts.fromJson(v));
+        });
+        isLikePost = [];
+        likesCount = [];
+        for (var element in feedModule!.posts!) {
+          isLikePost!.add(element.likedByUser!);
+          likesCount!.add(element.likesCount!);
+        }
+      } else {
+        isEnd = true;
+      }
+      emit(GetMoreFeedSuccessState());
+    }).catchError((error) {
+      emit(GetMoreFeedErrorState());
+    });
+  }
+
   void editPosts({required String edit, required String id}) {
     emit(EditPostLoadingState());
     DioHelper.patchData(url: '$posts$id', data: {'content': edit}, token: token)
         .then((value) {
-      getFeed();
       emit(EditPostSuccessState());
     }).catchError((error) {
       emit(EditPostErrorState());
@@ -88,7 +140,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
 
   void likePost({required String id, required int index}) {
     emit(AddLikePostLoadingState());
-    if (!isLikePost![index]) {
+    if (!feedModule!.posts![index].likedByUser!) {
       DioHelper.postData(url: '$posts$id$likePost_2', token: token)
           .then((value) {
         emit(AddLikePostSuccessState());
@@ -124,7 +176,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     }
   }
 
-  //change color icon likes posts
+  //* change color icon likes posts
   void changeColorIcon(int index) {
     if (isLikePost![index]) {
       isLikePost![index] = !isLikePost![index];
@@ -136,7 +188,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(ChangeColorIconState());
   }
 
-  //Add Image to Post
+  //* Add Image to Post
   File? postImage;
   final ImagePicker _imagePicker = ImagePicker();
   Future imagePost(ImageSource source) async {
@@ -156,7 +208,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       "image":
           postImage != null ? MultipartFile.fromFileSync(postImage!.path) : null
     });
-    DioHelper.postFormData(url: addPost, token: token, data: formData)
+    DioHelper.postFormData(url: userPosts, token: token, data: formData)
         .then((value) {
       emit(AddNewPostSuccessState());
     }).catchError((error) {
@@ -164,9 +216,10 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
-  void deletePost({required String id}) {
+  Future<void> deletePost({required String id}) async {
     emit(PostDeleteLoadingState());
-    DioHelper.deleteData(url: '$posts$id', token: token).then((value) {
+    return await DioHelper.deleteData(url: '$posts$id', token: token)
+        .then((value) {
       getFeed();
       emit(PostDeleteSuccessState());
     }).catchError((error) {
@@ -194,9 +247,9 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   CommentsModule? comment;
   List<bool>? isLikeComment = [];
   List<int>? likeCommentCount = [];
-  void getComments({required String id}) {
+  void getComments({required String id, String sort = 'date'}) {
     emit(GetCommentPostLoadingState());
-    DioHelper.getData(url: '$comments_1$id$comments_2?sort=date', token: token)
+    DioHelper.getData(url: '$posts$id$comments_2?sort=$sort', token: token)
         .then((value) {
       comment = CommentsModule.fromJson(value.data);
       for (var element in comment!.comments!) {
@@ -230,8 +283,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(LikeCommentPostLoadingState());
     if (!isLikeComment![index]) {
       return await DioHelper.postData(
-              url: '$comments_1$idPost$comments_2/$idComment$likePost_2',
-              token: token)
+              url: '$posts$idPost$comments$idComment$likePost_2', token: token)
           .then((value) {
         emit(AddLikeCommentPostSuccessState());
       }).catchError((error) {
@@ -239,7 +291,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       });
     } else {
       return await DioHelper.deleteData(
-              url: '$comments_1$idPost$comments_2/$idComment$likePost_2',
+              url: '$posts$idPost$comments_2/$idComment$likePost_2',
               token: token)
           .then((value) {
         emit(DeleteLikeCommentPostSuccessState());
@@ -262,8 +314,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
 
   void deleteComment({required String postId, required String commentId}) {
     emit(DeleteCommentPostLoadingState());
-    DioHelper.deleteData(
-            url: '$comments_1$postId$comments_2/$commentId', token: token)
+    DioHelper.deleteData(url: '$posts$postId$comments$commentId', token: token)
         .then((value) {
       getComments(id: postId);
       emit(DeleteCommentPostSuccessState());
@@ -275,7 +326,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   void addComment({required String postId, required String text}) {
     emit(AddCommentPostLoadingState());
     DioHelper.postData(
-        url: '$comments_1$postId$comments_2',
+        url: '$posts$postId$comments_2',
         token: token,
         data: {'content': text}).then((value) {
       getComments(id: postId);
@@ -291,7 +342,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       required String text}) async {
     emit(EditCommentPostLoadingState());
     return await DioHelper.patchData(
-            url: '$comments_1$postId$comments_2/$commentId',
+            url: '$posts$postId$comments_2/$commentId',
             data: {'content': text},
             token: token)
         .then((value) {
@@ -334,38 +385,9 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
           .then((value) {
         emit(DeleteLikeUserPostSuccessState());
       }).catchError((error) {
-        print(error.toString());
         emit(DeleteLikeUserPostErrorState());
       });
     }
-  }
-
-  void editUserPosts(
-      {required String edit, required String id, required int index}) {
-    emit(EditUserPostLoadingState());
-    DioHelper.patchData(url: '$posts$id', data: {'content': edit}, token: token)
-        .then((value) {
-      userPost!.posts![index].content = edit;
-      getUserPosts(userId: userId!);
-      // print(feedModule!.posts![index].content);
-      emit(EditUserPostSuccessState());
-    }).catchError((error) {
-      print(error.toString());
-      emit(EditUserPostErrorState());
-    });
-  }
-
-  UserProfileModule? userProfile;
-  void getUserProfile({required String id}) {
-    emit(GetUserProfileLoadingState());
-    DioHelper.getData(url: '$users$id', token: token).then((value) {
-      userProfile = UserProfileModule.fromJson(value.data);
-      print(userProfile!.user!.imageFull!.data!.type);
-      emit(GetUserProfileSuccessState());
-    }).catchError((error) {
-      print(error.toString());
-      emit(GetUserProfileErrorState());
-    });
   }
 
   void changeLikePostUser(int index) {
@@ -377,6 +399,33 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       isLikeUserPost![index] = !isLikeUserPost![index];
     }
     emit(ChangeColorUSerLikeState());
+  }
+
+  void editUserPosts(
+      {required String edit,
+      required String id,
+      required int index,
+      required String userId}) {
+    emit(EditUserPostLoadingState());
+    DioHelper.patchData(url: '$posts$id', data: {'content': edit}, token: token)
+        .then((value) {
+      userPost!.posts![index].content = edit;
+      getUserPosts(userId: userId);
+      emit(EditUserPostSuccessState());
+    }).catchError((error) {
+      emit(EditUserPostErrorState());
+    });
+  }
+
+  UserProfileModule? userProfile;
+  void getUserProfile({required String id}) {
+    emit(GetUserProfileLoadingState());
+    DioHelper.getData(url: '$users$id', token: token).then((value) {
+      userProfile = UserProfileModule.fromJson(value.data);
+      emit(GetUserProfileSuccessState());
+    }).catchError((error) {
+      emit(GetUserProfileErrorState());
+    });
   }
 
   UserCommentsModule? userComments;
@@ -407,7 +456,6 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   File? profileImage;
-
   Future imageProfile(ImageSource source) async {
     final image = await _imagePicker.pickImage(source: source);
     if (image != null) {
@@ -452,7 +500,6 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
         .then((value) {
       emit(SendRequestSuccessState());
     }).catchError((error) {
-      print(error.toString());
       emit(SendRequestErrorState());
     });
   }
@@ -471,7 +518,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   Future<void> cancelFriend({required String receiveId}) async {
     emit(CancelFriendLoadingState());
     return await DioHelper.deleteData(
-            url: '$users$userId$cancelFriends$receiveId', token: token)
+            url: '$users$userId$friends/$receiveId', token: token)
         .then((value) {
       emit(CancelFriendSuccessState());
     }).catchError((error) {
@@ -490,19 +537,22 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
-  void deleteUser() {
-    emit(DeleteUserLoadingState());
-    DioHelper.deleteData(url: '$users$userId', token: token).then((value) {
-      emit(DeleteUserSuccessState());
+  Future<void> acceptFriendRequest({required String id}) async {
+    emit(AcceptFriendRequestLoadingState());
+    return await DioHelper.postData(
+            url: '$users$userId$friends/$id', token: token)
+        .then((value) {
+      getFriendRequest();
+      getFriendRecommendation();
+      emit(AcceptFriendRequestSuccessState());
     }).catchError((error) {
-      emit(DeleteUserErrorState());
+      emit(AcceptFriendRequestErrorState());
     });
   }
 
   FriendsRequestModule? friendRequest;
   int? friendeRequestCount;
   void getFriendRequest() {
-    friendeRequestCount = 0;
     emit(GetFriendsRequestLoadingState());
     DioHelper.getData(url: '$users$userId$friendRequests', token: token)
         .then((value) {
@@ -542,24 +592,11 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
-  Future<void> acceptFriendRequest({required String id}) async {
-    emit(AcceptFriendRequestLoadingState());
-    return await DioHelper.postData(
-            url: '$users$userId$cancelFriends$id', token: token)
-        .then((value) {
-      getFriendRequest();
-      getFriendRecommendation();
-      emit(AcceptFriendRequestSuccessState());
-    }).catchError((error) {
-      emit(AcceptFriendRequestErrorState());
-    });
-  }
-
-  void viewedFriendRequest() {
+  void viewedAllFriendRequest() {
     emit(ViewedFriendRequestLoadingState());
     DioHelper.patchData(url: '$users$userId$friendRequests/', token: token)
         .then((value) {
-      getFriendRequestFromAnyScreen();
+      getFriendRequest();
       emit(ViewedFriendRequestSuccessState());
     }).catchError((error) {
       emit(ViewedFriendRequestErrorState());
@@ -569,7 +606,6 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   void viewedAllNotifications() {
     emit(ViewedAllNotificationsLoadingState());
     DioHelper.patchData(url: notifications, token: token).then((value) {
-      getNotificationsFromAnyScreen();
       emit(ViewedAllNotificationsSuccessState());
     }).catchError((error) {
       emit(ViewedAllNotificationsErrorState());
@@ -596,7 +632,6 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       notificationsModule = NotificationsModule.fromJson(value.data);
       for (var element in notificationsModule!.notifications!) {
         if (element.viewed == false) {
-          print(element.viewed);
           notificationsCount = notificationsCount + 1;
         } else {
           break;
@@ -605,6 +640,15 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       emit(GetNotifFromAnyScreenSuccessState());
     }).catchError((error) {
       emit(GetNotifFromAnyScreenErrorState());
+    });
+  }
+
+  void deleteUser() {
+    emit(DeleteUserLoadingState());
+    DioHelper.deleteData(url: '$users$userId', token: token).then((value) {
+      emit(DeleteUserSuccessState());
+    }).catchError((error) {
+      emit(DeleteUserErrorState());
     });
   }
 }

@@ -70,18 +70,34 @@ class ShimmerWidget extends StatelessWidget {
   }
 }
 
-Widget buildFoodShimmer() => ListView.builder(
-      physics: const NeverScrollableScrollPhysics(),
-      shrinkWrap: true,
-      itemBuilder: (context, index) => ListTile(
-        leading: ShimmerWidget.circular(
-          width: 64,
-          height: 64,
-          shapeBorder:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+Widget buildFoodShimmer() => SingleChildScrollView(
+  child:   ListView.builder(
+  
+        physics: const NeverScrollableScrollPhysics(),
+  
+        shrinkWrap: true,
+  
+        itemBuilder: (context, index) => ListTile(
+  
+          leading: ShimmerWidget.circular(
+  
+            width: 64,
+  
+            height: 64,
+  
+            shapeBorder:
+  
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+  
+          ),
+  
+          title: const ShimmerWidget.rectangular(height: 16),
+  
+          subtitle: const ShimmerWidget.rectangular(height: 14),
+  
         ),
-        title: const ShimmerWidget.rectangular(height: 16),
-        subtitle: const ShimmerWidget.rectangular(height: 14),
+  
+        itemCount: 10,
+  
       ),
-      itemCount: 10,
-    );
+);

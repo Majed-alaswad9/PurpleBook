@@ -1,10 +1,10 @@
-import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hexcolor/hexcolor.dart';
+import 'package:flutter_offline/flutter_offline.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:html/parser.dart';
 import 'package:purplebook/components/const.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
@@ -23,52 +23,75 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PurpleBookCubit()
-        ..getNotifications(),
-      child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
-          listener: ((context, state) {
-        if (state is GetNotificationsSuccessState) {
-          Future.delayed(const Duration(seconds: 5)).then((value) {
-            PurpleBookCubit.get(context).viewedAllNotifications();
-          });
-        }
-      }), builder: (context, state) {
-        var cubit = PurpleBookCubit.get(context);
-        return SingleChildScrollView(
-          physics: const BouncingScrollPhysics(),
-          child: ConditionalBuilder(
-            condition: cubit.notificationsModule != null,
-            builder: (context) => ConditionalBuilder(
-              condition: cubit.notificationsModule!.notifications!.isNotEmpty,
-              builder: (context) => ListView.separated(
-                physics: const NeverScrollableScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, index) =>
-                    buildNotification(index, context),
-                separatorBuilder: (context, index) => const SizedBox(height: 5),
-                itemCount: cubit.notificationsModule!.notifications!.length,
-              ),
-              fallback: (context) => const Center(
-                child: Text('No Notification for now (•_•)'),
-              ),
-            ),
-            fallback: (context) => Center(child: buildFoodShimmer()),
-          ),
-        );
-      }),
-    );
+    return OfflineBuilder(
+        connectivityBuilder: (
+          BuildContext context,
+          ConnectivityResult connectivity,
+          Widget child,
+        ) {
+          final bool connected = connectivity != ConnectivityResult.none;
+
+          if (!connected) {
+            Fluttertoast.showToast(
+                msg: 'You\'re offline',
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+                timeInSecForIosWeb: 1,
+                backgroundColor: Colors.red,
+                textColor: Colors.white,
+                fontSize: 16.0);
+          }
+
+          return BlocProvider(
+            create: (context) => PurpleBookCubit()
+              ..getNotifications()
+              ..viewedAllNotifications(),
+            child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
+                listener: ((context, state) {}),
+                builder: (context, state) {
+                  var cubit = PurpleBookCubit.get(context);
+                  return SingleChildScrollView(
+                    physics: const BouncingScrollPhysics(),
+                    child: ConditionalBuilder(
+                      condition: cubit.notificationsModule != null,
+                      builder: (context) => ConditionalBuilder(
+                        condition: cubit
+                            .notificationsModule!.notifications!.isNotEmpty,
+                        builder: (context) => ListView.separated(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemBuilder: (context, index) =>
+                              buildNotification(index, context),
+                          separatorBuilder: (context, index) =>
+                              const SizedBox(height: 1),
+                          itemCount:
+                              cubit.notificationsModule!.notifications!.length,
+                        ),
+                        fallback: (context) => Padding(
+                          padding: EdgeInsets.symmetric(
+                              vertical:
+                                  MediaQuery.of(context).size.height / 2.5),
+                          child: Center(
+                            child: Text(
+                              'No Notification for now (•_•)',
+                              style: Theme.of(context).textTheme.headline6,
+                            ),
+                          ),
+                        ),
+                      ),
+                      fallback: (context) => Center(child: buildFoodShimmer()),
+                    ),
+                  );
+                }),
+          );
+        },
+        child: const Text('offline'));
   }
 
   Widget buildNotification(index, context_1) => Card(
         clipBehavior: Clip.antiAliasWithSaveLayer,
-        color: !PurpleBookCubit.get(context_1)
-                .notificationsModule!
-                .notifications![index]
-                .viewed!
-            ? HexColor("#6823D0").withOpacity(0.6)
-            : null,
         elevation: 5,
+        margin: const EdgeInsets.all(10),
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Row(
@@ -144,7 +167,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 ),
               ),
               const SizedBox(
-                width: 10,
+                width: 20,
               ),
               Expanded(
                 child: InkWell(
@@ -218,8 +241,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             .text!,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                        style: Theme.of(context_1).textTheme.subtitle1,
                       ),
                       const SizedBox(
                         height: 10,

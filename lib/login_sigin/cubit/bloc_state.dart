@@ -1,19 +1,36 @@
 import 'package:purplebook/modules/login_module.dart';
 
-abstract class LogInSIgnUpState{}
+abstract class LoginSignupState {}
 
-class InitialLogInState extends LogInSIgnUpState{}
+class InitialLogInState extends LoginSignupState {}
 
-class LogInSuccessState extends LogInSIgnUpState{
+class LoginSuccessState extends LoginSignupState {
   final LogInModule logInModel;
 
-  LogInSuccessState(this.logInModel);
+  LoginSuccessState(this.logInModel);
 }
-class LogInLoadState extends LogInSIgnUpState{}
-class LogInErrorState extends LogInSIgnUpState{
+
+class LoginLoadState extends LoginSignupState {}
+
+class LoginErrorState extends LoginSignupState {
   final String error;
 
-  LogInErrorState(this.error);
+  LoginErrorState(this.error);
 }
 
-class ChangeVisibilityState extends LogInSIgnUpState{}
+class SignupSuccessState extends LoginSignupState {}
+
+class SignupLoadState extends LoginSignupState {}
+
+class SignupErrorState extends LoginSignupState {
+  final String error;
+  SignupErrorState(this.error);
+}
+
+class ChangeVisibilityState extends LoginSignupState {}
+
+class GetImageProfileSuccessState extends LoginSignupState {}
+
+class GetImageProfileErrorState extends LoginSignupState {}
+
+class DeletePhotoSuccessState extends LoginSignupState {}

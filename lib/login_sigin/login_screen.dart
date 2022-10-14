@@ -6,6 +6,7 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/components/const.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_cubit.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_state.dart';
+import 'package:purplebook/login_sigin/signin_screen.dart';
 import 'package:purplebook/network/local/cach_helper.dart';
 import '../components/end_points.dart';
 import '../purple_book/purple_book_screen.dart';
@@ -19,9 +20,9 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => LoginSignUpCubit(),
-      child: BlocConsumer<LoginSignUpCubit, LogInSIgnUpState>(
+      child: BlocConsumer<LoginSignUpCubit, LoginSignupState>(
         listener: (context, state) {
-          if (state is LogInSuccessState) {
+          if (state is LoginSuccessState) {
             CachHelper.saveData(key: 'token', value: state.logInModel.token)
                 .then((value) {
               token = state.logInModel.token;
@@ -38,6 +39,10 @@ class LoginScreen extends StatelessWidget {
                       builder: (context) => const PurpleBookScreen()),
                   (route) => false);
             });
+          } else if (state is LoginErrorState) {
+            showMsg(
+                msg: 'Error, check the email or password',
+                color: ColorMsg.error);
           }
         },
         builder: (context, state) {
@@ -54,10 +59,7 @@ class LoginScreen extends StatelessWidget {
                 ) {
                   final bool connected =
                       connectivity != ConnectivityResult.none;
-                  connected
-                      ? ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Online Now')))
-                      : null;
+
                   return Stack(
                     fit: StackFit.expand,
                     children: [
@@ -127,25 +129,12 @@ class LoginScreen extends StatelessWidget {
                                   TextFormField(
                                     controller: passController,
                                     keyboardType: TextInputType.visiblePassword,
-                                    obscureText:
-                                        LoginSignUpCubit.get(context).isVisible,
+                                    obscureText: true,
                                     validator: validatePassword,
                                     decoration: InputDecoration(
                                         prefixIcon: Icon(
                                           Icons.lock,
                                           color: HexColor("#6823D0"),
-                                        ),
-                                        suffix: IconButton(
-                                          onPressed: () {
-                                            LoginSignUpCubit.get(context)
-                                                .changeVisibility();
-                                          },
-                                          splashColor: HexColor("#6823D0"),
-                                          alignment:
-                                              AlignmentDirectional.center,
-                                          icon: Icon(
-                                              LoginSignUpCubit.get(context)
-                                                  .iconPassword),
                                         ),
                                         hintText: 'Password',
                                         hintStyle: Theme.of(context)
@@ -171,7 +160,7 @@ class LoginScreen extends StatelessWidget {
                                     height: 20,
                                   ),
                                   ConditionalBuilder(
-                                    condition: state is! LogInLoadState,
+                                    condition: state is! LoginLoadState,
                                     builder: (context) => Container(
                                       width: double.infinity,
                                       color: HexColor("#6823D0"),
@@ -199,6 +188,32 @@ class LoginScreen extends StatelessWidget {
                                         color: HexColor("#6823D0"),
                                       ),
                                     ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      const Text(
+                                        'Don\'t have an account?',
+                                        style: TextStyle(fontSize: 15),
+                                      ),
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) =>
+                                                    SignInScreen()),
+                                          );
+                                        },
+                                        child: const Text(
+                                          'Register',
+                                          style: TextStyle(fontSize: 15),
+                                        ),
+                                      )
+                                    ],
                                   )
                                 ],
                               ),
@@ -209,6 +224,7 @@ class LoginScreen extends StatelessWidget {
                     ],
                   );
                 },
+                child: const Text('offline'),
               ));
         },
       ),
@@ -216,21 +232,18 @@ class LoginScreen extends StatelessWidget {
   }
 
   String? validateEmail(String? value) {
-    if (value != null) {
-      if (value.length > 5 && value.contains('@') && value.endsWith('.com')) {
-        return null;
-      }
-      return 'Enter a Valid Email Address';
+    if (value!.isNotEmpty) {
+      return null;
     }
     return null;
   }
 
   String? validatePassword(String? value) {
-    if (value != null) {
-      if (value.length >= 6) {
-        return null;
+    if (value!.isNotEmpty) {
+      if (value.length < 8) {
+        return 'Password must be between 8 and 32 characters';
       }
-      return 'Password must be more than six characters';
+      return null;
     }
     return null;
   }

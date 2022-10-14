@@ -4,9 +4,11 @@ import 'dart:typed_data';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/login_sigin/login_screen.dart';
 import 'package:purplebook/modules/comment_likes_module.dart';
 import 'package:purplebook/modules/user_comments_module.dart';
@@ -29,542 +31,607 @@ class AccountScreen extends StatelessWidget {
 
   var firstNameController = TextEditingController();
   var lastNameController = TextEditingController();
+  var editPostController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PurpleBookCubit()
-        ..getUserProfile(id: userId!)
-        ..getUserPosts(userId: userId!),
-      child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
-        listener: (context, state) {
-          if (state is UpdateUserProfileSuccessState) {
-            showMsg(msg: 'Update Successfully', color: ColorMsg.inCorrect);
-          } else if (state is UpdateUserProfileErrorState) {
-            showMsg(msg: 'Update Failed', color: ColorMsg.error);
-          }
+    return OfflineBuilder(
+      connectivityBuilder: (
+        BuildContext context,
+        ConnectivityResult connectivity,
+        Widget child,
+      ) {
+        final bool connected = connectivity != ConnectivityResult.none;
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            if (!connected)
+              Positioned(
+                height: 24.0,
+                left: 0.0,
+                right: 0.0,
+                child: Container(
+                  color: const Color(0xFFEE4400),
+                  child: const Center(
+                    child: Text('OFFLINE'),
+                  ),
+                ),
+              ),
+            BlocProvider(
+              create: (context) => PurpleBookCubit()
+                ..getUserProfile(id: userId!)
+                ..getUserPosts(userId: userId!),
+              child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
+                listener: (context, state) {
+                  if (state is UpdateUserProfileSuccessState) {
+                    showMsg(
+                        msg: '✅ Update Successfully',
+                        color: ColorMsg.inCorrect);
+                  } else if (state is UpdateUserProfileErrorState) {
+                    showMsg(msg: '❌ Update Failed', color: ColorMsg.error);
+                  }
 
-          if (state is DeleteUserSuccessState) {
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => LoginScreen()),
-                (route) => false);
-          }
+                  if (state is DeleteUserSuccessState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('✅ Delete Account Successfully')));
+                    Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginScreen()),
+                        (route) => false);
+                  } else if (state is DeleteUserErrorState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                        content: Text('❌ Delete Account Failed')));
+                  }
 
-          if (state is PostDeleteSuccessState) {
-            showMsg(msg: 'Deleted Successfully', color: ColorMsg.inCorrect);
-          } else if (state is PostDeleteErrorState) {
-            showMsg(msg: 'Deleted Failed', color: ColorMsg.error);
-          }
+                  if (state is PostDeleteSuccessState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('✅ Deleted Successfully'),
+                    ));
+                  } else if (state is PostDeleteErrorState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('❌ Deleted Failed'),
+                    ));
+                  }
 
-          if (state is SendRequestSuccessState) {
-            showMsg(msg: 'Sent Successfully', color: ColorMsg.inCorrect);
-          } else if (state is SendRequestErrorState) {
-            showMsg(msg: 'Sent Failed', color: ColorMsg.error);
-          }
+                  if (state is EditUserPostSuccessState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('✅ Editing Successfully'),
+                    ));
+                  } else if (state is EditUserPostErrorState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('❌ Editing Failed'),
+                    ));
+                  }
+                  if (state is UpdateUserProfileSuccessState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('✅ Editing Successfully'),
+                    ));
+                  } else if (state is UpdateUserProfileErrorState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('❌ Editing Failed'),
+                    ));
+                  }
 
-          if (state is CancelSendRequestSuccessState) {
-            showMsg(msg: 'Cancel Successfully', color: ColorMsg.inCorrect);
-          } else if (state is CancelSendRequestErrorState) {
-            showMsg(msg: 'Cancel Failed', color: ColorMsg.error);
-          }
-
-          if (state is AcceptFriendRequestSuccessState) {
-            showMsg(
-                msg: 'Accept request Successfully', color: ColorMsg.inCorrect);
-          } else if (state is AcceptFriendRequestErrorState) {
-            showMsg(msg: 'Accept request Failed', color: ColorMsg.error);
-          }
-        },
-        builder: (context, state) {
-          var cubit = PurpleBookCubit.get(context);
-          return ConditionalBuilder(
-            condition: cubit.userProfile != null,
-            builder: (context) => SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  const Padding(padding: EdgeInsets.all(10)),
-                  if (state is UpdateUserProfileLoadingState)
-                    LinearProgressIndicator(
-                      color: HexColor("#6823D0"),
-                    ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    margin: const EdgeInsets.symmetric(horizontal: 10),
-                    color: Colors.grey.shade300,
-                    child: Column(
-                      children: [
-                        Center(
-                          child: Stack(
-                            alignment: AlignmentDirectional.bottomEnd,
-                            children: [
-                              CircleAvatar(
-                                backgroundColor: HexColor("#6823D0"),
-                                radius: 90,
-                                child: InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                            builder: (context) => ViewListImage(
-                                                image: cubit.userProfile!.user!
-                                                    .imageFull!.data!.data!)));
-                                  },
-                                  child: CircleAvatar(
-                                    radius: 85,
-                                    backgroundImage: cubit.profileImage == null
-                                        ? Image.memory(Uint8List.fromList(cubit
+                  if (state is CancelFriendSuccessState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('✅ Cancel Successfully'),
+                    ));
+                  } else if (state is CancelFriendErrorState) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('❌ Cancel Failed'),
+                    ));
+                  }
+                },
+                builder: (context, state) {
+                  var cubit = PurpleBookCubit.get(context);
+                  return ConditionalBuilder(
+                    condition: cubit.userProfile != null,
+                    builder: (context) => SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: Column(
+                        children: [
+                          const Padding(padding: EdgeInsets.all(10)),
+                          if (state is UpdateUserProfileLoadingState)
+                            LinearProgressIndicator(
+                              color: HexColor("#6823D0"),
+                            ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            margin: const EdgeInsets.symmetric(horizontal: 10),
+                            color: MainCubit.get(context).isDark
+                                ? HexColor("#242F3D")
+                                : Colors.grey.shade300,
+                            child: Column(
+                              children: [
+                                Center(
+                                  child: Stack(
+                                    alignment: AlignmentDirectional.bottomEnd,
+                                    children: [
+                                      CircleAvatar(
+                                        backgroundColor: HexColor("#6823D0"),
+                                        radius: 90,
+                                        child: InkWell(
+                                          onTap: () {
+                                            if (cubit
                                                 .userProfile!
                                                 .user!
                                                 .imageFull!
                                                 .data!
-                                                .data!))
-                                            .image
-                                        : Image(
-                                                image: FileImage(
-                                                    cubit.profileImage!))
-                                            .image,
-                                  ),
-                                ),
-                              ),
-                              CircleAvatar(
-                                backgroundColor: HexColor("#6823D0"),
-                                radius: 25,
-                                child: IconButton(
-                                    onPressed: () {
-                                      showModalBottomSheet(
-                                          context: context,
-                                          isScrollControlled: true,
-                                          shape: const RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.vertical(
-                                                      top:
-                                                          Radius.circular(20))),
-                                          builder: (context_1) =>
-                                              buildImagePicker(context));
-                                    },
-                                    icon:
-                                        const Icon(Icons.camera_alt_outlined)),
-                              )
-                            ],
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 15,
-                        ),
-                        if (cubit.profileImage != null)
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Card(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  elevation: 7,
-                                  color: HexColor("#6823D0"),
-                                  child: MaterialButton(
-                                    onPressed: () {
-                                      firstNameController.text =
-                                          cubit.userProfile!.user!.firstName!;
-                                      lastNameController.text =
-                                          cubit.userProfile!.user!.lastName!;
-                                      cubit.editUserProfile(
-                                          id: userId!,
-                                          firstName: firstNameController.text,
-                                          lastName: lastNameController.text);
-                                    },
-                                    child: const Text(
-                                      'Update',
-                                      style: TextStyle(
-                                        color: Colors.white,
+                                                .data!
+                                                .isNotEmpty) {
+                                              Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                      builder: (context) =>
+                                                          ViewListImage(
+                                                              image: cubit
+                                                                  .userProfile!
+                                                                  .user!
+                                                                  .imageFull!
+                                                                  .data!
+                                                                  .data!)));
+                                            }
+                                          },
+                                          child: CircleAvatar(
+                                            radius: 85,
+                                            backgroundImage: cubit
+                                                        .profileImage ==
+                                                    null
+                                                ? Image.memory(
+                                                        Uint8List.fromList(cubit
+                                                            .userProfile!
+                                                            .user!
+                                                            .imageFull!
+                                                            .data!
+                                                            .data!))
+                                                    .image
+                                                : Image(
+                                                        image: FileImage(cubit
+                                                            .profileImage!))
+                                                    .image,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      CircleAvatar(
+                                        backgroundColor: HexColor("#6823D0"),
+                                        radius: 25,
+                                        child: IconButton(
+                                            onPressed: () {
+                                              showModalBottomSheet(
+                                                  context: context,
+                                                  isScrollControlled: true,
+                                                  shape: const RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.vertical(
+                                                              top: Radius
+                                                                  .circular(
+                                                                      20))),
+                                                  builder: (context_1) =>
+                                                      buildImagePicker(
+                                                          context));
+                                            },
+                                            icon: const Icon(
+                                                Icons.camera_alt_outlined)),
+                                      )
+                                    ],
                                   ),
                                 ),
-                              ),
-                              Expanded(
-                                child: Card(
-                                  margin: const EdgeInsets.symmetric(
-                                      horizontal: 10),
-                                  elevation: 7,
-                                  color: HexColor("#6823D0"),
-                                  child: MaterialButton(
-                                    onPressed: () {
-                                      cubit.deletePhotoProfile();
-                                    },
-                                    child: const Text(
-                                      'Cancel',
-                                      style: TextStyle(color: Colors.white),
-                                    ),
-                                  ),
+                                const SizedBox(
+                                  height: 15,
                                 ),
-                              ),
-                            ],
-                          ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: [
-                            Text(
-                              '${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}',
-                              style: const TextStyle(
-                                  fontSize: 30, fontWeight: FontWeight.bold),
-                            ),
-                            const SizedBox(
-                              width: 10,
-                            ),
-                            CircleAvatar(
-                                radius: 15,
-                                backgroundColor: HexColor("#6823D0"),
-                                child: IconButton(
-                                  onPressed: () {
-                                    firstNameController.text =
-                                        cubit.userProfile!.user!.firstName!;
-                                    lastNameController.text =
-                                        cubit.userProfile!.user!.lastName!;
-                                    showDialog<String>(
-                                        context: context,
-                                        builder:
-                                            (BuildContext context_2) =>
-                                                AlertDialog(
-                                                    title:
-                                                        const Text('Edit Name'),
-                                                    elevation: 10,
-                                                    content: Column(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        TextFormField(
-                                                          controller:
-                                                              firstNameController,
-                                                          maxLines: 2,
-                                                          minLines: 1,
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .multiline,
-                                                          decoration:
-                                                              InputDecoration(
-                                                                  label: const Text(
-                                                                      'First Name'),
-                                                                  labelStyle: TextStyle(
+                                if (cubit.profileImage != null)
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Card(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          elevation: 7,
+                                          color: HexColor("#6823D0"),
+                                          child: MaterialButton(
+                                            onPressed: () {
+                                              firstNameController.text = cubit
+                                                  .userProfile!
+                                                  .user!
+                                                  .firstName!;
+                                              lastNameController.text = cubit
+                                                  .userProfile!.user!.lastName!;
+                                              cubit.editUserProfile(
+                                                  id: userId!,
+                                                  firstName:
+                                                      firstNameController.text,
+                                                  lastName:
+                                                      lastNameController.text);
+                                            },
+                                            child: const Text(
+                                              'Update',
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Card(
+                                          margin: const EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          elevation: 7,
+                                          color: HexColor("#6823D0"),
+                                          child: MaterialButton(
+                                            onPressed: () {
+                                              cubit.deletePhotoProfile();
+                                            },
+                                            child: const Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                  color: Colors.white),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    Text(
+                                      '${cubit.userProfile!.user!.firstName} ${cubit.userProfile!.user!.lastName}',
+                                      style:
+                                          Theme.of(context).textTheme.headline4,
+                                    ),
+                                    const SizedBox(
+                                      width: 10,
+                                    ),
+                                    CircleAvatar(
+                                        radius: 15,
+                                        backgroundColor: HexColor("#6823D0"),
+                                        child: IconButton(
+                                          onPressed: () {
+                                            firstNameController.text = cubit
+                                                .userProfile!.user!.firstName!;
+                                            lastNameController.text = cubit
+                                                .userProfile!.user!.lastName!;
+                                            showDialog<String>(
+                                                context: context,
+                                                builder:
+                                                    (BuildContext context_2) =>
+                                                        AlertDialog(
+                                                            title: const Text(
+                                                                'Edit Name'),
+                                                            elevation: 10,
+                                                            content: Column(
+                                                              mainAxisSize:
+                                                                  MainAxisSize
+                                                                      .min,
+                                                              children: [
+                                                                TextFormField(
+                                                                  controller:
+                                                                      firstNameController,
+                                                                  maxLines: 2,
+                                                                  minLines: 1,
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .multiline,
+                                                                  decoration: InputDecoration(
+                                                                      label: const Text('First Name'),
+                                                                      labelStyle: TextStyle(color: HexColor("#6823D0")),
+                                                                      hintStyle: Theme.of(context).textTheme.subtitle2,
+                                                                      border: const OutlineInputBorder(),
+                                                                      enabledBorder: const OutlineInputBorder(
+                                                                        borderSide:
+                                                                            BorderSide(color: Colors.grey),
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(10.0)),
+                                                                      ),
+                                                                      focusedBorder: OutlineInputBorder(
+                                                                        borderSide:
+                                                                            BorderSide(color: HexColor("#6823D0")),
+                                                                        borderRadius:
+                                                                            const BorderRadius.all(Radius.circular(10.0)),
+                                                                      ),
+                                                                      contentPadding: const EdgeInsets.all(10)),
+                                                                ),
+                                                                const SizedBox(
+                                                                  height: 15,
+                                                                ),
+                                                                TextFormField(
+                                                                  controller:
+                                                                      lastNameController,
+                                                                  maxLines: 2,
+                                                                  minLines: 1,
+                                                                  keyboardType:
+                                                                      TextInputType
+                                                                          .multiline,
+                                                                  decoration: InputDecoration(
+                                                                      label: const Text('Last Name'),
+                                                                      labelStyle: TextStyle(color: HexColor("#6823D0")),
+                                                                      hintStyle: Theme.of(context).textTheme.subtitle2,
+                                                                      border: const OutlineInputBorder(),
+                                                                      enabledBorder: const OutlineInputBorder(
+                                                                        borderSide:
+                                                                            BorderSide(color: Colors.grey),
+                                                                        borderRadius:
+                                                                            BorderRadius.all(Radius.circular(10.0)),
+                                                                      ),
+                                                                      focusedBorder: OutlineInputBorder(
+                                                                        borderSide:
+                                                                            BorderSide(color: HexColor("#6823D0")),
+                                                                        borderRadius:
+                                                                            const BorderRadius.all(Radius.circular(10.0)),
+                                                                      ),
+                                                                      contentPadding: const EdgeInsets.all(10)),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            actions: [
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context_2,
+                                                                      'Cancel');
+                                                                },
+                                                                child:
+                                                                    const Text(
+                                                                  'Cancel',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .black),
+                                                                ),
+                                                              ),
+                                                              TextButton(
+                                                                onPressed: () {
+                                                                  cubit.editUserProfile(
+                                                                      id:
+                                                                          userId!,
+                                                                      firstName:
+                                                                          firstNameController
+                                                                              .text,
+                                                                      lastName:
+                                                                          lastNameController
+                                                                              .text);
+                                                                  Navigator.pop(
+                                                                      context_2,
+                                                                      'Update');
+                                                                },
+                                                                child: Text(
+                                                                  'OK',
+                                                                  style: TextStyle(
                                                                       color: HexColor(
                                                                           "#6823D0")),
-                                                                  hintStyle: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .subtitle2,
-                                                                  border:
-                                                                      const OutlineInputBorder(),
-                                                                  enabledBorder:
-                                                                      const OutlineInputBorder(
-                                                                    borderSide:
-                                                                        BorderSide(
-                                                                            color:
-                                                                                Colors.grey),
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(10.0)),
-                                                                  ),
-                                                                  focusedBorder:
-                                                                      OutlineInputBorder(
-                                                                    borderSide:
-                                                                        BorderSide(
-                                                                            color:
-                                                                                HexColor("#6823D0")),
-                                                                    borderRadius: const BorderRadius
-                                                                            .all(
-                                                                        Radius.circular(
-                                                                            10.0)),
-                                                                  ),
-                                                                  contentPadding:
-                                                                      const EdgeInsets
-                                                                              .all(
-                                                                          10)),
-                                                        ),
-                                                        const SizedBox(
-                                                          height: 15,
-                                                        ),
-                                                        TextFormField(
-                                                          controller:
-                                                              lastNameController,
-                                                          maxLines: 2,
-                                                          minLines: 1,
-                                                          keyboardType:
-                                                              TextInputType
-                                                                  .multiline,
-                                                          decoration:
-                                                              InputDecoration(
-                                                                  label: const Text(
-                                                                      'Last Name'),
-                                                                  labelStyle: TextStyle(
-                                                                      color: HexColor(
-                                                                          "#6823D0")),
-                                                                  hintStyle: Theme.of(
-                                                                          context)
-                                                                      .textTheme
-                                                                      .subtitle2,
-                                                                  border:
-                                                                      const OutlineInputBorder(),
-                                                                  enabledBorder:
-                                                                      const OutlineInputBorder(
-                                                                    borderSide:
-                                                                        BorderSide(
-                                                                            color:
-                                                                                Colors.grey),
-                                                                    borderRadius:
-                                                                        BorderRadius.all(
-                                                                            Radius.circular(10.0)),
-                                                                  ),
-                                                                  focusedBorder:
-                                                                      OutlineInputBorder(
-                                                                    borderSide:
-                                                                        BorderSide(
-                                                                            color:
-                                                                                HexColor("#6823D0")),
-                                                                    borderRadius: const BorderRadius
-                                                                            .all(
-                                                                        Radius.circular(
-                                                                            10.0)),
-                                                                  ),
-                                                                  contentPadding:
-                                                                      const EdgeInsets
-                                                                              .all(
-                                                                          10)),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                    actions: [
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          Navigator.pop(
-                                                              context_2,
-                                                              'Cancel');
-                                                        },
-                                                        child: const Text(
-                                                          'Cancel',
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.black),
-                                                        ),
-                                                      ),
-                                                      TextButton(
-                                                        onPressed: () {
-                                                          cubit.editUserProfile(
-                                                              id: userId!,
-                                                              firstName:
-                                                                  firstNameController
-                                                                      .text,
-                                                              lastName:
-                                                                  lastNameController
-                                                                      .text);
-                                                          Navigator.pop(
-                                                              context_2,
-                                                              'Update');
-                                                        },
-                                                        child: Text(
-                                                          'OK',
-                                                          style: TextStyle(
-                                                              color: HexColor(
-                                                                  "#6823D0")),
-                                                        ),
-                                                      )
-                                                    ]));
-                                  },
-                                  icon: const Icon(
-                                    Icons.edit,
-                                    size: 14,
-                                  ),
-                                ))
-                          ],
-                        ),
-                        const SizedBox(
-                          height: 25,
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(10.0),
-                          child: Container(
-                            width: double.infinity,
-                            height: 1.5,
-                            color: HexColor("#6823D0"),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Column(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(10.0),
-                                child: Container(
-                                  color: Colors.red,
-                                  width: double.infinity,
-                                  child: MaterialButton(
-                                    onPressed: () {
-                                      showDialog<String>(
-                                          context: context,
-                                          builder: (BuildContext context) =>
-                                              AlertDialog(
-                                                  title: const Text(
-                                                      'Delete account'),
-                                                  content: const Text(
-                                                      'Are you sure yoo delete your account'),
-                                                  elevation: 10,
-                                                  actions: [
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        Navigator.pop(
-                                                            context, 'Cancel');
-                                                      },
-                                                      child: Text(
-                                                        'Cancel',
-                                                        style: TextStyle(
-                                                            color: HexColor(
-                                                                "#6823D0")),
-                                                      ),
-                                                    ),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        cubit.deleteUser();
-                                                        Navigator.pop(
-                                                            context, 'Yes');
-                                                      },
-                                                      child: const Text('Yes',
-                                                          style: TextStyle(
-                                                              color:
-                                                                  Colors.red)),
-                                                    ),
-                                                  ]));
-                                    },
-                                    child: const Text(
-                                      'Delete Account',
-                                      style: TextStyle(
-                                          fontSize: 20, color: Colors.white),
-                                    ),
+                                                                ),
+                                                              )
+                                                            ]));
+                                          },
+                                          icon: const Icon(
+                                            Icons.edit,
+                                            size: 14,
+                                          ),
+                                        ))
+                                  ],
+                                ),
+                                const SizedBox(
+                                  height: 25,
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 1.5,
+                                    color: HexColor("#6823D0"),
                                   ),
                                 ),
-                              ),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: [
-                                  Expanded(
-                                    child: Card(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      elevation:
-                                          cubit.indexWidget == 0 ? 10 : 0,
-                                      color: cubit.indexWidget == 0
-                                          ? HexColor("#6823D0")
-                                          : Colors.white,
-                                      child: MaterialButton(
-                                        onPressed: () {
-                                          cubit.getUserPosts(userId: userId!);
-                                          cubit.indexWidget = 0;
-                                        },
-                                        child: Text(
-                                          'Posts',
-                                          style: TextStyle(
-                                            color: cubit.indexWidget == 0
-                                                ? Colors.white
-                                                : Colors.black,
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 10),
+                                  child: Column(
+                                    children: [
+                                      Padding(
+                                        padding: const EdgeInsets.all(10.0),
+                                        child: Container(
+                                          color: Colors.red,
+                                          width: double.infinity,
+                                          child: MaterialButton(
+                                            onPressed: () {
+                                              showDialog<String>(
+                                                  context: context,
+                                                  builder: (BuildContext
+                                                          context) =>
+                                                      AlertDialog(
+                                                          title: const Text(
+                                                              'Delete account'),
+                                                          content: const Text(
+                                                              'Are you sure yoo delete your account'),
+                                                          elevation: 10,
+                                                          actions: [
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                Navigator.pop(
+                                                                    context,
+                                                                    'Cancel');
+                                                              },
+                                                              child: Text(
+                                                                'Cancel',
+                                                                style: TextStyle(
+                                                                    color: HexColor(
+                                                                        "#6823D0")),
+                                                              ),
+                                                            ),
+                                                            TextButton(
+                                                              onPressed: () {
+                                                                cubit
+                                                                    .deleteUser();
+                                                                Navigator.pop(
+                                                                    context,
+                                                                    'Yes');
+                                                              },
+                                                              child: const Text(
+                                                                  'Yes',
+                                                                  style: TextStyle(
+                                                                      color: Colors
+                                                                          .red)),
+                                                            ),
+                                                          ]));
+                                            },
+                                            child: const Text(
+                                              'Delete Account',
+                                              style: TextStyle(
+                                                  fontSize: 20,
+                                                  color: Colors.white),
+                                            ),
                                           ),
                                         ),
                                       ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Card(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      elevation:
-                                          cubit.indexWidget == 1 ? 10 : 0,
-                                      color: cubit.indexWidget == 1
-                                          ? HexColor("#6823D0")
-                                          : Colors.white,
-                                      child: MaterialButton(
-                                        onPressed: () {
-                                          cubit.getUserComments(id: userId!);
-                                          cubit.indexWidget = 1;
-                                        },
-                                        child: Text(
-                                          'Comments',
-                                          style: TextStyle(
-                                            color: cubit.indexWidget == 1
-                                                ? Colors.white
-                                                : Colors.black,
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceAround,
+                                        children: [
+                                          Expanded(
+                                            child: Card(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              elevation: cubit.indexWidget == 0
+                                                  ? 10
+                                                  : 0,
+                                              color: cubit.indexWidget == 0
+                                                  ? HexColor("#6823D0")
+                                                  : Colors.white,
+                                              child: MaterialButton(
+                                                onPressed: () {
+                                                  cubit.getUserPosts(
+                                                      userId: userId!);
+                                                  cubit.indexWidget = 0;
+                                                },
+                                                child: Text(
+                                                  'Posts',
+                                                  style: TextStyle(
+                                                    color:
+                                                        cubit.indexWidget == 0
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: Card(
-                                      margin: const EdgeInsets.symmetric(
-                                          horizontal: 10),
-                                      elevation:
-                                          cubit.indexWidget == 2 ? 10 : 0,
-                                      color: cubit.indexWidget == 2
-                                          ? HexColor("#6823D0")
-                                          : Colors.white,
-                                      child: MaterialButton(
-                                        onPressed: () {
-                                          cubit.getUSerFriends(id: userId!);
-                                          cubit.indexWidget = 2;
-                                        },
-                                        child: Text(
-                                          'Friends',
-                                          style: TextStyle(
-                                            color: cubit.indexWidget == 2
-                                                ? Colors.white
-                                                : Colors.black,
+                                          Expanded(
+                                            child: Card(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              elevation: cubit.indexWidget == 1
+                                                  ? 10
+                                                  : 0,
+                                              color: cubit.indexWidget == 1
+                                                  ? HexColor("#6823D0")
+                                                  : Colors.white,
+                                              child: MaterialButton(
+                                                onPressed: () {
+                                                  cubit.getUserComments(
+                                                      id: userId!);
+                                                  cubit.indexWidget = 1;
+                                                },
+                                                child: Text(
+                                                  'Comments',
+                                                  style: TextStyle(
+                                                    color:
+                                                        cubit.indexWidget == 1
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                          Expanded(
+                                            child: Card(
+                                              margin:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 10),
+                                              elevation: cubit.indexWidget == 2
+                                                  ? 10
+                                                  : 0,
+                                              color: cubit.indexWidget == 2
+                                                  ? HexColor("#6823D0")
+                                                  : Colors.white,
+                                              child: MaterialButton(
+                                                onPressed: () {
+                                                  cubit.getUSerFriends(
+                                                      id: userId!);
+                                                  cubit.indexWidget = 2;
+                                                },
+                                                child: Text(
+                                                  'Friends',
+                                                  style: TextStyle(
+                                                    color:
+                                                        cubit.indexWidget == 2
+                                                            ? Colors.white
+                                                            : Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
+                                    ],
                                   ),
-                                ],
-                              ),
-                            ],
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(
+                            height: 15,
+                          ),
+                          if (cubit.indexWidget == 0)
+                            ConditionalBuilder(
+                              condition: cubit.userPost != null,
+                              builder: (context) => userPosts(context),
+                              fallback: (context) => buildFoodShimmer(),
+                            )
+                          else if (cubit.indexWidget == 1)
+                            ConditionalBuilder(
+                              condition: cubit.userComments != null,
+                              builder: (context) =>
+                                  userComments(context, cubit.userComments),
+                              fallback: (context) => buildFoodShimmer(),
+                            )
+                          else
+                            ConditionalBuilder(
+                              condition: cubit.userFriends != null,
+                              builder: (context) => userFriend(context,
+                                  PurpleBookCubit.get(context).userFriends),
+                              fallback: (context) => buildFoodShimmer(),
+                            )
+                        ],
+                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    height: 15,
-                  ),
-                  if (cubit.indexWidget == 0)
-                    ConditionalBuilder(
-                      condition: cubit.userPost != null,
-                      builder: (context) => userPosts(context),
-                      fallback: (context) => buildFoodShimmer(),
-                    )
-                  else if (cubit.indexWidget == 1)
-                    ConditionalBuilder(
-                      condition: cubit.userComments != null,
-                      builder: (context) =>
-                          userComments(context, cubit.userComments),
-                      fallback: (context) => buildFoodShimmer(),
-                    )
-                  else
-                    ConditionalBuilder(
-                      condition: cubit.userFriends != null,
-                      builder: (context) => userFriend(
-                          context, PurpleBookCubit.get(context).userFriends),
-                      fallback: (context) => buildFoodShimmer(),
-                    )
-                ],
+                    fallback: (context) => Center(
+                        child: CircularProgressIndicator(
+                      color: HexColor("#6823D0"),
+                    )),
+                  );
+                },
               ),
             ),
-            fallback: (context) => Center(
-                child: CircularProgressIndicator(
-              color: HexColor("#6823D0"),
-            )),
-          );
-        },
-      ),
+          ],
+        );
+      },
+      child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const <Widget>[
+            Text(
+              'There are no bottons to push :)',
+            ),
+            Text(
+              'Just turn off your internet.',
+            )
+          ]),
     );
   }
 
@@ -579,7 +646,8 @@ class AccountScreen extends StatelessWidget {
                 itemBuilder: (context, index) => Card(
                   elevation: 10,
                   clipBehavior: Clip.antiAliasWithSaveLayer,
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  margin:
+                      const EdgeInsets.only(left: 10, right: 10, bottom: 10),
                   child: Padding(
                     padding: const EdgeInsets.all(10),
                     child: Column(
@@ -605,19 +673,11 @@ class AccountScreen extends StatelessWidget {
                             children: [
                               Text(
                                 'on ${comment.comments![index].post!.postAuthorFirstName!}\'s',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .caption!
-                                    .copyWith(
-                                        color: Colors.black, fontSize: 16),
+                                style: Theme.of(context).textTheme.subtitle1,
                               ),
                               Text(
                                 '"',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .caption!
-                                    .copyWith(
-                                        color: Colors.black, fontSize: 16),
+                                style: Theme.of(context).textTheme.subtitle1,
                               ),
                               const SizedBox(
                                 height: 5,
@@ -638,11 +698,7 @@ class AccountScreen extends StatelessWidget {
                               ),
                               Text(
                                 '"',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .caption!
-                                    .copyWith(
-                                        color: Colors.black, fontSize: 16),
+                                style: Theme.of(context).textTheme.subtitle1,
                               ),
                               const SizedBox(
                                 height: 20,
@@ -653,8 +709,7 @@ class AccountScreen extends StatelessWidget {
                                 maxLines: 3,
                                 textAlign: TextAlign.end,
                                 overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 25),
+                                style: Theme.of(context).textTheme.headline5,
                               ),
                             ],
                           ),
@@ -744,11 +799,10 @@ class AccountScreen extends StatelessWidget {
                 ),
                 itemCount: comment.comments!.length,
               ),
-          fallback: (context) => const Center(
-                  child: Text(
-                'No Comments Yet (•_•)',
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
-              )));
+          fallback: (context) => Center(
+                child: Text('No Comments Yet (•_•)',
+                    style: Theme.of(context).textTheme.headline4),
+              ));
 
   //build Widget user posts
   Widget userPosts(context) => ConditionalBuilder(
@@ -762,10 +816,10 @@ class AccountScreen extends StatelessWidget {
                   height: 10,
                 ),
             itemCount: PurpleBookCubit.get(context).userPost!.posts!.length),
-        fallback: (context) => const Center(
+        fallback: (context) => Center(
             child: Text(
           'No Posts Yet (•_•)',
-          style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
+          style: Theme.of(context).textTheme.headline5,
         )),
       );
 
@@ -790,7 +844,7 @@ class AccountScreen extends StatelessWidget {
                               ? Image.memory(base64Decode(
                                       friend.friends![index].imageMini!.data!))
                                   .image
-                              : AssetImage('assets/image/user.jpg')),
+                              : const AssetImage('assets/image/user.jpg')),
                       const SizedBox(
                         width: 10,
                       ),
@@ -805,14 +859,14 @@ class AccountScreen extends StatelessWidget {
                           },
                           child: Text(
                             '${friend.friends![index].firstName} ${friend.friends![index].lastName}',
-                            style: const TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.bold),
+                            style: Theme.of(context).textTheme.headline6,
                           ),
                         ),
                       ),
                       MaterialButton(
                         onPressed: () {
                           showDialog<String>(
+                            
                               context: context,
                               builder: (BuildContext context) => AlertDialog(
                                       title: Text(
@@ -882,117 +936,161 @@ class AccountScreen extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(
-                      child: Text(
-                          '${user!.posts![index].createdAt!.year.toString()}-'
-                          '${user.posts![index].createdAt!.month.toString()}-'
-                          '${user.posts![index].createdAt!.day.toString()}  '
-                          '${user.posts![index].createdAt!.hour.toString()}:'
-                          '${user.posts![index].createdAt!.minute.toString()}',
-                          style:
-                              const TextStyle(height: 1.3, color: Colors.grey)),
-                    ),
-                    PopupMenuButton(onSelected: (value) {
-                      if (value == Constants.edit) {
-                        firstNameController.text =
-                            parseFragment(user.posts![index].content!).text!;
-                        showDialog<String>(
-                            context: context_1,
-                            builder: (BuildContext context) => AlertDialog(
-                                    title: const Text('Edit'),
-                                    content: TextFormField(
-                                      controller: firstNameController,
-                                      maxLines: 100,
-                                      minLines: 1,
-                                      keyboardType: TextInputType.multiline,
-                                      decoration: InputDecoration(
-                                          label: const Text('Edit post'),
-                                          labelStyle: TextStyle(
-                                              color: HexColor("#6823D0")),
-                                          border: const OutlineInputBorder(),
-                                          enabledBorder:
-                                              const OutlineInputBorder(
-                                            borderSide:
-                                                BorderSide(color: Colors.grey),
-                                            borderRadius: BorderRadius.all(
-                                                Radius.circular(10.0)),
-                                          ),
-                                          focusedBorder: OutlineInputBorder(
-                                            borderSide: BorderSide(
-                                                color: HexColor("#6823D0")),
-                                            borderRadius:
-                                                const BorderRadius.all(
+                    if (DateTime.now()
+                            .difference(user!.posts![index].createdAt!)
+                            .inHours <
+                        24)
+                      Expanded(
+                        child: Text(
+                            '${DateTime.now().difference(user.posts![index].createdAt!).inHours} hours ago',
+                            style: const TextStyle(
+                                height: 1.3, color: Colors.grey)),
+                      )
+                    else if (DateTime.now()
+                            .difference(user.posts![index].createdAt!)
+                            .inDays <
+                        7)
+                      Expanded(
+                        child: Text(
+                            '${DateTime.now().difference(user.posts![index].createdAt!).inDays} days ago',
+                            style: const TextStyle(
+                                height: 1.3, color: Colors.grey)),
+                      )
+                    else
+                      Expanded(
+                        child: Text(
+                            '${user.posts![index].createdAt!.year}-'
+                            '${user.posts![index].createdAt!.month}-'
+                            '${user.posts![index].createdAt!.day}',
+                            style: const TextStyle(
+                                height: 1.3, color: Colors.grey)),
+                      ),
+                    PopupMenuButton(
+                        icon: Icon(
+                          Icons.more_vert,
+                          color: MainCubit.get(context_1).isDark
+                              ? Colors.white
+                              : Colors.black,
+                        ),
+                        onSelected: (value) {
+                          if (value == Constants.edit) {
+                            editPostController.text =
+                                parseFragment(user.posts![index].content!)
+                                    .text!;
+                            showDialog<String>(
+                                context: context_1,
+                                builder: (BuildContext context) => AlertDialog(
+                                        title: const Text('Edit'),
+                                        content: TextFormField(
+                                          controller: editPostController,
+                                          maxLines: 100,
+                                          minLines: 1,
+                                          keyboardType: TextInputType.multiline,
+                                          decoration: InputDecoration(
+                                              label: const Text('Edit post'),
+                                              labelStyle: TextStyle(
+                                                  color: HexColor("#6823D0")),
+                                              border:
+                                                  const OutlineInputBorder(),
+                                              enabledBorder:
+                                                  const OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: Colors.grey),
+                                                borderRadius: BorderRadius.all(
                                                     Radius.circular(10.0)),
+                                              ),
+                                              focusedBorder: OutlineInputBorder(
+                                                borderSide: BorderSide(
+                                                    color: HexColor("#6823D0")),
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(10.0)),
+                                              ),
+                                              contentPadding:
+                                                  const EdgeInsets.all(10)),
+                                        ),
+                                        elevation: 10,
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, 'Cancel');
+                                            },
+                                            child: Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                  color: HexColor("#6823D0")),
+                                            ),
                                           ),
-                                          contentPadding:
-                                              const EdgeInsets.all(10)),
-                                    ),
-                                    elevation: 10,
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, 'Cancel');
-                                        },
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                              color: HexColor("#6823D0")),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          PurpleBookCubit.get(context_1)
-                                              .editUserPosts(
-                                                  edit:
-                                                      firstNameController.text,
-                                                  id: user.posts![index].sId!,
-                                                  index: index);
-                                          Navigator.pop(context, 'OK');
-                                        },
-                                        child: Text('OK',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0"))),
-                                      ),
-                                    ]));
-                      } else if (Constants.delete == value) {
-                        showDialog<String>(
-                            context: context_1,
-                            builder: (BuildContext context) => AlertDialog(
-                                    title: const Text('Delete'),
-                                    elevation: 10,
-                                    content: const Text(
-                                        'Are you sure you want to delete this post?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context, 'Cancel');
-                                        },
-                                        child: const Text(
-                                          'Cancel',
-                                          style: TextStyle(color: Colors.black),
-                                        ),
-                                      ),
-                                      TextButton(
-                                        onPressed: () {
-                                          PurpleBookCubit.get(context_1)
-                                              .deletePost(
-                                                  id: user.posts![index].sId!);
-                                          Navigator.pop(context, 'OK');
-                                        },
-                                        child: const Text('OK',
-                                            style:
-                                                TextStyle(color: Colors.red)),
-                                      ),
-                                    ]));
-                      }
-                    }, itemBuilder: (BuildContext context) {
-                      return Constants.chose.map((e) {
-                        return PopupMenuItem<String>(
-                          value: e,
-                          child: Text(e),
-                        );
-                      }).toList();
-                    })
+                                          TextButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .editUserPosts(
+                                                      edit: editPostController
+                                                          .text,
+                                                      id: user
+                                                          .posts![index].sId!,
+                                                      userId:
+                                                          PurpleBookCubit.get(
+                                                                  context_1)
+                                                              .userProfile!
+                                                              .user!
+                                                              .sId!,
+                                                      index: index);
+                                              Navigator.pop(context, 'OK');
+                                            },
+                                            child: Text('OK',
+                                                style: TextStyle(
+                                                    color:
+                                                        HexColor("#6823D0"))),
+                                          ),
+                                        ]));
+                          } else if (Constants.delete == value) {
+                            showDialog<String>(
+                                context: context_1,
+                                builder: (BuildContext context) => AlertDialog(
+                                        title: const Text('Delete'),
+                                        elevation: 10,
+                                        content: const Text(
+                                            'Are you sure you want to delete this post?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context, 'Cancel');
+                                            },
+                                            child: const Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                          ),
+                                          TextButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .deletePost(
+                                                      id: user
+                                                          .posts![index].sId!)
+                                                  .then((value) {
+                                                PurpleBookCubit.get(context_1)
+                                                    .getUserPosts(
+                                                        userId: userId!);
+                                              });
+                                              Navigator.pop(context, 'OK');
+                                            },
+                                            child: const Text('OK',
+                                                style: TextStyle(
+                                                    color: Colors.red)),
+                                          ),
+                                        ]));
+                          }
+                        },
+                        itemBuilder: (BuildContext context) {
+                          return Constants.chose.map((e) {
+                            return PopupMenuItem<String>(
+                              value: e,
+                              child: Text(e),
+                            );
+                          }).toList();
+                        })
                   ],
                 ),
                 Padding(
@@ -1015,11 +1113,8 @@ class AccountScreen extends StatelessWidget {
                                 )));
                   },
                   child: Text(
-                    '${parseFragment(user.posts![index].content).text}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                    ),
-                  ),
+                      '${parseFragment(user.posts![index].content).text}',
+                      style: Theme.of(context_1).textTheme.headline5),
                 ),
                 const SizedBox(
                   height: 10,
@@ -1137,8 +1232,10 @@ class AccountScreen extends StatelessWidget {
                                       MaterialPageRoute(
                                           builder: (context_1) =>
                                               ViewPostScreen(
-                                                  id: user.posts![index].sId!,
-                                                  isFocus: false,addComent: false,)));
+                                                id: user.posts![index].sId!,
+                                                isFocus: false,
+                                                addComent: false,
+                                              )));
                                 },
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -1184,12 +1281,14 @@ class AccountScreen extends StatelessWidget {
                           padding: const EdgeInsets.only(top: 10, left: 10),
                           height: 40,
                           decoration: BoxDecoration(
-                              color: Colors.grey.shade200,
+                              color: MainCubit.get(context_1).isDark
+                                  ? Colors.grey.shade500
+                                  : Colors.grey.shade200,
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(15))),
-                          child: const Text(
+                          child: Text(
                             'Write Comment...',
-                            style: TextStyle(fontSize: 15, color: Colors.grey),
+                            style: Theme.of(context_1).textTheme.subtitle1,
                           ),
                         ),
                         onTap: () {

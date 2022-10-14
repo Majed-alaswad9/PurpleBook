@@ -27,7 +27,7 @@ class Posts {
   String? sId;
   String? content;
   ImageModule? image;
-  String? createdAt;
+  DateTime? createdAt;
   Author? author;
   bool? likedByUser;
   int? likesCount;
@@ -35,22 +35,21 @@ class Posts {
 
   Posts(
       {this.sId,
-        this.content,
-        this.image,
-        this.createdAt,
-        this.author,
-        this.likedByUser,
-        this.likesCount,
-        this.commentsCount});
+      this.content,
+      this.image,
+      this.createdAt,
+      this.author,
+      this.likedByUser,
+      this.likesCount,
+      this.commentsCount});
 
   var unescape = HtmlUnescape();
   Posts.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     content = unescape.convert(json['content']);
     image = json['image'] != null ? ImageModule.fromJson(json['image']) : null;
-    createdAt = json['createdAt'];
-    author =
-    json['author'] != null ? Author.fromJson(json['author']) : null;
+    createdAt = DateTime.parse(json['createdAt']);
+    author = json['author'] != null ? Author.fromJson(json['author']) : null;
     likedByUser = json['likedByUser'];
     likesCount = json['likesCount'];
     commentsCount = json['commentsCount'];
