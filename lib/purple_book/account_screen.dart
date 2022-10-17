@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
@@ -589,17 +590,200 @@ class AccountScreen extends StatelessWidget {
                             height: 15,
                           ),
                           if (cubit.indexWidget == 0)
-                            ConditionalBuilder(
-                              condition: cubit.userPost != null,
-                              builder: (context) => userPosts(context),
-                              fallback: (context) => buildFoodShimmer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: DropdownButton(
+                                      style: TextStyle(
+                                          color: MainCubit.get(context).isDark
+                                              ? Colors.white
+                                              : Colors.black),
+                                      items: [
+                                        DropdownMenuItem(
+                                          value: "date",
+                                          child: Text(
+                                            'date',
+                                            style: TextStyle(
+                                                color: MainCubit.get(context)
+                                                        .isDark
+                                                    ? Colors.white
+                                                    : Colors.black),
+                                          ),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: "Most liked",
+                                          child: Text(
+                                            'Most Liked',
+                                            style: TextStyle(
+                                                color: MainCubit.get(context)
+                                                        .isDark
+                                                    ? Colors.white
+                                                    : Colors.black),
+                                          ),
+                                        ),
+                                      ],
+                                      dropdownColor:
+                                          MainCubit.get(context).isDark
+                                              ? HexColor("#242F3D")
+                                              : Colors.white,
+                                      value: cubit.dropDownValue,
+                                      onChanged: (value) {
+                                        cubit.dropDownValue = value!;
+                                        if (value == 'date') {
+                                          cubit.getUserPosts(
+                                              userId: userId!, sort: 'date');
+                                        } else {
+                                          cubit.getUserPosts(
+                                              userId: userId!, sort: 'likes');
+                                        }
+                                      }),
+                                ),
+                                if (state is GetUserPostLoadingState)
+                                  LinearProgressIndicator(
+                                      color: HexColor("#6823D0")),
+                                ConditionalBuilder(
+                                  builder: (context) => userPosts(context),
+                                  condition: cubit.userPost != null,
+                                  fallback: (context) => Center(
+                                    child: CircularProgressIndicator(
+                                        color: HexColor("#6823D0")),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                if (!cubit.isEndUserPost)
+                                  ConditionalBuilder(
+                                    condition:
+                                        state is! GetMoreUserPostLoadingState,
+                                    fallback: (context) =>
+                                        CircularProgressIndicator(
+                                      color: HexColor("#6823D0"),
+                                    ),
+                                    builder: (context) => Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                          color: HexColor("#6823D0"),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(15))),
+                                      child: TextButton(
+                                        onPressed: () {
+                                          cubit.getMoreUserPosts(
+                                              userId: userId!);
+                                        },
+                                        child: const Text(
+                                          'Show More',
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                              ],
                             )
                           else if (cubit.indexWidget == 1)
-                            ConditionalBuilder(
-                              condition: cubit.userComments != null,
-                              builder: (context) =>
-                                  userComments(context, cubit.userComments),
-                              fallback: (context) => buildFoodShimmer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: DropdownButton(
+                                      style: TextStyle(
+                                          color: MainCubit.get(context).isDark
+                                              ? Colors.white
+                                              : Colors.black),
+                                      items: [
+                                        DropdownMenuItem(
+                                          value: "date",
+                                          child: Text(
+                                            'date',
+                                            style: TextStyle(
+                                                color: MainCubit.get(context)
+                                                        .isDark
+                                                    ? Colors.white
+                                                    : Colors.black),
+                                          ),
+                                        ),
+                                        DropdownMenuItem(
+                                          value: "Most liked",
+                                          child: Text(
+                                            'Most Liked',
+                                            style: TextStyle(
+                                                color: MainCubit.get(context)
+                                                        .isDark
+                                                    ? Colors.white
+                                                    : Colors.black),
+                                          ),
+                                        ),
+                                      ],
+                                      dropdownColor:
+                                          MainCubit.get(context).isDark
+                                              ? HexColor("#242F3D")
+                                              : Colors.white,
+                                      value: cubit.dropDownValue,
+                                      onChanged: (value) {
+                                        cubit.dropDownValue = value!;
+                                        if (value == 'date') {
+                                          cubit.getUserComments(
+                                              id: userId!, sort: 'date');
+                                        } else {
+                                          cubit.getUserComments(
+                                              id: userId!, sort: 'likes');
+                                        }
+                                      }),
+                                ),
+                                if (state is GetUserCommentsLoadingState)
+                                  LinearProgressIndicator(
+                                      color: HexColor("#6823D0")),
+                                ConditionalBuilder(
+                                  builder: (context) => userComments(
+                                      context,
+                                      PurpleBookCubit.get(context)
+                                          .userComments),
+                                  condition: cubit.userComments != null,
+                                  fallback: (context) => Center(
+                                    child: CircularProgressIndicator(
+                                        color: HexColor("#6823D0")),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                if (!cubit.isEndUserComments)
+                                  ConditionalBuilder(
+                                    condition: state
+                                        is! GetMoreUserCommentsLoadingState,
+                                    fallback: (context) => Center(
+                                      child: CircularProgressIndicator(
+                                        color: HexColor("#6823D0"),
+                                      ),
+                                    ),
+                                    builder: (context) => Container(
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                          color: HexColor("#6823D0"),
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(20))),
+                                      child: TextButton(
+                                        onPressed: () {
+                                          cubit.getMoreUserComments(
+                                              id: userId!);
+                                        },
+                                        child: const Text(
+                                          'Show More',
+                                          style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                              ],
                             )
                           else
                             ConditionalBuilder(
@@ -742,6 +926,9 @@ class AccountScreen extends StatelessWidget {
                                 0)
                               InkWell(
                                 onTap: () {
+                                  showMsg(
+                                      msg: 'Juse a second',
+                                      color: ColorMsg.inCorrect);
                                   PurpleBookCubit.get(context)
                                       .getLikeComments(
                                           commentId:
@@ -774,7 +961,7 @@ class AccountScreen extends StatelessWidget {
                                                         ),
                                                 itemCount: PurpleBookCubit.get(
                                                         context_1)
-                                                    .likeModule!
+                                                    .commentLikes!
                                                     .users!
                                                     .length));
                                   });
@@ -837,14 +1024,23 @@ class AccountScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(10),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                          radius: 35,
-                          backgroundImage: friend
-                                  .friends![index].imageMini!.data!.isNotEmpty
-                              ? Image.memory(base64Decode(
-                                      friend.friends![index].imageMini!.data!))
-                                  .image
-                              : const AssetImage('assets/image/user.jpg')),
+                      Builder(builder: (context) {
+                        return InkWell(
+                          onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => UserProfileScreen(
+                                      id: friend.friends![index].sId!))),
+                          child: CircleAvatar(
+                              radius: 35,
+                              backgroundImage: friend.friends![index].imageMini!
+                                      .data!.isNotEmpty
+                                  ? Image.memory(base64Decode(friend
+                                          .friends![index].imageMini!.data!))
+                                      .image
+                                  : const AssetImage('assets/image/user.jpg')),
+                        );
+                      }),
                       const SizedBox(
                         width: 10,
                       ),
@@ -866,7 +1062,6 @@ class AccountScreen extends StatelessWidget {
                       MaterialButton(
                         onPressed: () {
                           showDialog<String>(
-                            
                               context: context,
                               builder: (BuildContext context) => AlertDialog(
                                       title: Text(
@@ -938,33 +1133,36 @@ class AccountScreen extends StatelessWidget {
                   children: [
                     if (DateTime.now()
                             .difference(user!.posts![index].createdAt!)
+                            .inMinutes <
+                        60)
+                      Expanded(
+                        child: Text(
+                            '${DateTime.now().difference(user.posts![index].createdAt!).inMinutes} minutes ago',
+                            style: Theme.of(context_1).textTheme.caption),
+                      )
+                    else if (DateTime.now()
+                            .difference(user.posts![index].createdAt!)
                             .inHours <
                         24)
                       Expanded(
-                        child: Text(
-                            '${DateTime.now().difference(user.posts![index].createdAt!).inHours} hours ago',
-                            style: const TextStyle(
-                                height: 1.3, color: Colors.grey)),
-                      )
+                          child: Text(
+                              '${DateTime.now().difference(user.posts![index].createdAt!).inHours} hours ago',
+                              style: Theme.of(context_1).textTheme.caption))
                     else if (DateTime.now()
                             .difference(user.posts![index].createdAt!)
                             .inDays <
                         7)
                       Expanded(
-                        child: Text(
-                            '${DateTime.now().difference(user.posts![index].createdAt!).inDays} days ago',
-                            style: const TextStyle(
-                                height: 1.3, color: Colors.grey)),
-                      )
+                          child: Text(
+                              '${DateTime.now().difference(user.posts![index].createdAt!).inDays} days ago',
+                              style: Theme.of(context_1).textTheme.caption))
                     else
                       Expanded(
-                        child: Text(
-                            '${user.posts![index].createdAt!.year}-'
-                            '${user.posts![index].createdAt!.month}-'
-                            '${user.posts![index].createdAt!.day}',
-                            style: const TextStyle(
-                                height: 1.3, color: Colors.grey)),
-                      ),
+                          child: Text(
+                              '${user.posts![index].createdAt!.year}-'
+                              '${user.posts![index].createdAt!.month}-'
+                              '${user.posts![index].createdAt!.day}',
+                              style: Theme.of(context_1).textTheme.caption)),
                     PopupMenuButton(
                         icon: Icon(
                           Icons.more_vert,
@@ -1025,17 +1223,14 @@ class AccountScreen extends StatelessWidget {
                                             onPressed: () {
                                               PurpleBookCubit.get(context_1)
                                                   .editUserPosts(
-                                                      edit: editPostController
-                                                          .text,
-                                                      id: user
-                                                          .posts![index].sId!,
-                                                      userId:
-                                                          PurpleBookCubit.get(
-                                                                  context_1)
-                                                              .userProfile!
-                                                              .user!
-                                                              .sId!,
-                                                      index: index);
+                                                edit: editPostController.text,
+                                                id: user.posts![index].sId!,
+                                                userId: PurpleBookCubit.get(
+                                                        context_1)
+                                                    .userProfile!
+                                                    .user!
+                                                    .sId!,
+                                              );
                                               Navigator.pop(context, 'OK');
                                             },
                                             child: Text('OK',
@@ -1112,9 +1307,16 @@ class AccountScreen extends StatelessWidget {
                                   isFocus: false,
                                 )));
                   },
-                  child: Text(
-                      '${parseFragment(user.posts![index].content).text}',
-                      style: Theme.of(context_1).textTheme.headline5),
+                  child: Html(
+                    data: user.posts![index].content!,
+                    style: {
+                      "body": Style(
+                          fontSize: const FontSize(20.0),
+                          color: MainCubit.get(context_1).isDark
+                              ? Colors.white
+                              : Colors.black),
+                    },
+                  ),
                 ),
                 const SizedBox(
                   height: 10,
@@ -1145,80 +1347,81 @@ class AccountScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
                   child: Row(
                     children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: InkWell(
-                            highlightColor: HexColor("#6823D0"),
-                            onTap: () {
-                              showMsg(
-                                  msg: 'Just a second',
-                                  color: ColorMsg.inCorrect);
-                              PurpleBookCubit.get(context_1)
-                                  .getLikesPost(id: user.posts![index].sId!)
-                                  .then((value) {
-                                showModalBottomSheet(
-                                  context: context_1,
-                                  isScrollControlled: true,
-                                  shape: const RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.vertical(
-                                          top: Radius.circular(20))),
-                                  builder: (context) => ConditionalBuilder(
-                                    condition: PurpleBookCubit.get(context_1)
-                                        .likeModule!
-                                        .users!
-                                        .isNotEmpty,
-                                    builder: (context) => ListView.separated(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemBuilder: (context, index) =>
-                                            buildLikesPost(
-                                                PurpleBookCubit.get(context_1)
-                                                    .likeModule!,
-                                                index,
-                                                context_1),
-                                        separatorBuilder: (context, index) =>
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                        itemCount:
-                                            PurpleBookCubit.get(context_1)
-                                                .likeModule!
-                                                .users!
-                                                .length),
-                                    fallback: (context) => const Center(
-                                        child: Text(
-                                      'Not Likes Yet',
-                                      style: TextStyle(fontSize: 25),
-                                    )),
+                      if (user.posts![index].likesCount != 0)
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 10.0),
+                            child: InkWell(
+                              highlightColor: HexColor("#6823D0"),
+                              onTap: () {
+                                showMsg(
+                                    msg: 'Just a second',
+                                    color: ColorMsg.inCorrect);
+                                PurpleBookCubit.get(context_1)
+                                    .getLikesPost(id: user.posts![index].sId!)
+                                    .then((value) {
+                                  showModalBottomSheet(
+                                    context: context_1,
+                                    isScrollControlled: true,
+                                    shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.vertical(
+                                            top: Radius.circular(20))),
+                                    builder: (context) => ConditionalBuilder(
+                                      condition: PurpleBookCubit.get(context_1)
+                                          .likeModule!
+                                          .users!
+                                          .isNotEmpty,
+                                      builder: (context) => ListView.separated(
+                                          shrinkWrap: true,
+                                          physics:
+                                              const NeverScrollableScrollPhysics(),
+                                          itemBuilder: (context, index) =>
+                                              buildLikesPost(
+                                                  PurpleBookCubit.get(context_1)
+                                                      .likeModule!,
+                                                  index,
+                                                  context_1),
+                                          separatorBuilder: (context, index) =>
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                          itemCount:
+                                              PurpleBookCubit.get(context_1)
+                                                  .likeModule!
+                                                  .users!
+                                                  .length),
+                                      fallback: (context) => const Center(
+                                          child: Text(
+                                        'Not Likes Yet',
+                                        style: TextStyle(fontSize: 25),
+                                      )),
+                                    ),
+                                  );
+                                });
+                              },
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.thumb_up,
+                                    size: 20,
+                                    color: Colors.grey,
                                   ),
-                                );
-                              });
-                            },
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.thumb_up,
-                                  size: 20,
-                                  color: Colors.grey,
-                                ),
-                                const SizedBox(
-                                  width: 5,
-                                ),
-                                Text(
-                                  '${PurpleBookCubit.get(context_1).likesUserCount![index]} like',
-                                  style: Theme.of(context_1)
-                                      .textTheme
-                                      .caption!
-                                      .copyWith(
-                                          color: Colors.grey, fontSize: 15),
-                                )
-                              ],
+                                  const SizedBox(
+                                    width: 5,
+                                  ),
+                                  Text(
+                                    '${PurpleBookCubit.get(context_1).likesUserCount![index]} like',
+                                    style: Theme.of(context_1)
+                                        .textTheme
+                                        .caption!
+                                        .copyWith(
+                                            color: Colors.grey, fontSize: 15),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
                       if (user.posts![index].commentsCount != 0)
                         Expanded(
                           child: Padding(
@@ -1333,7 +1536,7 @@ class AccountScreen extends StatelessWidget {
                       ),
                       onTap: () {
                         PurpleBookCubit.get(context_1).likeUserPost(
-                            id: user.posts![index].sId!, index: index);
+                            id: user.posts![index].sId!, index: index,userId: userId!);
                         PurpleBookCubit.get(context_1)
                             .changeLikePostUser(index);
                       },
@@ -1372,12 +1575,8 @@ class AccountScreen extends StatelessWidget {
                                   id: user.users![index].sId!)));
                     },
                     child: Text(
-                      '${user.users![index].firstName} ${user.users![index].lastName}',
-                      style: const TextStyle(
-                          height: 1.3,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
+                        '${user.users![index].firstName} ${user.users![index].lastName}',
+                        style: Theme.of(context_1).textTheme.headline6),
                   ),
                 ),
                 if (user.users![index].sId != userId)
@@ -1594,12 +1793,8 @@ class AccountScreen extends StatelessWidget {
                                   id: commentLike.users![index].sId!)));
                     },
                     child: Text(
-                      '${commentLike.users![index].firstName} ${commentLike.users![index].lastName}',
-                      style: const TextStyle(
-                          height: 1.3,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 17),
-                    ),
+                        '${commentLike.users![index].firstName} ${commentLike.users![index].lastName}',
+                        style: Theme.of(context_1).textTheme.subtitle1),
                   ),
                 ),
                 if (commentLike.users![index].sId != userId)

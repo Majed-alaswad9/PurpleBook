@@ -94,10 +94,9 @@ class FriendsScreen extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.all(10),
                           width: double.infinity,
-                          child: const Text(
+                          child: Text(
                             'Friend requests',
-                            style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.w500),
+                            style: Theme.of(context).textTheme.bodyText2
                           ),
                         ),
                         const SizedBox(
@@ -123,10 +122,9 @@ class FriendsScreen extends StatelessWidget {
                             color: Colors.grey.withOpacity(0.8),
                           ),
                           width: double.infinity,
-                          child: const Text(
+                          child: Text(
                             'friend recommendation',
-                            style: TextStyle(
-                                fontSize: 25, fontWeight: FontWeight.w500),
+                            style: Theme.of(context).textTheme.bodyText2,
                           ),
                         ),
                         const SizedBox(
@@ -211,9 +209,8 @@ class FriendsScreen extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     '${request.friendRequests![index].user!.firstName} ${request.friendRequests![index].user!.lastName}',
-                                    style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold),
+                                    style:
+                                        Theme.of(context_1).textTheme.bodyText1,
                                   ),
                                 ),
                               ],
@@ -312,9 +309,9 @@ class FriendsScreen extends StatelessWidget {
                       )),
                 ),
             itemCount: request.friendRequests!.length),
-        fallback: (context_1) => const Text(
+        fallback: (context_1) => Text(
           'Wow, such empty ⚆_⚆',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
+          style: Theme.of(context_1).textTheme.headline4,
         ),
       );
 
@@ -364,9 +361,8 @@ class FriendsScreen extends StatelessWidget {
                                 children: [
                                   Text(
                                     '${request.friendRecommendation![index].firstName} ${request.friendRecommendation![index].lastName}',
-                                    style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold),
+                                    style:
+                                        Theme.of(context_1).textTheme.bodyText1,
                                   ),
                                   const SizedBox(
                                     height: 15,
@@ -472,10 +468,8 @@ class FriendsScreen extends StatelessWidget {
                       )),
                 ),
             itemCount: request.friendRecommendation!.length),
-        fallback: (context_1) => const Text(
-          'Wow, such empty ⚆_⚆',
-          style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-        ),
+        fallback: (context_1) => Text('Wow, such empty ⚆_⚆',
+            style: Theme.of(context_1).textTheme.headline4),
       );
 
   Widget buildFoodShimmer() => ListView.builder(

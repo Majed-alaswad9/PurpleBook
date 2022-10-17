@@ -39,6 +39,8 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     AccountScreen()
   ];
 
+  Object dropDownValue = 'date';
+
   int indexBottom = 0;
   //* this indexWidget for buttons [posts,comments,friends] in account screen
   int indexWidget = 0;
@@ -48,39 +50,25 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(ChangeBottomState());
   }
 
-  IconData darkMode = Icons.light_mode;
-  bool isDark=false;
-  void changeThemeMode({bool? fromShared}) {
-    if (fromShared != null) {
-      isDark = fromShared;
-      darkMode = fromShared ? Icons.dark_mode : Icons.light_mode;
-      print('from sharde $fromShared');
-      emit(ChangeThemeModeState());
-    } else {
-      print(isDark);
-      isDark = !isDark;
-      darkMode = isDark ? Icons.dark_mode : Icons.light_mode;
-      print('else $isDark');
-      CachHelper.saveData(key: 'isDark', value: isDark).then((value) {
-        emit(ChangeThemeModeState());
-      });
-    }
-  }
-
   FeedModule? feedModule;
   List<bool>? isLikePost;
   List<int>? likesCount;
   int skip = 0;
-  bool isEnd = false;
+  bool isEndFeed = false;
   Future<void> getFeed() async {
     isLikePost = [];
     likesCount = [];
-    skip = 3;
-    isEnd = false;
+    skip = 5;
+    isEndFeed = false;
     emit(GetFeedLoadingState());
-    return await DioHelper.getData(url: '$feed?skip=0&limit=3', token: token)
+    return await DioHelper.getData(url: '$feed?skip=0&limit=5', token: token)
         .then((value) {
       feedModule = FeedModule.fromJson(value.data);
+      if (feedModule!.posts!.length < 5) {
+        isEndFeed = true;
+      } else {
+        isEndFeed = false;
+      }
       for (var element in feedModule!.posts!) {
         isLikePost!.add(element.likedByUser!);
         likesCount!.add(element.likesCount!);
@@ -97,8 +85,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
             url: '$feed?skip=$skip&limit=3', token: token)
         .then((value) {
       if (value.data['posts'].isNotEmpty) {
-        skip += 3;
-        print(skip);
+        skip += 5;
         value.data['posts'].forEach((v) {
           feedModule!.posts!.add(Posts.fromJson(v));
         });
@@ -109,7 +96,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
           likesCount!.add(element.likesCount!);
         }
       } else {
-        isEnd = true;
+        isEndFeed = true;
       }
       emit(GetMoreFeedSuccessState());
     }).catchError((error) {
@@ -247,11 +234,21 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   CommentsModule? comment;
   List<bool>? isLikeComment = [];
   List<int>? likeCommentCount = [];
+  int skipComments = 0;
+  bool isEndComments = false;
   void getComments({required String id, String sort = 'date'}) {
     emit(GetCommentPostLoadingState());
-    DioHelper.getData(url: '$posts$id$comments_2?sort=$sort', token: token)
+    DioHelper.getData(
+            url: '$posts$id$comments_2?skip=0&limit=5&sort=$dropDownValue',
+            token: token)
         .then((value) {
+      skipComments = 5;
       comment = CommentsModule.fromJson(value.data);
+      if (comment!.comments!.length < 5) {
+        isEndComments = true;
+      } else {
+        isEndComments = false;
+      }
       for (var element in comment!.comments!) {
         isLikeComment!.add(element.likedByUser!);
         likeCommentCount!.add(element.likesCount!);
@@ -259,6 +256,33 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       emit(GetCommentPostSuccessState());
     }).catchError((error) {
       emit(GetCommentPostErrorState());
+    });
+  }
+
+  void getMoreComments({required String id, String sort = 'date'}) {
+    emit(GetMoreCommentPostLoadingState());
+    DioHelper.getData(
+            url: '$posts$id$comments_2?skip=5&limit=1&sort=$dropDownValue',
+            token: token)
+        .then((value) {
+      if (value.data['comments'].isNotEmpty) {
+        value.data['comments'].forEach((v) {
+          comment!.comments!.add(Comments.fromJson(v));
+        });
+        isLikeComment = [];
+        likeCommentCount = [];
+        for (var element in comment!.comments!) {
+          isLikeComment!.add(element.likedByUser!);
+          likeCommentCount!.add(element.likesCount!);
+        }
+        if (value.data['comments'].length < 5) isEndComments = true;
+      } else {
+        isEndComments = true;
+      }
+      skip += 5;
+      emit(GetMoreCommentPostSuccessState());
+    }).catchError((error) {
+      emit(GetMoreCommentPostErrorState());
     });
   }
 
@@ -281,7 +305,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       required String idComment,
       required int index}) async {
     emit(LikeCommentPostLoadingState());
-    if (!isLikeComment![index]) {
+    if (!comment!.comments![index].likedByUser!) {
       return await DioHelper.postData(
               url: '$posts$idPost$comments$idComment$likePost_2', token: token)
           .then((value) {
@@ -356,10 +380,21 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   UserPostsModule? userPost;
   List<bool>? isLikeUserPost = [];
   List<int>? likesUserCount = [];
-  Future<void> getUserPosts({required String userId}) async {
+  int skipUserPost = 0;
+  bool isEndUserPost = false;
+  Future<void> getUserPosts(
+      {required String userId, String sort = 'date'}) async {
     emit(GetUserPostLoadingState());
-    return await DioHelper.getData(url: '$users$userId$userPosts', token: token)
+    return await DioHelper.getData(
+            url: '$users$userId$userPosts?limit=5&skip=0&sort=$dropDownValue',
+            token: token)
         .then((value) {
+      if (value.data['posts'].length < 5) {
+        isEndUserPost = true;
+      } else {
+        isEndUserPost = false;
+      }
+      skipUserPost = 5;
       userPost = UserPostsModule.fromJson(value.data);
       for (var element in userPost!.posts!) {
         isLikeUserPost!.add(element.likedByUser!);
@@ -371,11 +406,39 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     });
   }
 
-  void likeUserPost({required String id, required int index}) {
+  Future<void> getMoreUserPosts({required String userId}) async {
+    emit(GetMoreUserPostLoadingState());
+    return await DioHelper.getData(
+            url:
+                '$users$userId$userPosts?limit=5&skip=$skipUserPost&sort=$dropDownValue',
+            token: token)
+        .then((value) {
+      if (value.data['posts'].isNotEmpty) {
+        value.data['posts'].forEach((v) {
+          userPost!.posts!.add(UserPosts.fromJson(v));
+        });
+        for (var element in userPost!.posts!) {
+          isLikeUserPost!.add(element.likedByUser!);
+          likesUserCount!.add(element.likesCount!);
+        }
+        if (value.data['posts'].length < 5) isEndUserPost = true;
+      } else {
+        isEndUserPost = true;
+      }
+      skipUserPost += 5;
+      emit(GetMoreUserPostSuccessState());
+    }).catchError((error) {
+      emit(GetMoreUserPostErrorState());
+    });
+  }
+
+  void likeUserPost(
+      {required String id, required int index, required String userId}) {
     emit(AddLikeUserPostLoadingState());
     if (!isLikeUserPost![index]) {
       DioHelper.postData(url: '$posts$id$likePost_2', token: token)
           .then((value) {
+        getUserPosts(userId: userId);
         emit(AddLikeUserPostSuccessState());
       }).catchError((error) {
         emit(AddLikeUserPostErrorState());
@@ -383,6 +446,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     } else {
       DioHelper.deleteData(url: '$posts$id$likePost_2', token: token)
           .then((value) {
+        getUserPosts(userId: userId);
         emit(DeleteLikeUserPostSuccessState());
       }).catchError((error) {
         emit(DeleteLikeUserPostErrorState());
@@ -402,14 +466,10 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   void editUserPosts(
-      {required String edit,
-      required String id,
-      required int index,
-      required String userId}) {
+      {required String edit, required String id, required String userId}) {
     emit(EditUserPostLoadingState());
     DioHelper.patchData(url: '$posts$id', data: {'content': edit}, token: token)
         .then((value) {
-      userPost!.posts![index].content = edit;
       getUserPosts(userId: userId);
       emit(EditUserPostSuccessState());
     }).catchError((error) {
@@ -429,18 +489,55 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   UserCommentsModule? userComments;
-  void getUserComments({required String id}) {
+  int skipUserComments = 0;
+  bool isEndUserComments = false;
+  void getUserComments({required String id, String sort = 'date'}) {
     emit(GetUserCommentsLoadingState());
-    DioHelper.getData(url: '$users$id$comments_2', token: token).then((value) {
+    DioHelper.getData(
+            url: '$users$id$comments_2?limit=5&skip=0&sort=$dropDownValue',
+            token: token)
+        .then((value) {
+      if (value.data['comments'].length < 5) {
+        isEndUserComments = true;
+      } else {
+        isEndUserComments = false;
+      }
       userComments = UserCommentsModule.fromJson(value.data);
+      skipUserComments = 5;
       for (var element in userComments!.comments!) {
         isLikeComment!.add(element.likedByUser!);
         likeCommentCount!.add(element.likesCount!);
       }
       emit(GetUserCommentsSuccessState());
     }).catchError((error) {
-      print(error.toString());
       emit(GetUserCommentsErrorState());
+    });
+  }
+
+  void getMoreUserComments({required String id}) {
+    emit(GetMoreUserCommentsLoadingState());
+    DioHelper.getData(
+            url:
+                '$users$id$comments_2?limit=5&skip=$skipUserComments&sort=$dropDownValue',
+            token: token)
+        .then((value) {
+      if (value.data['comments'].isNotEmpty) {
+        value.data['comments'].forEach((v) {
+          userComments!.comments!.add(UserComments.fromJson(v));
+        });
+        likeCommentCount = [];
+        for (var element in userComments!.comments!) {
+          isLikeComment!.add(element.likedByUser!);
+          likeCommentCount!.add(element.likesCount!);
+        }
+        if (value.data['comments'].length < 5) isEndUserComments = true;
+      } else {
+        isEndUserComments = true;
+      }
+      skipUserComments += 5;
+      emit(GetMoreUserCommentsSuccessState());
+    }).catchError((error) {
+      emit(GetMoreUserCommentsErrorState());
     });
   }
 

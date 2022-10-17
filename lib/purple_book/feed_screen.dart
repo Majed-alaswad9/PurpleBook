@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
@@ -119,7 +120,7 @@ class FeedScreen extends StatelessWidget {
                                             ),
                                         itemCount:
                                             cubit.feedModule!.posts!.length),
-                                    if (!cubit.isEnd)
+                                    if (!cubit.isEndFeed)
                                       ConditionalBuilder(
                                         condition:
                                             state is! GetMoreFeedLoadingState &&
@@ -230,29 +231,36 @@ class FeedScreen extends StatelessWidget {
                         Text(
                             '${feed.posts![index].author!.firstName} ${feed.posts![index].author!.lastName}',
                             style: Theme.of(conteext).textTheme.headline6),
+                        const SizedBox(
+                          height: 10,
+                        ),
                         if (DateTime.now()
+                                .difference(feed.posts![index].createdAt!)
+                                .inMinutes <
+                            60)
+                          Text(
+                              '${DateTime.now().difference(feed.posts![index].createdAt!).inMinutes} minutes ago',
+                              style: Theme.of(conteext).textTheme.caption)
+                        else if (DateTime.now()
                                 .difference(feed.posts![index].createdAt!)
                                 .inHours <
                             24)
                           Text(
                               '${DateTime.now().difference(feed.posts![index].createdAt!).inHours} hours ago',
-                              style: const TextStyle(
-                                  height: 1.3, color: Colors.grey))
+                              style: Theme.of(conteext).textTheme.caption)
                         else if (DateTime.now()
                                 .difference(feed.posts![index].createdAt!)
                                 .inDays <
                             7)
                           Text(
                               '${DateTime.now().difference(feed.posts![index].createdAt!).inDays} days ago',
-                              style: const TextStyle(
-                                  height: 1.3, color: Colors.grey))
+                              style: Theme.of(conteext).textTheme.caption)
                         else
                           Text(
                               '${feed.posts![index].createdAt!.year}-'
                               '${feed.posts![index].createdAt!.month}-'
                               '${feed.posts![index].createdAt!.day}',
-                              style: const TextStyle(
-                                  height: 1.3, color: Colors.grey))
+                              style: Theme.of(conteext).textTheme.caption)
                       ],
                     ),
                   ),
@@ -337,8 +345,16 @@ class FeedScreen extends StatelessWidget {
                               isFocus: false,
                             )));
               },
-              child: Text('${parseFragment(feed.posts![index].content).text}',
-                  style: Theme.of(conteext).textTheme.headline5),
+              child: Html(
+                data: feed.posts![index].content!,
+                style: {
+                  "body": Style(
+                      fontSize: const FontSize(20.0),
+                      color: MainCubit.get(conteext).isDark
+                          ? Colors.white
+                          : Colors.black),
+                },
+              ),
             ),
             const SizedBox(
               height: 10,
@@ -566,35 +582,46 @@ class FeedScreen extends StatelessWidget {
       ));
 
   Widget buildBottomSheet(LikesModule user, int index, context_1) => Padding(
-        padding: const EdgeInsets.all(8.0),
+        padding: const EdgeInsets.all(10.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                CircleAvatar(
-                    radius: 25,
-                    backgroundImage:
-                        user.users![index].imageMini!.data!.data!.isNotEmpty
-                            ? Image.memory(Uint8List.fromList(
-                                    user.users![index].imageMini!.data!.data!))
-                                .image
-                            : const AssetImage('assets/image/user.jpg')),
+                InkWell(
+                  onTap: () => Navigator.push(
+                      context_1,
+                      MaterialPageRoute(
+                          builder: (context_1) =>
+                              UserProfileScreen(id: user.users![index].sId!))),
+                  child: CircleAvatar(
+                      radius: 25,
+                      backgroundImage: user
+                              .users![index].imageMini!.data!.data!.isNotEmpty
+                          ? Image.memory(Uint8List.fromList(
+                                  user.users![index].imageMini!.data!.data!))
+                              .image
+                          : const AssetImage('assets/image/user.jpg')),
+                ),
                 const SizedBox(
                   width: 10,
                 ),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${user.users![index].firstName} ${user.users![index].lastName}',
-                        style: const TextStyle(
-                            height: 1.3,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17),
-                      ),
-                    ],
+                  child: InkWell(
+                    onTap: () => Navigator.push(
+                        context_1,
+                        MaterialPageRoute(
+                            builder: (context_1) => UserProfileScreen(
+                                id: user.users![index].sId!))),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          '${user.users![index].firstName} ${user.users![index].lastName}',
+                          style: Theme.of(context_1).textTheme.headline6,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 if (user.users![index].sId != userId)

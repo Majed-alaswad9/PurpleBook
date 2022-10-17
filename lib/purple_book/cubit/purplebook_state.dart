@@ -103,6 +103,12 @@ class GetCommentPostSuccessState extends PurpleBookState {}
 
 class GetCommentPostErrorState extends PurpleBookState {}
 
+class GetMoreCommentPostLoadingState extends PurpleBookState {}
+
+class GetMoreCommentPostSuccessState extends PurpleBookState {}
+
+class GetMoreCommentPostErrorState extends PurpleBookState {}
+
 class GetLikeCommentsLoadingState extends PurpleBookState {}
 
 class GetLikeCommentsSuccessState extends PurpleBookState {}
@@ -143,6 +149,12 @@ class GetUserPostSuccessState extends PurpleBookState {}
 
 class GetUserPostErrorState extends PurpleBookState {}
 
+class GetMoreUserPostLoadingState extends PurpleBookState {}
+
+class GetMoreUserPostSuccessState extends PurpleBookState {}
+
+class GetMoreUserPostErrorState extends PurpleBookState {}
+
 class EditUserPostLoadingState extends PurpleBookState {}
 
 class EditUserPostSuccessState extends PurpleBookState {}
@@ -172,6 +184,14 @@ class GetUserCommentsLoadingState extends PurpleBookState {}
 class GetUserCommentsSuccessState extends PurpleBookState {}
 
 class GetUserCommentsErrorState extends PurpleBookState {}
+
+class DropDownCallBackState extends PurpleBookState {}
+
+class GetMoreUserCommentsLoadingState extends PurpleBookState {}
+
+class GetMoreUserCommentsSuccessState extends PurpleBookState {}
+
+class GetMoreUserCommentsErrorState extends PurpleBookState {}
 
 class GetUserFriendsLoadingState extends PurpleBookState {}
 

@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class ViewListImage extends StatelessWidget {
   final List<int> image;
@@ -16,7 +17,12 @@ class ViewListImage extends StatelessWidget {
           TextButton(
             child: const Text('Save',
                 style: TextStyle(color: Colors.white, fontSize: 17)),
-            onPressed: () async {},
+            onPressed: () async {
+              final res =
+                  await ImageGallerySaver.saveImage(Uint8List.fromList(image));
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text('$res')));
+            },
           )
         ],
       ),

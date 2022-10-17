@@ -11,11 +11,17 @@ import 'package:purplebook/network/local/cach_helper.dart';
 import '../components/end_points.dart';
 import '../purple_book/purple_book_screen.dart';
 
+
+
 class LoginScreen extends StatelessWidget {
+
   LoginScreen({Key? key}) : super(key: key);
   var emailController = TextEditingController();
+
   var passController = TextEditingController();
+
   var formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -32,12 +38,13 @@ class LoginScreen extends StatelessWidget {
                   key: 'userId', value: state.logInModel.userId);
               CachHelper.saveData(
                   key: 'isAdmin', value: state.logInModel.isAdmin);
-              showMsg(msg: 'Login Successfully', color: ColorMsg.inCorrect);
               Navigator.pushAndRemoveUntil(
                   context,
                   MaterialPageRoute(
                       builder: (context) => const PurpleBookScreen()),
                   (route) => false);
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(duration: Duration(seconds: 3),content: Text('✅ Login Successfully')));
             });
           } else if (state is LoginErrorState) {
             showMsg(
@@ -195,9 +202,11 @@ class LoginScreen extends StatelessWidget {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Text(
+                                      Text(
                                         'Don\'t have an account?',
-                                        style: TextStyle(fontSize: 15),
+                                        style: Theme.of(context)
+                                            .textTheme
+                                            .subtitle1,
                                       ),
                                       TextButton(
                                         onPressed: () {

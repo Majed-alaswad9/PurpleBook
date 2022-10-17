@@ -17,7 +17,6 @@
     <data android:scheme="mailto" />
   </intent>
 </queries>
-   <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="purplebook"
         android:name="${applicationName}"
@@ -50,4 +49,5 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <uses-permission android:name="android.permission.INTERNET" />
 </manifest>

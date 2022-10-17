@@ -4,11 +4,14 @@ import 'dart:typed_data';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
+import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/modules/comment_likes_module.dart';
 import 'package:purplebook/modules/comments_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
+import 'package:purplebook/purple_book/edit_post_screen.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
 import 'package:purplebook/purple_book/user_profile.dart';
 import 'package:purplebook/purple_book/view_string_iamge.dart';
@@ -53,67 +56,81 @@ class ViewPostScreen extends StatelessWidget {
         ..getComments(id: id),
       child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
         listener: (context, state) {
-          //delete comments
+          //* delete comments
           if (state is DeleteCommentPostSuccessState) {
             showMsg(msg: 'deleted Successfully', color: ColorMsg.success);
           } else if (state is DeleteCommentPostErrorState) {
             showMsg(msg: 'Failed delete', color: ColorMsg.error);
           }
 
-          //delete post
+          //* delete post
           if (state is PostDeleteSuccessState) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Delete successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('✅ Delete successfully')));
             Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(
                     builder: (context) => const PurpleBookScreen()),
                 (route) => false);
           } else if (state is PostDeleteErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Deleted Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('❌ Deleted Failed')));
           }
 
-          //Edit post
+          //* Edit post
           if (state is EditPostSuccessState) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Editing successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('✅ Editing successfully')));
             PurpleBookCubit.get(context).viewPosts(id: id);
           } else if (state is EditPostErrorState) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Editing Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('❌ Editing Failed')));
           }
 
-          //send friend request
+          //* send friend request
           if (state is SendRequestSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Sent successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('✅ Sent successfully')));
           } else if (state is SendRequestErrorState) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Sent Failed')));
+            ScaffoldMessenger.of(context)
+                .showSnackBar(const SnackBar(content: Text('❌ Sent Failed')));
           }
 
-          //cancel friend
+          //* cancel friend
           if (state is CancelFriendSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ unFriend successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('✅ unFriend successfully')));
           } else if (state is CancelFriendErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ unFriend Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('❌ unFriend Failed')));
           }
 
-          //cancel friend request
+          //* cancel friend request
           if (state is CancelSendRequestSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Cancel sent successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('✅ Cancel sent successfully')));
           } else if (state is CancelSendRequestErrorState) {
-             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Cancel sent Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('❌ Cancel sent Failed')));
           }
 
-          //accept friend request
+          //* accept friend request
           if (state is AcceptFriendRequestSuccessState) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Confrim successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('✅ Confrim successfully')));
           } else if (state is AcceptFriendRequestErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Confrim Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('❌ Confrim Failed')));
           }
 
-          //add comment
+          //* add comment
           if (state is AddCommentPostSuccessState) {
-           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('✅ Add comment successfully')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('✅ Add comment successfully')));
             contentController.text = '';
           } else if (state is AddCommentPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('❌ Add comment Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('❌ Add comment Failed')));
           }
         },
         builder: (context_1, state) {
@@ -198,12 +215,10 @@ class ViewPostScreen extends StatelessWidget {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                '${cubit.postView!.post!.author!.firstName} ${cubit.postView!.post!.author!.lastName}',
-                                                style: const TextStyle(
-                                                    height: 1.3,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 20),
-                                              ),
+                                                  '${cubit.postView!.post!.author!.firstName} ${cubit.postView!.post!.author!.lastName}',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline6),
                                               if (DateTime.now()
                                                       .difference(cubit
                                                           .postView!
@@ -244,56 +259,41 @@ class ViewPostScreen extends StatelessWidget {
                                               cubit.postView!.post!.author!
                                                   .sId ||
                                           isAdmin == true)
-                                        PopupMenuButton(onSelected: (value) {
-                                          if (value == Constants.edit) {
-                                            editPostController.text =
-                                                parseFragment(cubit.postView!
-                                                        .post!.content!)
-                                                    .text!;
-                                            showDialog<String>(
-                                                context: context,
-                                                builder:
-                                                    (BuildContext context) =>
+                                        PopupMenuButton(
+                                            icon: Icon(
+                                              Icons.more_vert,
+                                              color:
+                                                  MainCubit.get(context).isDark
+                                                      ? Colors.white
+                                                      : Colors.black,
+                                            ),
+                                            onSelected: (value) {
+                                              if (value == Constants.edit) {
+                                                Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            EditPostScreen(
+                                                                id: cubit
+                                                                    .postView!
+                                                                    .post!
+                                                                    .sId!,
+                                                                content: cubit
+                                                                    .postView!
+                                                                    .post!
+                                                                    .content!)));
+                                              } else if (Constants.delete ==
+                                                  value) {
+                                                showDialog<String>(
+                                                    context: context,
+                                                    builder: (BuildContext
+                                                            context) =>
                                                         AlertDialog(
                                                             title: const Text(
-                                                                'Edit'),
-                                                            content:
-                                                                TextFormField(
-                                                              controller:
-                                                                  editPostController,
-                                                              maxLines: 100,
-                                                              minLines: 1,
-                                                              keyboardType:
-                                                                  TextInputType
-                                                                      .multiline,
-                                                              decoration:
-                                                                  InputDecoration(
-                                                                      label: const Text(
-                                                                          'Edit post'),
-                                                                      labelStyle: TextStyle(
-                                                                          color: HexColor(
-                                                                              "#6823D0")),
-                                                                      border:
-                                                                          const OutlineInputBorder(),
-                                                                      enabledBorder:
-                                                                          const OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(color: Colors.grey),
-                                                                        borderRadius:
-                                                                            BorderRadius.all(Radius.circular(10.0)),
-                                                                      ),
-                                                                      focusedBorder:
-                                                                          OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(color: HexColor("#6823D0")),
-                                                                        borderRadius:
-                                                                            const BorderRadius.all(Radius.circular(10.0)),
-                                                                      ),
-                                                                      contentPadding:
-                                                                          const EdgeInsets.all(
-                                                                              10)),
-                                                            ),
+                                                                'Delete'),
                                                             elevation: 10,
+                                                            content: const Text(
+                                                                'Are you sure you want to delete this post?'),
                                                             actions: [
                                                               TextButton(
                                                                 onPressed: () {
@@ -301,18 +301,17 @@ class ViewPostScreen extends StatelessWidget {
                                                                       context,
                                                                       'Cancel');
                                                                 },
-                                                                child: Text(
+                                                                child:
+                                                                    const Text(
                                                                   'Cancel',
                                                                   style: TextStyle(
-                                                                      color: HexColor(
-                                                                          "#6823D0")),
+                                                                      color: Colors
+                                                                          .black),
                                                                 ),
                                                               ),
                                                               TextButton(
                                                                 onPressed: () {
-                                                                  cubit.editPosts(
-                                                                      edit: editPostController
-                                                                          .text,
+                                                                  cubit.deletePost(
                                                                       id: cubit
                                                                           .postView!
                                                                           .post!
@@ -321,66 +320,24 @@ class ViewPostScreen extends StatelessWidget {
                                                                       context,
                                                                       'OK');
                                                                 },
-                                                                child: Text(
+                                                                child: const Text(
                                                                     'OK',
                                                                     style: TextStyle(
-                                                                        color: HexColor(
-                                                                            "#6823D0"))),
+                                                                        color: Colors
+                                                                            .red)),
                                                               ),
                                                             ]));
-                                          } else if (Constants.delete ==
-                                              value) {
-                                            showDialog<String>(
-                                                context: context,
-                                                builder: (BuildContext
-                                                        context) =>
-                                                    AlertDialog(
-                                                        title: const Text(
-                                                            'Delete'),
-                                                        elevation: 10,
-                                                        content: const Text(
-                                                            'Are you sure you want to delete this post?'),
-                                                        actions: [
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              Navigator.pop(
-                                                                  context,
-                                                                  'Cancel');
-                                                            },
-                                                            child: const Text(
-                                                              'Cancel',
-                                                              style: TextStyle(
-                                                                  color: Colors
-                                                                      .black),
-                                                            ),
-                                                          ),
-                                                          TextButton(
-                                                            onPressed: () {
-                                                              cubit.deletePost(
-                                                                  id: cubit
-                                                                      .postView!
-                                                                      .post!
-                                                                      .sId!);
-                                                              Navigator.pop(
-                                                                  context,
-                                                                  'OK');
-                                                            },
-                                                            child: const Text(
-                                                                'OK',
-                                                                style: TextStyle(
-                                                                    color: Colors
-                                                                        .red)),
-                                                          ),
-                                                        ]));
-                                          }
-                                        }, itemBuilder: (BuildContext context) {
-                                          return Constants.chose.map((e) {
-                                            return PopupMenuItem<String>(
-                                              value: e,
-                                              child: Text(e),
-                                            );
-                                          }).toList();
-                                        })
+                                              }
+                                            },
+                                            itemBuilder:
+                                                (BuildContext context) {
+                                              return Constants.chose.map((e) {
+                                                return PopupMenuItem<String>(
+                                                  value: e,
+                                                  child: Text(e),
+                                                );
+                                              }).toList();
+                                            })
                                     ],
                                   ),
                                   Padding(
@@ -391,9 +348,15 @@ class ViewPostScreen extends StatelessWidget {
                                       color: Colors.grey,
                                     ),
                                   ),
-                                  Text(
-                                    ' ${parseFragment(cubit.postView!.post!.content!).text!}',
-                                    style: const TextStyle(fontSize: 20),
+                                  Html(
+                                    data: "${cubit.postView!.post!.content}",
+                                    style: {
+                                      "body": Style(
+                                          fontSize: const FontSize(22.0),
+                                          color: MainCubit.get(context).isDark
+                                              ? Colors.white
+                                              : Colors.black),
+                                    },
                                   ),
                                   const SizedBox(
                                     height: 15,
@@ -482,7 +445,7 @@ class ViewPostScreen extends StatelessWidget {
                                                                   const NeverScrollableScrollPhysics(),
                                                               itemBuilder: (context,
                                                                       index) =>
-                                                                  buildBottomSheet(
+                                                                  buildLikesPost(
                                                                       cubit
                                                                           .likeModule!,
                                                                       index,
@@ -548,40 +511,52 @@ class ViewPostScreen extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
-                        child: TextFormField(
-                          controller: contentController,
-                          maxLines: 100,
-                          minLines: 1,
-                          autofocus: addComent,
-                          keyboardType: TextInputType.multiline,
-                          validator: validateContent,
-                          decoration: InputDecoration(
-                              suffix: IconButton(
-                                color: HexColor("#6823D0"),
-                                onPressed: () {
-                                  if (formKey.currentState!.validate()) {
-                                    cubit.addComment(
-                                        postId: id,
-                                        text: contentController.text);
-                                  }
-                                },
-                                icon: const Icon(Icons.send),
-                              ),
-                              label: const Text('Write comment'),
-                              labelStyle: TextStyle(color: HexColor("#6823D0")),
-                              border: const OutlineInputBorder(),
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.grey),
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(10.0)),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: HexColor("#6823D0")),
-                                borderRadius: const BorderRadius.all(
-                                    Radius.circular(10.0)),
-                              ),
-                              contentPadding: const EdgeInsets.all(10)),
+                        child: Container(
+                          decoration: BoxDecoration(
+                              borderRadius:
+                                  const BorderRadius.all(Radius.circular(15)),
+                              color: MainCubit.get(context).isDark
+                                  ? HexColor("#242F3D")
+                                  : Colors.white),
+                          child: TextFormField(
+                            controller: contentController,
+                            maxLines: 100,
+                            minLines: 1,
+                            cursorColor: MainCubit.get(context).isDark
+                                ? Colors.white
+                                : Colors.black,
+                            autofocus: addComent,
+                            keyboardType: TextInputType.multiline,
+                            validator: validateContent,
+                            decoration: InputDecoration(
+                                suffix: IconButton(
+                                  color: HexColor("#6823D0"),
+                                  onPressed: () {
+                                    if (formKey.currentState!.validate()) {
+                                      cubit.addComment(
+                                          postId: id,
+                                          text: contentController.text);
+                                    }
+                                  },
+                                  icon: const Icon(Icons.send),
+                                ),
+                                label: const Text('Write comment'),
+                                labelStyle:
+                                    TextStyle(color: HexColor("#6823D0")),
+                                border: const OutlineInputBorder(),
+                                enabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.grey),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: HexColor("#6823D0")),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(10.0)),
+                                ),
+                                contentPadding: const EdgeInsets.all(10)),
+                          ),
                         ),
                       ),
                       const SizedBox(
@@ -592,14 +567,91 @@ class ViewPostScreen extends StatelessWidget {
                           color: HexColor("#6823D0"),
                           backgroundColor: Colors.white,
                         ),
-                      ConditionalBuilder(
-                          condition: cubit.comment != null,
-                          builder: (context) => buildComments(
-                              PurpleBookCubit.get(context).comment!,
-                              context,
-                              id),
-                          fallback: (context) =>
-                              const Center(child: CircularProgressIndicator()))
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(10.0),
+                            child: DropdownButton(
+                                style: TextStyle(
+                                    color: MainCubit.get(context).isDark
+                                        ? Colors.white
+                                        : Colors.black),
+                                items: [
+                                  DropdownMenuItem(
+                                    value: "date",
+                                    child: Text(
+                                      'date',
+                                      style: TextStyle(
+                                          color: MainCubit.get(context).isDark
+                                              ? Colors.white
+                                              : Colors.black),
+                                    ),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: "Most liked",
+                                    child: Text(
+                                      'Most Liked',
+                                      style: TextStyle(
+                                          color: MainCubit.get(context).isDark
+                                              ? Colors.white
+                                              : Colors.black),
+                                    ),
+                                  ),
+                                ],
+                                dropdownColor: MainCubit.get(context).isDark
+                                    ? HexColor("#242F3D")
+                                    : Colors.white,
+                                value: cubit.dropDownValue,
+                                onChanged: (value) {
+                                  cubit.dropDownValue = value!;
+                                  if (value == 'date') {
+                                    cubit.getComments(id: id);
+                                  } else {
+                                    cubit.getComments(id: id);
+                                  }
+                                }),
+                          ),
+                          ConditionalBuilder(
+                              condition: cubit.comment != null,
+                              builder: (context) => buildComments(
+                                  PurpleBookCubit.get(context).comment!,
+                                  context,
+                                  id),
+                              fallback: (context) => const Center(
+                                  child: CircularProgressIndicator())),
+                          if (!cubit.isEndComments)
+                            ConditionalBuilder(
+                              condition:
+                                  state is! GetMoreCommentPostLoadingState,
+                              fallback: (context) => Center(
+                                child: CircularProgressIndicator(
+                                  color: HexColor("#6823D0"),
+                                ),
+                              ),
+                              builder: (context) => Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                      color: HexColor("#6823D0"),
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(20))),
+                                  child: TextButton(
+                                    onPressed: () {
+                                      cubit.getMoreComments(id: id);
+                                    },
+                                    child: const Text(
+                                      'Show More',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 20),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                        ],
+                      )
                     ],
                   ),
                 )),
@@ -628,7 +680,7 @@ class ViewPostScreen extends StatelessWidget {
                         Row(
                           children: [
                             CircleAvatar(
-                                radius: 25,
+                                radius: 30,
                                 backgroundImage: user.comments![index].author!
                                         .imageMini!.data!.isNotEmpty
                                     ? Image.memory(base64Decode(user
@@ -647,12 +699,10 @@ class ViewPostScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${user.comments![index].author!.firstName} ${user.comments![index].author!.lastName}',
-                                    style: const TextStyle(
-                                        height: 1.3,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 17),
-                                  ),
+                                      '${user.comments![index].author!.firstName} ${user.comments![index].author!.lastName}',
+                                      style: Theme.of(context_1)
+                                          .textTheme
+                                          .headline6),
                                   if (DateTime.now()
                                           .difference(
                                               user.comments![index].createdAt!)
@@ -682,112 +732,127 @@ class ViewPostScreen extends StatelessWidget {
                               ),
                             ),
                             if (userId == user.comments![index].author!.sId)
-                              PopupMenuButton(onSelected: (value) {
-                                if (value == Constants.edit) {
-                                  editCommentController.text =
-                                      user.comments![index].content!;
-                                  showDialog<String>(
-                                      context: context_1,
-                                      builder: (BuildContext context) =>
-                                          AlertDialog(
-                                              title: const Text('Edit'),
-                                              content: TextFormField(
-                                                controller:
-                                                    editCommentController,
-                                                maxLines: 100,
-                                                minLines: 1,
-                                                keyboardType:
-                                                    TextInputType.multiline,
-                                                decoration: InputDecoration(
-                                                    label: const Text(
-                                                        'Write comment'),
-                                                    labelStyle: TextStyle(
-                                                        color: HexColor(
-                                                            "#6823D0")),
-                                                    hintStyle: Theme.of(context)
-                                                        .textTheme
-                                                        .subtitle2,
-                                                    border:
-                                                        const OutlineInputBorder(),
-                                                    enabledBorder:
-                                                        const OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: Colors.grey),
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                    ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                      borderSide: BorderSide(
-                                                          color: HexColor(
-                                                              "#6823D0")),
-                                                      borderRadius:
-                                                          const BorderRadius
-                                                                  .all(
-                                                              Radius.circular(
-                                                                  10.0)),
-                                                    ),
-                                                    contentPadding:
-                                                        const EdgeInsets.all(
-                                                            10)),
-                                              ),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () {
-                                                    Navigator.pop(
-                                                        context, 'Cancel');
-                                                  },
-                                                  child: Text(
-                                                    'Cancel',
-                                                    style: TextStyle(
-                                                        color: HexColor(
-                                                            "#6823D0")),
+                              PopupMenuButton(
+                                  icon: Icon(
+                                    Icons.more_vert,
+                                    color: MainCubit.get(context_1).isDark
+                                        ? Colors.white
+                                        : Colors.black,
+                                  ),
+                                  onSelected: (value) {
+                                    if (value == Constants.edit) {
+                                      editCommentController.text =
+                                          user.comments![index].content!;
+                                      showDialog<String>(
+                                          context: context_1,
+                                          builder: (BuildContext context) =>
+                                              AlertDialog(
+                                                  title: const Text('Edit'),
+                                                  content: TextFormField(
+                                                    controller:
+                                                        editCommentController,
+                                                    maxLines: 100,
+                                                    minLines: 1,
+                                                    keyboardType:
+                                                        TextInputType.multiline,
+                                                    decoration: InputDecoration(
+                                                        label: const Text(
+                                                            'Write comment'),
+                                                        labelStyle: TextStyle(
+                                                            color: HexColor(
+                                                                "#6823D0")),
+                                                        hintStyle:
+                                                            Theme.of(context)
+                                                                .textTheme
+                                                                .subtitle2,
+                                                        border:
+                                                            const OutlineInputBorder(),
+                                                        enabledBorder:
+                                                            const OutlineInputBorder(
+                                                          borderSide:
+                                                              BorderSide(
+                                                                  color: Colors
+                                                                      .grey),
+                                                          borderRadius:
+                                                              BorderRadius.all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10.0)),
+                                                        ),
+                                                        focusedBorder:
+                                                            OutlineInputBorder(
+                                                          borderSide: BorderSide(
+                                                              color: HexColor(
+                                                                  "#6823D0")),
+                                                          borderRadius:
+                                                              const BorderRadius
+                                                                      .all(
+                                                                  Radius
+                                                                      .circular(
+                                                                          10.0)),
+                                                        ),
+                                                        contentPadding:
+                                                            const EdgeInsets
+                                                                .all(10)),
                                                   ),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () {
-                                                    PurpleBookCubit.get(
-                                                            context_1)
-                                                        .editComment(
-                                                            postId: postId,
-                                                            commentId: user
-                                                                .comments![
-                                                                    index]
-                                                                .sId!,
-                                                            text:
-                                                                editCommentController
-                                                                    .text)
-                                                        .then((value) {
-                                                      showMsg(
-                                                          msg:
-                                                              'editing successfully',
-                                                          color: ColorMsg
-                                                              .inCorrect);
-                                                      Navigator.pop(
-                                                          context, 'OK');
-                                                    });
-                                                  },
-                                                  child: Text('OK',
-                                                      style: TextStyle(
-                                                          color: HexColor(
-                                                              "#6823D0"))),
-                                                ),
-                                              ]));
-                                } else if (Constants.delete == value) {
-                                  PurpleBookCubit.get(context_1).deleteComment(
-                                      postId: id,
-                                      commentId: user.comments![index].sId!);
-                                }
-                              }, itemBuilder: (BuildContext context) {
-                                return Constants.chose.map((e) {
-                                  return PopupMenuItem<String>(
-                                    value: e,
-                                    child: Text(e),
-                                  );
-                                }).toList();
-                              })
+                                                  actions: [
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(
+                                                            context, 'Cancel');
+                                                      },
+                                                      child: Text(
+                                                        'Cancel',
+                                                        style: TextStyle(
+                                                            color: HexColor(
+                                                                "#6823D0")),
+                                                      ),
+                                                    ),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        PurpleBookCubit.get(
+                                                                context_1)
+                                                            .editComment(
+                                                                postId: postId,
+                                                                commentId: user
+                                                                    .comments![
+                                                                        index]
+                                                                    .sId!,
+                                                                text:
+                                                                    editCommentController
+                                                                        .text)
+                                                            .then((value) {
+                                                          showMsg(
+                                                              msg:
+                                                                  'editing successfully',
+                                                              color: ColorMsg
+                                                                  .inCorrect);
+                                                          Navigator.pop(
+                                                              context, 'OK');
+                                                        });
+                                                      },
+                                                      child: Text('OK',
+                                                          style: TextStyle(
+                                                              color: HexColor(
+                                                                  "#6823D0"))),
+                                                    ),
+                                                  ]));
+                                    } else if (Constants.delete == value) {
+                                      PurpleBookCubit.get(context_1)
+                                          .deleteComment(
+                                              postId: id,
+                                              commentId:
+                                                  user.comments![index].sId!);
+                                    }
+                                  },
+                                  itemBuilder: (BuildContext context) {
+                                    return Constants.chose.map((e) {
+                                      return PopupMenuItem<String>(
+                                        value: e,
+                                        child: Text(e),
+                                      );
+                                    }).toList();
+                                  })
                           ],
                         ),
                         Padding(
@@ -798,9 +863,15 @@ class ViewPostScreen extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),
-                        Text(
-                          parseFragment(user.comments![index].content).text!,
-                          style: const TextStyle(fontSize: 20),
+                        Html(
+                          data: "${user.comments![index].content}",
+                          style: {
+                            "body": Style(
+                                fontSize: FontSize(18.0),
+                                color: MainCubit.get(context_1).isDark
+                                    ? Colors.white
+                                    : Colors.black),
+                          },
                         ),
                         const SizedBox(
                           height: 20,
@@ -822,8 +893,6 @@ class ViewPostScreen extends StatelessWidget {
                                   PurpleBookCubit.get(context_1)
                                       .getComments(id: id);
                                 });
-                                PurpleBookCubit.get(context_1)
-                                    .changeLikeComment(index);
                               },
                               icon: const Icon(Icons.thumb_up_alt_outlined),
                               color: PurpleBookCubit.get(context_1)
@@ -838,6 +907,9 @@ class ViewPostScreen extends StatelessWidget {
                                 child: InkWell(
                                   splashColor: HexColor("#6823D0"),
                                   onTap: () {
+                                    showMsg(
+                                        msg: 'Just a second',
+                                        color: ColorMsg.inCorrect);
                                     PurpleBookCubit.get(context_1)
                                         .getLikeComments(
                                             commentId:
@@ -881,10 +953,10 @@ class ViewPostScreen extends StatelessWidget {
                   height: 10,
                 ),
             itemCount: user.comments!.length),
-        fallback: (context_1) => const Center(
+        fallback: (context_1) => Center(
           child: Text(
             'No Comments Yet (•_•)',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+            style: Theme.of(context_1).textTheme.headline6,
           ),
         ),
       );
@@ -899,29 +971,39 @@ class ViewPostScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  CircleAvatar(
-                      radius: 25,
-                      backgroundImage: likeComment
-                              .users![index].imageMini!.data!.data!.isNotEmpty
-                          ? Image.memory(Uint8List.fromList(likeComment
-                                  .users![index].imageMini!.data!.data!))
-                              .image
-                          : const AssetImage('assets/image/user.jpg')),
+                  InkWell(
+                    onTap: () => Navigator.push(
+                        context_1,
+                        MaterialPageRoute(
+                            builder: (context_1) => UserProfileScreen(
+                                id: likeComment.users![index].sId!))),
+                    child: CircleAvatar(
+                        radius: 25,
+                        backgroundImage: likeComment
+                                .users![index].imageMini!.data!.data!.isNotEmpty
+                            ? Image.memory(Uint8List.fromList(likeComment
+                                    .users![index].imageMini!.data!.data!))
+                                .image
+                            : const AssetImage('assets/image/user.jpg')),
+                  ),
                   const SizedBox(
                     width: 10,
                   ),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${likeComment.users![index].firstName} ${likeComment.users![index].lastName}',
-                          style: const TextStyle(
-                              height: 1.3,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17),
-                        ),
-                      ],
+                    child: InkWell(
+                      onTap: () => Navigator.push(
+                          context_1,
+                          MaterialPageRoute(
+                              builder: (context_1) => UserProfileScreen(
+                                  id: likeComment.users![index].sId!))),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                              '${likeComment.users![index].firstName} ${likeComment.users![index].lastName}',
+                              style: Theme.of(context_1).textTheme.subtitle1),
+                        ],
+                      ),
                     ),
                   ),
                   if (likeComment.users![index].sId != userId)
@@ -1120,36 +1202,38 @@ class ViewPostScreen extends StatelessWidget {
         itemCount: likeComment.users!.length,
       );
 
-  Widget buildBottomSheet(LikesModule user, int index, context_1) => Padding(
+  Widget buildLikesPost(LikesModule user, int index, context_1) => Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Row(
               children: [
-                CircleAvatar(
-                    radius: 25,
-                    backgroundImage:
-                        user.users![index].imageMini!.data!.data!.isNotEmpty
-                            ? Image.memory(Uint8List.fromList(
-                                    user.users![index].imageMini!.data!.data!))
-                                .image
-                            : const AssetImage('assets/image/user.jpg')),
+                InkWell(
+                  onTap: () => Navigator.push(context_1, MaterialPageRoute(builder: (context_1)=>UserProfileScreen(id: user.users![index].sId!))),
+                  child: CircleAvatar(
+                      radius: 25,
+                      backgroundImage:
+                          user.users![index].imageMini!.data!.data!.isNotEmpty
+                              ? Image.memory(Uint8List.fromList(
+                                      user.users![index].imageMini!.data!.data!))
+                                  .image
+                              : const AssetImage('assets/image/user.jpg')),
+                ),
                 const SizedBox(
                   width: 10,
                 ),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        '${user.users![index].firstName} ${user.users![index].lastName}',
-                        style: const TextStyle(
-                            height: 1.3,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 17),
-                      ),
-                    ],
+                  child: InkWell(
+                    onTap: () => Navigator.push(context_1, MaterialPageRoute(builder: (context_1)=>UserProfileScreen(id: user.users![index].sId!))),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                            '${user.users![index].firstName} ${user.users![index].lastName}',
+                            style: Theme.of(context_1).textTheme.subtitle1),
+                      ],
+                    ),
                   ),
                 ),
                 if (user.users![index].sId != userId)

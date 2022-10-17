@@ -26,7 +26,7 @@ void main() async {
   token = CachHelper.getData(key: 'token');
   userId = CachHelper.getData(key: 'userId');
   isAdmin = CachHelper.getData(key: 'isAdmin');
-  bool isDark = CachHelper.getData(key: 'isDark');
+  bool isDark = CachHelper.getData(key: 'isDark') ?? false;
   if (token != null) {
     widget = const PurpleBookScreen();
   } else {
@@ -54,6 +54,25 @@ class MyApp extends StatelessWidget {
         builder: (context, state) => MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
+              textTheme: TextTheme(
+                  bodyText1: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                  bodyText2: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold),
+                  headline5: const TextStyle(color: Colors.black),
+                  caption: const TextStyle(color: Colors.grey),
+                  headline4: const TextStyle(
+                      color: Colors.black,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold),
+                  subtitle1: const TextStyle(color: Colors.black),
+                  subtitle2: TextStyle(color: Colors.grey.shade300),
+                  headline6: const TextStyle(
+                      color: Colors.black, fontWeight: FontWeight.bold)),
               scaffoldBackgroundColor: Colors.white,
               appBarTheme: AppBarTheme(
                   systemOverlayStyle: SystemUiOverlayStyle(
@@ -64,6 +83,8 @@ class MyApp extends StatelessWidget {
                   selectedItemColor: HexColor("#6823D0"),
                   elevation: 10)),
           darkTheme: ThemeData(
+              bottomSheetTheme:
+                  BottomSheetThemeData(backgroundColor: HexColor("#242F3D")),
               dialogTheme: DialogTheme(backgroundColor: HexColor("#242F3D")),
               drawerTheme:
                   DrawerThemeData(backgroundColor: (HexColor("#17212B"))),
@@ -75,6 +96,15 @@ class MyApp extends StatelessWidget {
               listTileTheme: const ListTileThemeData(
                   iconColor: Colors.white, textColor: Colors.white),
               textTheme: TextTheme(
+                  caption: const TextStyle(color: Colors.grey),
+                  bodyText1: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                  bodyText2: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 25,
+                      fontWeight: FontWeight.bold),
                   headline5: const TextStyle(color: Colors.white),
                   headline4: const TextStyle(
                       color: Colors.white,

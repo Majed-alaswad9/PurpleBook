@@ -1,15 +1,15 @@
 import 'package:html_unescape/html_unescape.dart';
 
 class UserCommentsModule {
-  List<Comments>? comments;
+  List<UserComments>? comments;
 
   UserCommentsModule({this.comments});
 
   UserCommentsModule.fromJson(Map<String, dynamic> json) {
     if (json['comments'] != null) {
-      comments = <Comments>[];
+      comments = <UserComments>[];
       json['comments'].forEach((v) {
-        comments!.add(Comments.fromJson(v));
+        comments!.add(UserComments.fromJson(v));
       });
     }
   }
@@ -24,7 +24,7 @@ class UserCommentsModule {
 }
 
 var unescape = HtmlUnescape();
-class Comments {
+class UserComments {
   String? sId;
   String? content;
   String? createdAt;
@@ -33,7 +33,7 @@ class Comments {
   int? likesCount;
 
 
-  Comments(
+  UserComments(
       {this.sId,
         this.content,
         this.createdAt,
@@ -41,7 +41,7 @@ class Comments {
         this.likedByUser,
         this.likesCount});
 
-  Comments.fromJson(Map<String, dynamic> json) {
+  UserComments.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     content = unescape.convert(json['content']);
     createdAt = json['createdAt'];

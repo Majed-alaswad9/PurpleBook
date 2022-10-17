@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 class ViewStringImage extends StatelessWidget {
   final String image;
@@ -11,7 +12,6 @@ class ViewStringImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: HexColor("#6823D0"),
         actions: [
@@ -20,7 +20,12 @@ class ViewStringImage extends StatelessWidget {
               'Save',
               style: TextStyle(color: Colors.white, fontSize: 17),
             ),
-            onPressed: () async {},
+            onPressed: () async {
+              await ImageGallerySaver.saveImage(
+                  base64Decode(image).buffer.asUint8List());
+              ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('✅ Saved Successfully')));
+            },
           )
         ],
       ),

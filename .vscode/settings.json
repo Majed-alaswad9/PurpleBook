@@ -3,5 +3,6 @@
         "Cach",
         "hexcolor",
         "purplebook"
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "interactive"
 }

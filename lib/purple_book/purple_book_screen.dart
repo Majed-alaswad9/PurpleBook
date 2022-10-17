@@ -228,11 +228,6 @@ class NavigationDrawer extends StatelessWidget {
         runSpacing: 16,
         children: [
           ListTile(
-            leading: const Icon(Icons.mode_night),
-            title: const Text('Theme mode'),
-            onTap: () {},
-          ),
-          ListTile(
             leading: const Icon(Icons.home),
             title: const Text('Feed'),
             onTap: () {

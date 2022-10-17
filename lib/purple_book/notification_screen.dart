@@ -218,7 +218,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                     id: PurpleBookCubit.get(context_1)
                                         .notificationsModule!
                                         .notifications![index]
-                                        .links![2]
+                                        .links![1]
                                         .linkId!,
                                     addComent: false,
                                     isFocus: true,

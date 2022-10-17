@@ -49,7 +49,7 @@ class AppInfo extends StatelessWidget {
             const SizedBox(
               height: 10,
             ),
-            Text('Developer By:',
+            Text('Developed By:',
                 style: TextStyle(fontSize: 16, color: Colors.grey.shade300)),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -57,22 +57,38 @@ class AppInfo extends StatelessWidget {
                 TextButton(
                     onPressed: () async {
                       const toEmail = 'alaswadmajed389@gmail.com';
-                      final url = Uri.parse('mailto:$toEmail');
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url);
-                      }
+                      final url = Uri.parse('mailto:$toEmail?subject=tell us how we can help');
+
+                      await launchUrl(url);
                     },
                     child: const Text('Majed Alaswad',
                         style: TextStyle(color: Colors.blue))),
                 TextButton(
                     onPressed: () async {
                       const toEmail = 'islamnaasani@gmail.com';
-                      final url = Uri.parse('mailto:$toEmail');
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url);
-                      }
+                      final url = Uri.parse('mailto:$toEmail?subject=tell us how we can help');
+                      await launchUrl(url);
                     },
                     child: const Text('Islam Nassani',
+                        style: TextStyle(color: Colors.blue))),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Source code: ',
+                  style: TextStyle(color: Colors.white),
+                ),
+                TextButton(
+                    onPressed: () async {
+                      const http =
+                          'https://github.com/Majed-alaswad9/PurpleBook';
+                      final url = Uri.parse(http);
+                      if (await launchUrl(url,
+                          mode: LaunchMode.externalApplication)) {}
+                    },
+                    child: const Text('GitHub',
                         style: TextStyle(color: Colors.blue))),
               ],
             ),
