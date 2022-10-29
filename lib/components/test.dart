@@ -1,54 +1,49 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 
-class DemoPage extends StatefulWidget {
-  const DemoPage({Key? key}) : super(key: key);
+class Scroll extends StatefulWidget {
+  const Scroll({super.key});
 
   @override
-  State<DemoPage> createState() => _DemoPageState();
+  State<Scroll> createState() => _ScrollState();
 }
 
+class _ScrollState extends State<Scroll> {
+  final ScrollController _scrollController = ScrollController();
+  mockFetch() async {
+    await Future.delayed(Duration(milliseconds: 300));
+  }
 
+  @override
+  void initState() {
+    super.initState();
+    // mockFetch();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent) {
+        print('end scroll');
+        // mockFetch();
+      }
+    });
+  }
 
-class _DemoPageState extends State<DemoPage> {
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    
-    return  Scaffold(
-      appBar:  AppBar(
-        title:  const Text("Offline Demo"),
-      ),
-      body: OfflineBuilder(
-        connectivityBuilder: (
-          BuildContext context,
-          ConnectivityResult connectivity,
-          Widget child,
-        ) {
-          final bool connected = connectivity != ConnectivityResult.none;
-          connected? ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Online Now'))):null;
-          return  Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned(
-                height: 24.0,
-                left: 0.0,
-                right: 0.0,
-                child: Container(
-                  color: connected ? const Color(0xFF00EE44) : const Color(0xFFEE4400),
-                  child: Center(
-                    child: Text(connected ? 'ONLINE' : 'OFFLINE'),
-                  ),
-                ),
-              ),
-              const Center(
-                child:  Text(
-                  'Yay!',
-                ),
-              ),
-            ],
-          );
-        },
-      ),
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: ListView.separated(
+            controller: _scrollController,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemBuilder: (context, index) => const Text('data'),
+            separatorBuilder: (context, index) => const Divider(),
+            itemCount: 20)
     );
   }
 }

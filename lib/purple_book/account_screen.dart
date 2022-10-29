@@ -819,7 +819,7 @@ class AccountScreen extends StatelessWidget {
     );
   }
 
-  // build Widget user comments
+  //* build Widget user comments
   Widget userComments(context_1, UserCommentsModule? comment) =>
       ConditionalBuilder(
           condition: comment!.comments != null &&
@@ -991,7 +991,7 @@ class AccountScreen extends StatelessWidget {
                     style: Theme.of(context).textTheme.headline4),
               ));
 
-  //build Widget user posts
+  //* build Widget user posts
   Widget userPosts(context) => ConditionalBuilder(
         condition: PurpleBookCubit.get(context).userPost!.posts!.isNotEmpty,
         builder: (context) => ListView.separated(
@@ -1010,7 +1010,7 @@ class AccountScreen extends StatelessWidget {
         )),
       );
 
-  //build Widget user friends
+  //* build Widget user friends
   Widget userFriend(context, UserFriendsModule? friend) => ConditionalBuilder(
       condition: friend!.friends!.isNotEmpty,
       builder: (context) => ListView.separated(
@@ -1763,6 +1763,7 @@ class AccountScreen extends StatelessWidget {
         ),
       );
 
+  //* show likes comment
   Widget buildLikesComment(
           CommentLikesModule commentLike, int index, context_1) =>
       Padding(

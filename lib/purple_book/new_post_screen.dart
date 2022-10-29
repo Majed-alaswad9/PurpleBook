@@ -99,6 +99,11 @@ class NewPostScreen extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: TextFormField(
+                                scrollPadding: EdgeInsets.all(10),
+                                autofocus: true,
+                                onChanged: (value) {
+                                  print(value);
+                                },
                                 controller: contentController,
                                 maxLines: 100,
                                 minLines: 1,

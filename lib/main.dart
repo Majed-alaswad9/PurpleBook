@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
+import 'package:purplebook/components/test.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/cubit/state.dart';
 import 'package:purplebook/login_sigin/signin_screen.dart';
@@ -64,7 +65,7 @@ class MyApp extends StatelessWidget {
                       fontSize: 25,
                       fontWeight: FontWeight.bold),
                   headline5: const TextStyle(color: Colors.black),
-                  caption: const TextStyle(color: Colors.grey),
+                  caption: const TextStyle(color: Colors.grey,height: 1.5,fontSize: 14),
                   headline4: const TextStyle(
                       color: Colors.black,
                       fontSize: 28,
@@ -117,7 +118,7 @@ class MyApp extends StatelessWidget {
               appBarTheme: AppBarTheme(
                   systemOverlayStyle: SystemUiOverlayStyle(
                       statusBarColor: HexColor("#6823D0"),
-                      statusBarIconBrightness: Brightness.dark)),
+                      statusBarIconBrightness: Brightness.light)),
               bottomNavigationBarTheme: BottomNavigationBarThemeData(
                   type: BottomNavigationBarType.fixed,
                   selectedItemColor: HexColor("#6823D0"),

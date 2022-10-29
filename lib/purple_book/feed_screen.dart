@@ -3,11 +3,11 @@ import 'dart:typed_data';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:html/parser.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/modules/feed_moduel.dart';
 import 'package:purplebook/modules/likes_module.dart';
@@ -22,10 +22,45 @@ import '../components/const.dart';
 import '../components/end_points.dart';
 
 // ignore: must_be_immutable
-class FeedScreen extends StatelessWidget {
+class FeedScreen extends StatefulWidget {
   FeedScreen({Key? key}) : super(key: key);
+
+  @override
+  State<FeedScreen> createState() => _FeedScreenState();
+}
+
+class _FeedScreenState extends State<FeedScreen> {
   var keyScaffold = GlobalKey<ScaffoldState>();
+
   var contentController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  mockFetch() async {
+    if (PurpleBookCubit.get(context).isEndFeed) return;
+
+    await Future.delayed(Duration(milliseconds: 300));
+    setState(() {
+      PurpleBookCubit.get(context).getMoreFeed();
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // mockFetch();
+    _scrollController.addListener(() {
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent) {
+        print('end scroll');
+        // mockFetch();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,51 +142,36 @@ class FeedScreen extends StatelessWidget {
                                       LinearProgressIndicator(
                                         color: HexColor("#6823D0"),
                                       ),
-                                    ListView.separated(
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        itemBuilder: (context, index) =>
-                                            buildPost(context,
-                                                cubit.feedModule!, index),
-                                        separatorBuilder: (context, index) =>
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                        itemCount:
-                                            cubit.feedModule!.posts!.length),
-                                    if (!cubit.isEndFeed)
-                                      ConditionalBuilder(
-                                        condition:
-                                            state is! GetMoreFeedLoadingState &&
-                                                cubit.isLikePost != null,
-                                        builder: (context) => Padding(
-                                          padding: const EdgeInsets.all(8.0),
-                                          child: Container(
-                                            width: double.infinity,
-                                            decoration: BoxDecoration(
-                                                color: HexColor("#6823D0"),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(20))),
-                                            child: MaterialButton(
-                                              onPressed: () {
-                                                cubit.getMoreFeed();
-                                              },
-                                              child: const Text(
-                                                'show more',
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 20),
+                                     ListView.separated(
+                                          controller: _scrollController,
+                                          shrinkWrap: true,
+                                          // physics:
+                                          //     const NeverScrollableScrollPhysics(),
+                                          itemBuilder: (context, index) {
+                                            if (!cubit.isEndFeed) {
+                                              return buildPost(context,
+                                                  cubit.feedModule!, index);
+                                            } else {
+                                              return SizedBox(
+                                                width: double.infinity,
+                                                height: 50,
+                                                child: Center(
+                                                    child: Text(
+                                                  'Nothing more to load',
+                                                  style: Theme.of(context)
+                                                      .textTheme
+                                                      .headline6,
+                                                )),
+                                              );
+                                            }
+                                          },
+                                          separatorBuilder: (context, index) =>
+                                              const SizedBox(
+                                                height: 10,
                                               ),
-                                            ),
-                                          ),
-                                        ),
-                                        fallback: (context) => Center(
-                                            child: CircularProgressIndicator(
-                                          color: HexColor("#6823D0"),
-                                        )),
-                                      )
+                                          itemCount:
+                                              cubit.feedModule!.posts!.length)
+                                    
                                   ],
                                 ),
                                 condition: cubit.feedModule!.posts!.isNotEmpty,
@@ -334,6 +354,25 @@ class FeedScreen extends StatelessWidget {
                 color: Colors.grey,
               ),
             ),
+            if(!feed.posts![index].content!.contains('<'))
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                      conteext,
+                      MaterialPageRoute(
+                          builder: (context) => ViewPostScreen(
+                            id: feed.posts![index].sId!,
+                            addComent: false,
+                            isFocus: false,
+                          )));
+                },
+
+                child: Text(
+                   feed.posts![index].content!,
+                  style: Theme.of(conteext).textTheme.headline5,
+                ),
+              )
+            else
             InkWell(
               onTap: () {
                 Navigator.push(
@@ -345,6 +384,7 @@ class FeedScreen extends StatelessWidget {
                               isFocus: false,
                             )));
               },
+
               child: Html(
                 data: feed.posts![index].content!,
                 style: {
@@ -370,11 +410,11 @@ class FeedScreen extends StatelessWidget {
                 },
                 child: Container(
                   width: double.infinity,
-                  height: 250,
+                  height: 350,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       image: DecorationImage(
-                          fit: BoxFit.fill,
+                          fit: BoxFit.contain,
                           image: Image.memory(
                                   base64Decode(feed.posts![index].image!.data!))
                               .image)),

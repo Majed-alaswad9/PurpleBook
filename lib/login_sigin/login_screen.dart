@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/components/const.dart';
+import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_cubit.dart';
 import 'package:purplebook/login_sigin/cubit/bloc_state.dart';
 import 'package:purplebook/login_sigin/signin_screen.dart';
@@ -11,10 +12,7 @@ import 'package:purplebook/network/local/cach_helper.dart';
 import '../components/end_points.dart';
 import '../purple_book/purple_book_screen.dart';
 
-
-
 class LoginScreen extends StatelessWidget {
-
   LoginScreen({Key? key}) : super(key: key);
   var emailController = TextEditingController();
 
@@ -43,13 +41,16 @@ class LoginScreen extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => const PurpleBookScreen()),
                   (route) => false);
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(duration: Duration(seconds: 3),content: Text('✅ Login Successfully')));
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  backgroundColor: HexColor("#6823D0"),
+                  duration: const Duration(seconds: 3),
+                  content: const Text('✅ Login Successfully')));
             });
           } else if (state is LoginErrorState) {
-            showMsg(
-                msg: 'Error, check the email or password',
-                color: ColorMsg.error);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+                content: Text(state.error.errors![0].msg!)));
           }
         },
         builder: (context, state) {

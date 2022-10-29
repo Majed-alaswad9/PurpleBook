@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purplebook/modules/login_error_module.dart';
 import 'package:purplebook/modules/login_module.dart';
 import 'package:purplebook/modules/signin_module.dart';
 import 'package:purplebook/network/remote/dio_helper.dart';
@@ -30,6 +31,7 @@ class LoginSignUpCubit extends Cubit<LoginSignupState> {
   }
 
   LogInModule? loginModul;
+  LoginErrorModule? loginError;
   void userLogin({
     required String email,
     required String password,
@@ -42,7 +44,9 @@ class LoginSignUpCubit extends Cubit<LoginSignupState> {
       loginModul = LogInModule.fromJson(value.data);
       emit(LoginSuccessState(loginModul!));
     }).catchError((error) {
-      emit(LoginErrorState(error.toString()));
+      loginError = LoginErrorModule.fromJson(error.response!.data);
+
+      emit(LoginErrorState(loginError!));
     });
   }
 
@@ -67,7 +71,8 @@ class LoginSignUpCubit extends Cubit<LoginSignupState> {
       userLogin(email: email, password: password);
       emit(SignupSuccessState());
     }).catchError((error) {
-      emit(SignupErrorState(error.toString()));
+       loginError = LoginErrorModule.fromJson(error.response!.data);
+      emit(SignupErrorState(loginError!));
     });
   }
 

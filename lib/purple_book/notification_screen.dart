@@ -247,6 +247,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         height: 10,
                       ),
                       if (DateTime.now()
+                              .difference(PurpleBookCubit.get(context)
+                                  .notificationsModule!
+                                  .notifications![index]
+                                  .createdAt!)
+                              .inMinutes <
+                          60)
+                        Text(
+                            '${DateTime.now().difference(PurpleBookCubit.get(context).notificationsModule!.notifications![index].createdAt!).inMinutes} minutes ago',
+                            style: Theme.of(context).textTheme.caption)
+                      else if (DateTime.now()
                               .difference(PurpleBookCubit.get(context_1)
                                   .notificationsModule!
                                   .notifications![index]
@@ -254,10 +264,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                               .inHours <
                           24)
                         Text(
-                          '${DateTime.now().difference(PurpleBookCubit.get(context_1).notificationsModule!.notifications![index].createdAt!).inHours} hours ago',
-                          style:
-                              const TextStyle(color: Colors.grey, height: 1.5),
-                        )
+                            '${DateTime.now().difference(PurpleBookCubit.get(context_1).notificationsModule!.notifications![index].createdAt!).inHours} hours ago',
+                            style: Theme.of(context_1).textTheme.caption)
                       else if (DateTime.now()
                               .difference(PurpleBookCubit.get(context_1)
                                   .notificationsModule!
@@ -267,15 +275,13 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           7)
                         Text(
                             '${DateTime.now().difference(PurpleBookCubit.get(context_1).notificationsModule!.notifications![index].createdAt!).inDays} days ago',
-                            style: const TextStyle(
-                                color: Colors.grey, height: 1.5))
+                            style: Theme.of(context_1).textTheme.caption)
                       else
                         Text(
                             '${PurpleBookCubit.get(context_1).notificationsModule!.notifications![index].createdAt!.year}-'
                             '${PurpleBookCubit.get(context_1).notificationsModule!.notifications![index].createdAt!.month}-'
                             '${PurpleBookCubit.get(context_1).notificationsModule!.notifications![index].createdAt!.day}',
-                            style: const TextStyle(
-                                color: Colors.grey, height: 1.5))
+                            style: Theme.of(context_1).textTheme.caption)
                     ],
                   ),
                 ),

@@ -228,9 +228,7 @@ class ViewPostScreen extends StatelessWidget {
                                                   24)
                                                 Text(
                                                     '${DateTime.now().difference(cubit.postView!.post!.createdAt!).inHours} hours ago',
-                                                    style: const TextStyle(
-                                                        height: 1.3,
-                                                        color: Colors.grey))
+                                                    style: Theme.of(context_1).textTheme.caption)
                                               else if (DateTime.now()
                                                       .difference(cubit
                                                           .postView!
@@ -240,17 +238,13 @@ class ViewPostScreen extends StatelessWidget {
                                                   7)
                                                 Text(
                                                     '${DateTime.now().difference(cubit.postView!.post!.createdAt!).inDays} days ago',
-                                                    style: const TextStyle(
-                                                        height: 1.3,
-                                                        color: Colors.grey))
+                                                    style:Theme.of(context_1).textTheme.caption)
                                               else
                                                 Text(
                                                     '${cubit.postView!.post!.createdAt!.year}-'
                                                     '${cubit.postView!.post!.createdAt!.month}-'
                                                     '${cubit.postView!.post!.createdAt!.day}',
-                                                    style: const TextStyle(
-                                                        height: 1.3,
-                                                        color: Colors.grey))
+                                                    style: Theme.of(context_1).textTheme.caption)
                                             ],
                                           ),
                                         ),
@@ -348,15 +342,21 @@ class ViewPostScreen extends StatelessWidget {
                                       color: Colors.grey,
                                     ),
                                   ),
+                                  if(cubit.postView!.post!.content!.contains('<'))
                                   Html(
                                     data: "${cubit.postView!.post!.content}",
                                     style: {
                                       "body": Style(
-                                          fontSize: const FontSize(22.0),
+                                          // fontSize: const FontSize(22.0),
                                           color: MainCubit.get(context).isDark
                                               ? Colors.white
                                               : Colors.black),
                                     },
+                                  )
+                                  else
+                                  Text(
+                                     "${cubit.postView!.post!.content}",
+                                    style: Theme.of(context_1).textTheme.headline5,
                                   ),
                                   const SizedBox(
                                     height: 15,
@@ -378,12 +378,12 @@ class ViewPostScreen extends StatelessWidget {
                                       },
                                       child: Container(
                                         width: double.infinity,
-                                        height: 250,
+                                        height: 350,
                                         decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(5),
                                             image: DecorationImage(
-                                                fit: BoxFit.fill,
+                                                fit: BoxFit.contain,
                                                 image: Image.memory(
                                                         base64Decode(cubit
                                                             .postView!
@@ -403,15 +403,12 @@ class ViewPostScreen extends StatelessWidget {
                                         children: [
                                           IconButton(
                                             onPressed: () {
-                                              cubit.likePostFromViewPost(
-                                                  id: cubit
-                                                      .postView!.post!.sId!);
-                                              cubit.viewPosts(id: id);
+                                              cubit.likeSinglePost();
+                                              cubit.changeLikeSinglePost();
                                             },
                                             icon: const Icon(
-                                                Icons.thumb_up_alt_outlined),
-                                            color: cubit.postView!.post!
-                                                    .likedByUser!
+                                                Icons.thumb_up_alt_rounded),
+                                            color: cubit.isLikeSinglePost!
                                                 ? HexColor("#6823D0")
                                                 : Colors.grey,
                                           ),
@@ -419,7 +416,7 @@ class ViewPostScreen extends StatelessWidget {
                                             width: 5,
                                           ),
                                           if (cubit
-                                                  .postView!.post!.likesCount !=
+                                                  .likePostCount !=
                                               0)
                                             InkWell(
                                               onTap: () {
@@ -613,7 +610,7 @@ class ViewPostScreen extends StatelessWidget {
                                 }),
                           ),
                           ConditionalBuilder(
-                              condition: cubit.comment != null,
+                              condition: cubit.comment != null && cubit.isLikeComment!.isNotEmpty,
                               builder: (context) => buildComments(
                                   PurpleBookCubit.get(context).comment!,
                                   context,
@@ -624,9 +621,12 @@ class ViewPostScreen extends StatelessWidget {
                             ConditionalBuilder(
                               condition:
                                   state is! GetMoreCommentPostLoadingState,
-                              fallback: (context) => Center(
-                                child: CircularProgressIndicator(
-                                  color: HexColor("#6823D0"),
+                              fallback: (context) => Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: HexColor("#6823D0"),
+                                  ),
                                 ),
                               ),
                               builder: (context) => Padding(
@@ -710,8 +710,7 @@ class ViewPostScreen extends StatelessWidget {
                                       24)
                                     Text(
                                         '${DateTime.now().difference(user.comments![index].createdAt!).inHours} hours ago',
-                                        style: const TextStyle(
-                                            height: 1.3, color: Colors.grey))
+                                        style: Theme.of(context_1).textTheme.caption)
                                   else if (DateTime.now()
                                           .difference(
                                               user.comments![index].createdAt!)
@@ -719,19 +718,17 @@ class ViewPostScreen extends StatelessWidget {
                                       7)
                                     Text(
                                         '${DateTime.now().difference(user.comments![index].createdAt!).inDays} days ago',
-                                        style: const TextStyle(
-                                            height: 1.3, color: Colors.grey))
+                                        style: Theme.of(context_1).textTheme.caption)
                                   else
                                     Text(
                                         '${user.comments![index].createdAt!.year}-'
                                         '${user.comments![index].createdAt!.month}-'
                                         '${user.comments![index].createdAt!.day}',
-                                        style: const TextStyle(
-                                            height: 1.3, color: Colors.grey))
+                                        style: Theme.of(context_1).textTheme.caption)
                                 ],
                               ),
                             ),
-                            if (userId == user.comments![index].author!.sId)
+                            if (userId == user.comments![index].author!.sId||isAdmin!)
                               PopupMenuButton(
                                   icon: Icon(
                                     Icons.more_vert,
@@ -822,11 +819,6 @@ class ViewPostScreen extends StatelessWidget {
                                                                     editCommentController
                                                                         .text)
                                                             .then((value) {
-                                                          showMsg(
-                                                              msg:
-                                                                  'editing successfully',
-                                                              color: ColorMsg
-                                                                  .inCorrect);
                                                           Navigator.pop(
                                                               context, 'OK');
                                                         });
@@ -863,16 +855,21 @@ class ViewPostScreen extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),
+                        if(user.comments![index].content!.contains('<'))
                         Html(
                           data: "${user.comments![index].content}",
                           style: {
                             "body": Style(
-                                fontSize: FontSize(18.0),
                                 color: MainCubit.get(context_1).isDark
                                     ? Colors.white
                                     : Colors.black),
                           },
-                        ),
+                        )
+                        else
+                          Text(
+                              user.comments![index].content!,
+                            style: Theme.of(context_1).textTheme.headline5,
+                              ),
                         const SizedBox(
                           height: 20,
                         ),
@@ -888,17 +885,12 @@ class ViewPostScreen extends StatelessWidget {
                                                 .comment!
                                                 .comments![index]
                                                 .sId!,
-                                        index: index)
-                                    .then((value) {
-                                  PurpleBookCubit.get(context_1)
-                                      .getComments(id: id);
-                                });
+                                        index: index);
+                                PurpleBookCubit.get(context_1).changeLikeComment(index);
                               },
-                              icon: const Icon(Icons.thumb_up_alt_outlined),
+                              icon: const Icon(Icons.thumb_up_alt_rounded),
                               color: PurpleBookCubit.get(context_1)
-                                      .comment!
-                                      .comments![index]
-                                      .likedByUser!
+                                      .isLikeComment![index]
                                   ? HexColor("#6823D0")
                                   : Colors.grey,
                             ),

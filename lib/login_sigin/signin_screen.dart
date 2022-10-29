@@ -32,23 +32,7 @@ class SignInScreen extends StatelessWidget {
         return BlocProvider(
           create: (context) => LoginSignUpCubit(),
           child: BlocConsumer<LoginSignUpCubit, LoginSignupState>(
-            listener: (context, state) {
-              if (state is LoginSuccessState) {
-                isAdmin = state.logInModel.isAdmin;
-                token = state.logInModel.token;
-                userId = state.logInModel.userId;
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('✅ Signup Successfully')));
-                Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const PurpleBookScreen()),
-                    (route) => false);
-              } else if (state is SignupErrorState) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('❌ Signup Failed')));
-              }
-            },
+            listener: (context, state) {},
             builder: (context, state) {
               var cubit = LoginSignUpCubit.get(context);
               return Scaffold(

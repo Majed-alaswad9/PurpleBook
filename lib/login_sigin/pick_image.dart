@@ -31,7 +31,6 @@ class PickImage extends StatelessWidget {
       create: (context) => LoginSignUpCubit(),
       child: BlocConsumer<LoginSignUpCubit, LoginSignupState>(
         listener: (context, state) {
-
           //* login success
           if (state is LoginSuccessState) {
             CachHelper.saveData(key: 'token', value: state.logInModel.token)
@@ -49,10 +48,10 @@ class PickImage extends StatelessWidget {
                     builder: (context) => const PurpleBookScreen()),
                 (route) => false);
           } else if (state is SignupErrorState) {
-            showMsg(
-                msg:
-                    'Error, check the email should be not used before or connect internet',
-                color: ColorMsg.error);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.red,
+                duration: const Duration(seconds: 3),
+                content: Text(state.error.errors![0].msg!)));
           }
         },
         builder: (context, state) {

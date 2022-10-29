@@ -82,7 +82,7 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   Future<void> getMoreFeed() async {
     emit(GetMoreFeedLoadingState());
     return await DioHelper.getData(
-            url: '$feed?skip=$skip&limit=3', token: token)
+            url: '$feed?skip=$skip&limit=5', token: token)
         .then((value) {
       if (value.data['posts'].isNotEmpty) {
         skip += 5;
@@ -119,10 +119,44 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(ViewPostLoadingState());
     DioHelper.getData(url: '$posts$id', token: token).then((value) {
       postView = ViewPostModule.fromJson(value.data);
+      isLikeSinglePost=postView!.post!.likedByUser!;
+      likePostCount=postView!.post!.likesCount!;
       emit(ViewPostSuccessState());
     }).catchError((error) {
       emit(ViewPostErrorState());
     });
+  }
+
+  bool? isLikeSinglePost;
+  int? likePostCount;
+  void likeSinglePost(){
+    emit(AddLikeSinglePostLoadingState());
+    if(!isLikeSinglePost!){
+      DioHelper.postData(url: '$posts${postView!.post!.sId}$likePost_2',token: token).then((value) {
+        emit(AddLikeSinglePostSuccessState());
+      }).catchError((error){
+        emit(AddLikeSinglePostErrorState());
+      });
+    }
+    else{
+      DioHelper.deleteData(url: '$posts${postView!.post!.sId}$likePost_2',token: token).then((value) {
+        emit(DeleteLikeSinglePostSuccessState());
+      }).catchError((error){
+        emit(DeleteLikeSinglePostErrorState());
+      });
+    }
+  }
+
+  void changeLikeSinglePost(){
+    if(isLikeSinglePost!){
+      isLikeSinglePost=!isLikeSinglePost!;
+      likePostCount=likePostCount!+1;
+    }
+    else{
+      isLikeSinglePost=!isLikeSinglePost!;
+      likePostCount=likePostCount!-1;
+    }
+    emit(ChangeLikePostState());
   }
 
   void likePost({required String id, required int index}) {
@@ -143,25 +177,25 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
       });
     }
   }
-
-  void likePostFromViewPost({required String id}) {
-    emit(AddLikePostFromViewLoadingState());
-    if (!postView!.post!.likedByUser!) {
-      DioHelper.postData(url: '$posts$id$likePost_2', token: token)
-          .then((value) {
-        emit(AddLikePostFromViewSuccessState());
-      }).catchError((error) {
-        emit(AddLikePostFromViewErrorState());
-      });
-    } else {
-      DioHelper.deleteData(url: '$posts$id$likePost_2', token: token)
-          .then((value) {
-        emit(DeleteLikePostFromViewSuccessState());
-      }).catchError((error) {
-        emit(DeleteLikePostFromViewErrorState());
-      });
-    }
-  }
+  //
+  // void likePostFromViewPost({required String id}) {
+  //   emit(AddLikePostFromViewLoadingState());
+  //   if (!postView!.post!.likedByUser!) {
+  //     DioHelper.postData(url: '$posts$id$likePost_2', token: token)
+  //         .then((value) {
+  //       emit(AddLikePostFromViewSuccessState());
+  //     }).catchError((error) {
+  //       emit(AddLikePostFromViewErrorState());
+  //     });
+  //   } else {
+  //     DioHelper.deleteData(url: '$posts$id$likePost_2', token: token)
+  //         .then((value) {
+  //       emit(DeleteLikePostFromViewSuccessState());
+  //     }).catchError((error) {
+  //       emit(DeleteLikePostFromViewErrorState());
+  //     });
+  //   }
+  // }
 
   //* change color icon likes posts
   void changeColorIcon(int index) {

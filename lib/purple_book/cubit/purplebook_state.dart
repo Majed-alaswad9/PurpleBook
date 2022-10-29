@@ -47,6 +47,16 @@ class ViewPostSuccessState extends PurpleBookState {}
 
 class ViewPostErrorState extends PurpleBookState {}
 
+class AddLikeSinglePostLoadingState extends PurpleBookState {}
+
+class AddLikeSinglePostSuccessState extends PurpleBookState {}
+
+class AddLikeSinglePostErrorState extends PurpleBookState {}
+
+class DeleteLikeSinglePostSuccessState extends PurpleBookState {}
+
+class DeleteLikeSinglePostErrorState extends PurpleBookState {}
+
 class AddLikePostLoadingState extends PurpleBookState {}
 
 class AddLikePostSuccessState extends PurpleBookState {}
@@ -57,15 +67,7 @@ class DeleteLikePostSuccessState extends PurpleBookState {}
 
 class DeleteLikePostErrorState extends PurpleBookState {}
 
-class AddLikePostFromViewLoadingState extends PurpleBookState {}
-
-class AddLikePostFromViewSuccessState extends PurpleBookState {}
-
-class AddLikePostFromViewErrorState extends PurpleBookState {}
-
-class DeleteLikePostFromViewSuccessState extends PurpleBookState {}
-
-class DeleteLikePostFromViewErrorState extends PurpleBookState {}
+class ChangeLikePostState extends PurpleBookState{}
 
 class GetPostImageSuccessState extends PurpleBookState {}
 
