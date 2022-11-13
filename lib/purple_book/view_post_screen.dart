@@ -14,7 +14,7 @@ import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/edit_post_screen.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
 import 'package:purplebook/purple_book/user_profile.dart';
-import 'package:purplebook/purple_book/view_string_iamge.dart';
+import 'package:purplebook/purple_book/view_string_image.dart';
 import '../components/const.dart';
 import '../components/end_points.dart';
 import '../modules/likes_module.dart';
@@ -879,8 +879,8 @@ class ViewPostScreen extends StatelessWidget {
                               onPressed: () {
                                 PurpleBookCubit.get(context_1)
                                     .likeComment(
-                                        idPost: id,
-                                        idComment:
+                                        postId: id,
+                                        commentId:
                                             PurpleBookCubit.get(context_1)
                                                 .comment!
                                                 .comments![index]

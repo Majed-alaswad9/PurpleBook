@@ -19,7 +19,7 @@ import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/user_profile.dart';
 import 'package:purplebook/purple_book/view_list_image.dart';
-import 'package:purplebook/purple_book/view_string_iamge.dart';
+import 'package:purplebook/purple_book/view_string_image.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
 
 import '../components/const.dart';
@@ -640,12 +640,10 @@ class AccountScreen extends StatelessWidget {
                                         }
                                       }),
                                 ),
-                                if (state is GetUserPostLoadingState)
-                                  LinearProgressIndicator(
-                                      color: HexColor("#6823D0")),
+
                                 ConditionalBuilder(
                                   builder: (context) => userPosts(context),
-                                  condition: cubit.userPost != null,
+                                  condition: cubit.userPost != null && cubit.likesUserCount!.isNotEmpty,
                                   fallback: (context) => Center(
                                     child: CircularProgressIndicator(
                                         color: HexColor("#6823D0")),
@@ -737,15 +735,13 @@ class AccountScreen extends StatelessWidget {
                                         }
                                       }),
                                 ),
-                                if (state is GetUserCommentsLoadingState)
-                                  LinearProgressIndicator(
-                                      color: HexColor("#6823D0")),
+
                                 ConditionalBuilder(
                                   builder: (context) => userComments(
                                       context,
                                       PurpleBookCubit.get(context)
                                           .userComments),
-                                  condition: cubit.userComments != null,
+                                  condition: cubit.userComments != null && cubit.likeCommentCount!.isNotEmpty,
                                   fallback: (context) => Center(
                                     child: CircularProgressIndicator(
                                         color: HexColor("#6823D0")),
@@ -906,8 +902,8 @@ class AccountScreen extends StatelessWidget {
                             IconButton(
                               onPressed: () {
                                 PurpleBookCubit.get(context).likeComment(
-                                    idPost: comment.comments![index].post!.sId!,
-                                    idComment: comment.comments![index].sId!,
+                                    postId: comment.comments![index].post!.sId!,
+                                    commentId: comment.comments![index].sId!,
                                     index: index);
                                 PurpleBookCubit.get(context)
                                     .changeLikeComment(index);
@@ -927,7 +923,7 @@ class AccountScreen extends StatelessWidget {
                               InkWell(
                                 onTap: () {
                                   showMsg(
-                                      msg: 'Juse a second',
+                                      msg: 'Just a second',
                                       color: ColorMsg.inCorrect);
                                   PurpleBookCubit.get(context)
                                       .getLikeComments(
@@ -1296,6 +1292,7 @@ class AccountScreen extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
+                if(user.posts![index].content!.contains('<'))
                 InkWell(
                   onTap: () {
                     Navigator.push(
@@ -1317,7 +1314,24 @@ class AccountScreen extends StatelessWidget {
                               : Colors.black),
                     },
                   ),
-                ),
+                )
+                else
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context_1,
+                          MaterialPageRoute(
+                              builder: (context) => ViewPostScreen(
+                                id: user.posts![index].sId!,
+                                addComent: false,
+                                isFocus: false,
+                              )));
+                    },
+                    child: Text(
+                       user.posts![index].content!,
+                      style: Theme.of(context_1).textTheme.headline5,
+                    ),
+                  ),
                 const SizedBox(
                   height: 10,
                 ),
@@ -1347,7 +1361,8 @@ class AccountScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 5.0),
                   child: Row(
                     children: [
-                      if (user.posts![index].likesCount != 0)
+                      if (PurpleBookCubit.get(context_1)
+                          .likesUserCount![index] != 0)
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10.0),

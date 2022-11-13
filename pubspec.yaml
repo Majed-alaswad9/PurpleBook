@@ -42,7 +42,7 @@ dependencies:
   html: ^0.15.0
   html_unescape: ^2.0.0
   image_gallery_saver: ^1.7.1
-  image_picker: ^0.8.5+3
+  image_picker: ^0.8.4+11
   lottie: 
   shared_preferences: ^2.0.15
   shimmer: ^2.0.0

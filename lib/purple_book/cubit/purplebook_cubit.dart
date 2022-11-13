@@ -335,26 +335,26 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   Future<void> likeComment(
-      {required String idPost,
-      required String idComment,
+      {required String postId,
+      required String commentId,
       required int index}) async {
     emit(LikeCommentPostLoadingState());
-    if (!comment!.comments![index].likedByUser!) {
+    if (!isLikeComment![index]) {
       return await DioHelper.postData(
-              url: '$posts$idPost$comments$idComment$likePost_2', token: token)
+              url: '$posts$postId$comments$commentId$likePost_2', token: token)
           .then((value) {
         emit(AddLikeCommentPostSuccessState());
       }).catchError((error) {
-        emit(AddLikeCommentPostErrorState());
+        emit(AddLikeCommentPostErrorState(error));
       });
     } else {
       return await DioHelper.deleteData(
-              url: '$posts$idPost$comments_2/$idComment$likePost_2',
+              url: '$posts$postId$comments_2/$commentId$likePost_2',
               token: token)
           .then((value) {
         emit(DeleteLikeCommentPostSuccessState());
       }).catchError((error) {
-        emit(DeleteLikeCommentPostErrorState());
+        emit(DeleteLikeCommentPostErrorState(error));
       });
     }
   }
@@ -419,6 +419,8 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   Future<void> getUserPosts(
       {required String userId, String sort = 'date'}) async {
     emit(GetUserPostLoadingState());
+    isLikeUserPost=[];
+    likesUserCount=[];
     return await DioHelper.getData(
             url: '$users$userId$userPosts?limit=5&skip=0&sort=$dropDownValue',
             token: token)
@@ -451,6 +453,8 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
         value.data['posts'].forEach((v) {
           userPost!.posts!.add(UserPosts.fromJson(v));
         });
+        isLikeUserPost=[];
+        likesUserCount=[];
         for (var element in userPost!.posts!) {
           isLikeUserPost!.add(element.likedByUser!);
           likesUserCount!.add(element.likesCount!);
@@ -472,18 +476,16 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     if (!isLikeUserPost![index]) {
       DioHelper.postData(url: '$posts$id$likePost_2', token: token)
           .then((value) {
-        getUserPosts(userId: userId);
         emit(AddLikeUserPostSuccessState());
       }).catchError((error) {
-        emit(AddLikeUserPostErrorState());
+        emit(AddLikeUserPostErrorState(error));
       });
     } else {
       DioHelper.deleteData(url: '$posts$id$likePost_2', token: token)
           .then((value) {
-        getUserPosts(userId: userId);
         emit(DeleteLikeUserPostSuccessState());
       }).catchError((error) {
-        emit(DeleteLikeUserPostErrorState());
+        emit(DeleteLikeUserPostErrorState(error));
       });
     }
   }
@@ -527,6 +529,8 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   bool isEndUserComments = false;
   void getUserComments({required String id, String sort = 'date'}) {
     emit(GetUserCommentsLoadingState());
+    isLikeComment=[];
+    likeCommentCount=[];
     DioHelper.getData(
             url: '$users$id$comments_2?limit=5&skip=0&sort=$dropDownValue',
             token: token)

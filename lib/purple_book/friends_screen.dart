@@ -90,7 +90,7 @@ class FriendsScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(10)),
-                            color: Colors.grey.withOpacity(0.8),
+                            color: Colors.grey.withOpacity(0.5),
                           ),
                           padding: const EdgeInsets.all(10),
                           width: double.infinity,
@@ -119,7 +119,7 @@ class FriendsScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             borderRadius:
                                 const BorderRadius.all(Radius.circular(10)),
-                            color: Colors.grey.withOpacity(0.8),
+                            color: Colors.grey.withOpacity(0.5),
                           ),
                           width: double.infinity,
                           child: Text(
@@ -372,9 +372,7 @@ class FriendsScreen extends StatelessWidget {
                                       0)
                                     Text(
                                       '${request.friendRecommendation![index].mutualFriends} mutual friends',
-                                      style: TextStyle(
-                                          fontSize: 12,
-                                          color: Colors.grey.shade700),
+                                      style: Theme.of(context_1).textTheme.caption,
                                     ),
                                 ],
                               ),

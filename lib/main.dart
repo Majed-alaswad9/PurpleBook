@@ -97,7 +97,7 @@ class MyApp extends StatelessWidget {
               listTileTheme: const ListTileThemeData(
                   iconColor: Colors.white, textColor: Colors.white),
               textTheme: TextTheme(
-                  caption: const TextStyle(color: Colors.grey),
+                  caption: const TextStyle(color: Colors.grey,height: 1.5,fontSize: 14),
                   bodyText1: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:purplebook/modules/feed_moduel.dart';
 
 abstract class PurpleBookState {}
@@ -121,11 +122,19 @@ class LikeCommentPostLoadingState extends PurpleBookState {}
 
 class AddLikeCommentPostSuccessState extends PurpleBookState {}
 
-class AddLikeCommentPostErrorState extends PurpleBookState {}
+class AddLikeCommentPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  AddLikeCommentPostErrorState(this.error);
+}
 
 class DeleteLikeCommentPostSuccessState extends PurpleBookState {}
 
-class DeleteLikeCommentPostErrorState extends PurpleBookState {}
+class DeleteLikeCommentPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  DeleteLikeCommentPostErrorState(this.error);
+}
 
 class DeleteCommentPostLoadingState extends PurpleBookState {}
 
@@ -173,11 +182,19 @@ class AddLikeUserPostLoadingState extends PurpleBookState {}
 
 class AddLikeUserPostSuccessState extends PurpleBookState {}
 
-class AddLikeUserPostErrorState extends PurpleBookState {}
+class AddLikeUserPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  AddLikeUserPostErrorState(this.error);
+}
 
 class DeleteLikeUserPostSuccessState extends PurpleBookState {}
 
-class DeleteLikeUserPostErrorState extends PurpleBookState {}
+class DeleteLikeUserPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  DeleteLikeUserPostErrorState(this.error);
+}
 
 class ChangeColorUSerLikeState extends PurpleBookState {}
 

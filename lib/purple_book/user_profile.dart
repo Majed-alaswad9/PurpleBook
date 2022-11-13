@@ -15,7 +15,7 @@ import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/view_list_image.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
-import 'package:purplebook/purple_book/view_string_iamge.dart';
+import 'package:purplebook/purple_book/view_string_image.dart';
 
 import '../components/const.dart';
 import '../components/end_points.dart';
@@ -515,14 +515,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   }
                                 }),
                           ),
-                          if (state is GetUserCommentsLoadingState)
-                            LinearProgressIndicator(
-                              color: HexColor("#6823D0"),
-                            ),
                           ConditionalBuilder(
                             builder: (context) => userComments(
                                 context, PurpleBookCubit.get(context)),
-                            condition: cubit.userComments != null,
+                            condition: cubit.userComments != null && cubit.likeCommentCount!.isNotEmpty,
                             fallback: (context) => Center(
                               child: CircularProgressIndicator(
                                   color: HexColor("#6823D0")),
@@ -535,9 +531,12 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ConditionalBuilder(
                               condition:
                                   state is! GetMoreUserCommentsLoadingState,
-                              fallback: (context) => Center(
-                                child: CircularProgressIndicator(
-                                  color: HexColor("#6823D0"),
+                              fallback: (context) => Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: HexColor("#6823D0"),
+                                  ),
                                 ),
                               ),
                               builder: (context) => Padding(
@@ -671,9 +670,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           onPressed: () {
                             PurpleBookCubit.get(context_1)
                                 .likeComment(
-                                    idPost: cubit.userComments!.comments![index]
+                                    postId: cubit.userComments!.comments![index]
                                         .post!.sId!,
-                                    idComment: cubit
+                                    commentId: cubit
                                         .userComments!.comments![index].sId!,
                                     index: index)
                                 .then((value) {
@@ -1030,8 +1029,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       Expanded(
                         child: Text(
                             '${DateTime.now().difference(user.posts![index].createdAt!).inHours} hours ago',
-                            style: const TextStyle(
-                                height: 1.3, color: Colors.grey)),
+                            style: Theme.of(context_1).textTheme.caption),
                       )
                     else if (DateTime.now()
                             .difference(user.posts![index].createdAt!)
@@ -1040,8 +1038,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       Expanded(
                         child: Text(
                             '${DateTime.now().difference(user.posts![index].createdAt!).inDays} days ago',
-                            style: const TextStyle(
-                                height: 1.3, color: Colors.grey)),
+                            style: Theme.of(context_1).textTheme.caption),
                       )
                     else
                       Expanded(
@@ -1049,11 +1046,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             '${user.posts![index].createdAt!.year}-'
                             '${user.posts![index].createdAt!.month}-'
                             '${user.posts![index].createdAt!.day}',
-                            style: const TextStyle(
-                                height: 1.3, color: Colors.grey)),
+                            style: Theme.of(context_1).textTheme.caption),
                       ),
                     if (isAdmin!)
-                      PopupMenuButton(onSelected: (value) {
+                      PopupMenuButton(
+                          icon: Icon(
+                            Icons.more_vert,
+                            color: MainCubit.get(context_1).isDark
+                                ? Colors.white
+                                : Colors.black,
+                          ),
+                          onSelected: (value) {
                         if (value == Constants.edit) {
                           editPostController.text =
                               parseFragment(user.posts![index].content!).text!;
@@ -1178,6 +1181,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     color: Colors.grey,
                   ),
                 ),
+                if(user.posts![index].content!.contains('<'))
                 InkWell(
                   onTap: () {
                     Navigator.push(
@@ -1199,7 +1203,24 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               : Colors.black),
                     },
                   ),
-                ),
+                )
+                else
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context_1,
+                          MaterialPageRoute(
+                              builder: (context) => ViewPostScreen(
+                                id: user.posts![index].sId!,
+                                addComent: false,
+                                isFocus: false,
+                              )));
+                    },
+                    child: Text(
+                      user.posts![index].content!,
+                      style: Theme.of(context_1).textTheme.headline5
+                    ),
+                  ),
                 const SizedBox(
                   height: 10,
                 ),
@@ -1215,11 +1236,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     },
                     child: Container(
                       width: double.infinity,
-                      height: 200,
+                      height: 350,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
                           image: DecorationImage(
-                              fit: BoxFit.fill,
+                              fit: BoxFit.contain,
                               image: Image.memory(base64Decode(
                                       user.posts![index].image!.data!))
                                   .image)),
@@ -1230,9 +1251,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                   child: Row(
                     children: [
                       if (PurpleBookCubit.get(context_1)
-                              .userPost!
-                              .posts![index]
-                              .likesCount !=
+                              .likesUserCount![index] !=
                           0)
                         Expanded(
                           child: Padding(
@@ -1373,9 +1392,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           decoration: BoxDecoration(
                               color: Colors.grey.shade300,
                               borderRadius: BorderRadius.circular(15)),
-                          child: const Text(
+                          child: Text(
                             'Write Comment...',
-                            style: TextStyle(fontSize: 15, color: Colors.black),
+                            style: Theme.of(context_1).textTheme.subtitle1,
                           ),
                         ),
                         onTap: () {

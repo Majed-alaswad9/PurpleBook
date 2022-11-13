@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_offline/flutter_offline.dart';
@@ -16,7 +15,7 @@ import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/edit_post_screen.dart';
 import 'package:purplebook/purple_book/user_profile.dart';
 import 'package:purplebook/purple_book/view_post_screen.dart';
-import 'package:purplebook/purple_book/view_string_iamge.dart';
+import 'package:purplebook/purple_book/view_string_image.dart';
 
 import '../components/const.dart';
 import '../components/end_points.dart';
@@ -34,6 +33,7 @@ class _FeedScreenState extends State<FeedScreen> {
 
   var contentController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+
   mockFetch() async {
     if (PurpleBookCubit.get(context).isEndFeed) return;
 
@@ -142,36 +142,53 @@ class _FeedScreenState extends State<FeedScreen> {
                                       LinearProgressIndicator(
                                         color: HexColor("#6823D0"),
                                       ),
-                                     ListView.separated(
-                                          controller: _scrollController,
-                                          shrinkWrap: true,
-                                          // physics:
-                                          //     const NeverScrollableScrollPhysics(),
-                                          itemBuilder: (context, index) {
-                                            if (!cubit.isEndFeed) {
-                                              return buildPost(context,
-                                                  cubit.feedModule!, index);
-                                            } else {
-                                              return SizedBox(
-                                                width: double.infinity,
-                                                height: 50,
-                                                child: Center(
-                                                    child: Text(
-                                                  'Nothing more to load',
-                                                  style: Theme.of(context)
-                                                      .textTheme
-                                                      .headline6,
-                                                )),
-                                              );
-                                            }
-                                          },
-                                          separatorBuilder: (context, index) =>
-                                              const SizedBox(
-                                                height: 10,
+                                    ListView.separated(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        itemBuilder: (context, index) {
+                                          return buildPost(context,
+                                              cubit.feedModule!, index);
+                                        },
+                                        separatorBuilder: (context, index) =>
+                                            const SizedBox(
+                                              height: 10,
+                                            ),
+                                        itemCount:
+                                            cubit.feedModule!.posts!.length),
+                                    if (!cubit.isEndFeed)
+                                      ConditionalBuilder(
+                                        condition:
+                                        state is! GetMoreFeedLoadingState,
+                                        fallback: (context) => Padding(
+                                          padding: const EdgeInsets.all( 8.0),
+                                          child: Center(
+                                            child: CircularProgressIndicator(
+                                              color: HexColor("#6823D0"),
+                                            ),
+                                          ),
+                                        ),
+                                        builder: (context) => Padding(
+                                          padding: const EdgeInsets.all(8.0),
+                                          child: Container(
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                                color: HexColor("#6823D0"),
+                                                borderRadius: const BorderRadius.all(
+                                                    Radius.circular(20))),
+                                            child: TextButton(
+                                              onPressed: () {
+                                                cubit.getMoreFeed();
+                                              },
+                                              child: const Text(
+                                                'Show More',
+                                                style: TextStyle(
+                                                    color: Colors.white, fontSize: 20),
                                               ),
-                                          itemCount:
-                                              cubit.feedModule!.posts!.length)
-                                    
+                                            ),
+                                          ),
+                                        ),
+                                      )
                                   ],
                                 ),
                                 condition: cubit.feedModule!.posts!.isNotEmpty,
@@ -354,48 +371,46 @@ class _FeedScreenState extends State<FeedScreen> {
                 color: Colors.grey,
               ),
             ),
-            if(!feed.posts![index].content!.contains('<'))
+            if (!feed.posts![index].content!.contains('<'))
               InkWell(
                 onTap: () {
                   Navigator.push(
                       conteext,
                       MaterialPageRoute(
                           builder: (context) => ViewPostScreen(
-                            id: feed.posts![index].sId!,
-                            addComent: false,
-                            isFocus: false,
-                          )));
+                                id: feed.posts![index].sId!,
+                                addComent: false,
+                                isFocus: false,
+                              )));
                 },
-
                 child: Text(
-                   feed.posts![index].content!,
+                  feed.posts![index].content!,
                   style: Theme.of(conteext).textTheme.headline5,
                 ),
               )
             else
-            InkWell(
-              onTap: () {
-                Navigator.push(
-                    conteext,
-                    MaterialPageRoute(
-                        builder: (context) => ViewPostScreen(
-                              id: feed.posts![index].sId!,
-                              addComent: false,
-                              isFocus: false,
-                            )));
-              },
-
-              child: Html(
-                data: feed.posts![index].content!,
-                style: {
-                  "body": Style(
-                      fontSize: const FontSize(20.0),
-                      color: MainCubit.get(conteext).isDark
-                          ? Colors.white
-                          : Colors.black),
+              InkWell(
+                onTap: () {
+                  Navigator.push(
+                      conteext,
+                      MaterialPageRoute(
+                          builder: (context) => ViewPostScreen(
+                                id: feed.posts![index].sId!,
+                                addComent: false,
+                                isFocus: false,
+                              )));
                 },
+                child: Html(
+                  data: feed.posts![index].content!,
+                  style: {
+                    "body": Style(
+                        fontSize: const FontSize(20.0),
+                        color: MainCubit.get(conteext).isDark
+                            ? Colors.white
+                            : Colors.black),
+                  },
+                ),
               ),
-            ),
             const SizedBox(
               height: 10,
             ),
