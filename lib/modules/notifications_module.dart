@@ -13,14 +13,6 @@ class NotificationsModule {
       });
     }
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (notifications != null) {
-      data['notifications'] = notifications!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
 }
 
 var unescape = HtmlUnescape();
@@ -57,22 +49,6 @@ class Notifications {
     createdAt = DateTime.parse(json['createdAt']);
     iV = json['__v'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (image != null) {
-      data['image'] = image!.toJson();
-    }
-    data['_id'] = sId;
-    if (links != null) {
-      data['links'] = links!.map((v) => v.toJson()).toList();
-    }
-    data['content'] = content;
-    data['viewed'] = viewed;
-    data['createdAt'] = createdAt;
-    data['__v'] = iV;
-    return data;
-  }
 }
 
 class Image {
@@ -85,15 +61,6 @@ class Image {
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
     contentType = json['contentType'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    data['contentType'] = contentType;
-    return data;
-  }
 }
 
 class Data {
@@ -105,13 +72,6 @@ class Data {
   Data.fromJson(Map<String, dynamic> json) {
     type = json['type'];
     data = json['data'].cast<int>();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['type'] = type;
-    data['data'] = this.data;
-    return data;
   }
 }
 
@@ -126,13 +86,5 @@ class Links {
     linkId = json['linkId'];
     ref = json['ref'];
     sId = json['_id'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['linkId'] = linkId;
-    data['ref'] = ref;
-    data['_id'] = sId;
-    return data;
   }
 }

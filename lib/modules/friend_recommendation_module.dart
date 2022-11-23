@@ -11,15 +11,6 @@ class FriendRecommendationModule {
       });
     }
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (friendRecommendation != null) {
-      data['friendRecommendation'] =
-          friendRecommendation!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
 }
 
 class FriendRecommendation {
@@ -48,19 +39,6 @@ class FriendRecommendation {
     mutualFriends = json['mutualFriends'];
     friendState = json['friendState'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    if (imageMini != null) {
-      data['imageMini'] = imageMini!.toJson();
-    }
-    data['mutualFriends'] = mutualFriends;
-    data['friendState'] = friendState;
-    return data;
-  }
 }
 
 class ImageMini {
@@ -72,12 +50,5 @@ class ImageMini {
   ImageMini.fromJson(Map<String, dynamic> json) {
     data = json['data'];
     contentType = json['contentType'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['data'] = this.data;
-    data['contentType'] = contentType;
-    return data;
   }
 }

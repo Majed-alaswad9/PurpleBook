@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:html/parser.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/modules/comment_likes_module.dart';
 import 'package:purplebook/modules/comments_module.dart';
@@ -20,16 +19,17 @@ import '../components/end_points.dart';
 import '../modules/likes_module.dart';
 import 'cubit/purplebook_state.dart';
 
+// ignore: must_be_immutable
 class ViewPostScreen extends StatelessWidget {
   final String id;
   final dynamic idComment;
-  final bool addComent;
+  final bool addComment;
   final bool isFocus;
 
   ViewPostScreen(
       {Key? key,
       required this.id,
-      required this.addComent,
+      required this.addComment,
       required this.isFocus})
       : idComment = null,
         super(key: key);
@@ -38,7 +38,7 @@ class ViewPostScreen extends StatelessWidget {
       {Key? key,
       required this.id,
       required this.idComment,
-      required this.addComent,
+      required this.addComment,
       required this.isFocus})
       : super(key: key);
   var contentController = TextEditingController();
@@ -58,9 +58,11 @@ class ViewPostScreen extends StatelessWidget {
         listener: (context, state) {
           //* delete comments
           if (state is DeleteCommentPostSuccessState) {
-            showMsg(msg: 'deleted Successfully', color: ColorMsg.success);
+            ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('deleted Successfully')));
           } else if (state is DeleteCommentPostErrorState) {
-            showMsg(msg: 'Failed delete', color: ColorMsg.error);
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
 
           //* delete post
@@ -73,8 +75,8 @@ class ViewPostScreen extends StatelessWidget {
                     builder: (context) => const PurpleBookScreen()),
                 (route) => false);
           } else if (state is PostDeleteErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('❌ Deleted Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
 
           //* Edit post
@@ -83,17 +85,17 @@ class ViewPostScreen extends StatelessWidget {
                 const SnackBar(content: Text('✅ Editing successfully')));
             PurpleBookCubit.get(context).viewPosts(id: id);
           } else if (state is EditPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('❌ Editing Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
 
           //* send friend request
-          if (state is SendRequestSuccessState) {
+          if (state is SendFriendRequestSuccessState) {
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('✅ Sent successfully')));
-          } else if (state is SendRequestErrorState) {
-            ScaffoldMessenger.of(context)
-                .showSnackBar(const SnackBar(content: Text('❌ Sent Failed')));
+          } else if (state is SendFriendRequestErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
 
           //* cancel friend
@@ -101,17 +103,17 @@ class ViewPostScreen extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('✅ unFriend successfully')));
           } else if (state is CancelFriendErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('❌ unFriend Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
 
           //* cancel friend request
-          if (state is CancelSendRequestSuccessState) {
+          if (state is CancelSendFriendRequestSuccessState) {
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('✅ Cancel sent successfully')));
-          } else if (state is CancelSendRequestErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('❌ Cancel sent Failed')));
+          } else if (state is CancelSendFriendRequestErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
 
           //* accept friend request
@@ -119,8 +121,8 @@ class ViewPostScreen extends StatelessWidget {
             ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('✅ Confrim successfully')));
           } else if (state is AcceptFriendRequestErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('❌ Confrim Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
 
           //* add comment
@@ -129,8 +131,18 @@ class ViewPostScreen extends StatelessWidget {
                 const SnackBar(content: Text('✅ Add comment successfully')));
             contentController.text = '';
           } else if (state is AddCommentPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('❌ Add comment Failed')));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
+          }
+
+          if (state is AddLikeCommentPostErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text(
+                    'Error ${state.error.response!.statusCode.toString()}')));
+          }
+          if (state is DeleteLikeCommentPostErrorState) {
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                content: Text('Error ${state.error.response!.statusCode}')));
           }
         },
         builder: (context_1, state) {
@@ -228,7 +240,9 @@ class ViewPostScreen extends StatelessWidget {
                                                   24)
                                                 Text(
                                                     '${DateTime.now().difference(cubit.postView!.post!.createdAt!).inHours} hours ago',
-                                                    style: Theme.of(context_1).textTheme.caption)
+                                                    style: Theme.of(context_1)
+                                                        .textTheme
+                                                        .caption)
                                               else if (DateTime.now()
                                                       .difference(cubit
                                                           .postView!
@@ -238,13 +252,17 @@ class ViewPostScreen extends StatelessWidget {
                                                   7)
                                                 Text(
                                                     '${DateTime.now().difference(cubit.postView!.post!.createdAt!).inDays} days ago',
-                                                    style:Theme.of(context_1).textTheme.caption)
+                                                    style: Theme.of(context_1)
+                                                        .textTheme
+                                                        .caption)
                                               else
                                                 Text(
                                                     '${cubit.postView!.post!.createdAt!.year}-'
                                                     '${cubit.postView!.post!.createdAt!.month}-'
                                                     '${cubit.postView!.post!.createdAt!.day}',
-                                                    style: Theme.of(context_1).textTheme.caption)
+                                                    style: Theme.of(context_1)
+                                                        .textTheme
+                                                        .caption)
                                             ],
                                           ),
                                         ),
@@ -342,22 +360,25 @@ class ViewPostScreen extends StatelessWidget {
                                       color: Colors.grey,
                                     ),
                                   ),
-                                  if(cubit.postView!.post!.content!.contains('<'))
-                                  Html(
-                                    data: "${cubit.postView!.post!.content}",
-                                    style: {
-                                      "body": Style(
-                                          // fontSize: const FontSize(22.0),
-                                          color: MainCubit.get(context).isDark
-                                              ? Colors.white
-                                              : Colors.black),
-                                    },
-                                  )
+                                  if (cubit.postView!.post!.content!
+                                      .contains('<'))
+                                    Html(
+                                      data: "${cubit.postView!.post!.content}",
+                                      style: {
+                                        "body": Style(
+                                            // fontSize: const FontSize(22.0),
+                                            color: MainCubit.get(context).isDark
+                                                ? Colors.white
+                                                : Colors.black),
+                                      },
+                                    )
                                   else
-                                  Text(
-                                     "${cubit.postView!.post!.content}",
-                                    style: Theme.of(context_1).textTheme.headline5,
-                                  ),
+                                    Text(
+                                      "${cubit.postView!.post!.content}",
+                                      style: Theme.of(context_1)
+                                          .textTheme
+                                          .headline5,
+                                    ),
                                   const SizedBox(
                                     height: 15,
                                   ),
@@ -415,9 +436,7 @@ class ViewPostScreen extends StatelessWidget {
                                           const SizedBox(
                                             width: 5,
                                           ),
-                                          if (cubit
-                                                  .likePostCount !=
-                                              0)
+                                          if (cubit.likePostCount != 0)
                                             InkWell(
                                               onTap: () {
                                                 showMsg(
@@ -522,7 +541,7 @@ class ViewPostScreen extends StatelessWidget {
                             cursorColor: MainCubit.get(context).isDark
                                 ? Colors.white
                                 : Colors.black,
-                            autofocus: addComent,
+                            autofocus: addComment,
                             keyboardType: TextInputType.multiline,
                             validator: validateContent,
                             decoration: InputDecoration(
@@ -610,7 +629,8 @@ class ViewPostScreen extends StatelessWidget {
                                 }),
                           ),
                           ConditionalBuilder(
-                              condition: cubit.comment != null && cubit.isLikeComment!.isNotEmpty,
+                              condition: cubit.comment != null &&
+                                  cubit.isLikeComment!.isNotEmpty,
                               builder: (context) => buildComments(
                                   PurpleBookCubit.get(context).comment!,
                                   context,
@@ -622,7 +642,8 @@ class ViewPostScreen extends StatelessWidget {
                               condition:
                                   state is! GetMoreCommentPostLoadingState,
                               fallback: (context) => Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8.0),
                                 child: Center(
                                   child: CircularProgressIndicator(
                                     color: HexColor("#6823D0"),
@@ -710,7 +731,9 @@ class ViewPostScreen extends StatelessWidget {
                                       24)
                                     Text(
                                         '${DateTime.now().difference(user.comments![index].createdAt!).inHours} hours ago',
-                                        style: Theme.of(context_1).textTheme.caption)
+                                        style: Theme.of(context_1)
+                                            .textTheme
+                                            .caption)
                                   else if (DateTime.now()
                                           .difference(
                                               user.comments![index].createdAt!)
@@ -718,17 +741,22 @@ class ViewPostScreen extends StatelessWidget {
                                       7)
                                     Text(
                                         '${DateTime.now().difference(user.comments![index].createdAt!).inDays} days ago',
-                                        style: Theme.of(context_1).textTheme.caption)
+                                        style: Theme.of(context_1)
+                                            .textTheme
+                                            .caption)
                                   else
                                     Text(
                                         '${user.comments![index].createdAt!.year}-'
                                         '${user.comments![index].createdAt!.month}-'
                                         '${user.comments![index].createdAt!.day}',
-                                        style: Theme.of(context_1).textTheme.caption)
+                                        style: Theme.of(context_1)
+                                            .textTheme
+                                            .caption)
                                 ],
                               ),
                             ),
-                            if (userId == user.comments![index].author!.sId||isAdmin!)
+                            if (userId == user.comments![index].author!.sId ||
+                                isAdmin!)
                               PopupMenuButton(
                                   icon: Icon(
                                     Icons.more_vert,
@@ -855,21 +883,21 @@ class ViewPostScreen extends StatelessWidget {
                             color: Colors.grey,
                           ),
                         ),
-                        if(user.comments![index].content!.contains('<'))
-                        Html(
-                          data: "${user.comments![index].content}",
-                          style: {
-                            "body": Style(
-                                color: MainCubit.get(context_1).isDark
-                                    ? Colors.white
-                                    : Colors.black),
-                          },
-                        )
+                        if (user.comments![index].content!.contains('<'))
+                          Html(
+                            data: "${user.comments![index].content}",
+                            style: {
+                              "body": Style(
+                                  color: MainCubit.get(context_1).isDark
+                                      ? Colors.white
+                                      : Colors.black),
+                            },
+                          )
                         else
                           Text(
-                              user.comments![index].content!,
+                            user.comments![index].content!,
                             style: Theme.of(context_1).textTheme.headline5,
-                              ),
+                          ),
                         const SizedBox(
                           height: 20,
                         ),
@@ -877,16 +905,15 @@ class ViewPostScreen extends StatelessWidget {
                           children: [
                             IconButton(
                               onPressed: () {
+                                PurpleBookCubit.get(context_1).likeComment(
+                                    postId: id,
+                                    commentId: PurpleBookCubit.get(context_1)
+                                        .comment!
+                                        .comments![index]
+                                        .sId!,
+                                    index: index);
                                 PurpleBookCubit.get(context_1)
-                                    .likeComment(
-                                        postId: id,
-                                        commentId:
-                                            PurpleBookCubit.get(context_1)
-                                                .comment!
-                                                .comments![index]
-                                                .sId!,
-                                        index: index);
-                                PurpleBookCubit.get(context_1).changeLikeComment(index);
+                                    .changeLikeComment(index);
                               },
                               icon: const Icon(Icons.thumb_up_alt_rounded),
                               color: PurpleBookCubit.get(context_1)
@@ -1202,22 +1229,30 @@ class ViewPostScreen extends StatelessWidget {
             Row(
               children: [
                 InkWell(
-                  onTap: () => Navigator.push(context_1, MaterialPageRoute(builder: (context_1)=>UserProfileScreen(id: user.users![index].sId!))),
+                  onTap: () => Navigator.push(
+                      context_1,
+                      MaterialPageRoute(
+                          builder: (context_1) =>
+                              UserProfileScreen(id: user.users![index].sId!))),
                   child: CircleAvatar(
                       radius: 25,
-                      backgroundImage:
-                          user.users![index].imageMini!.data!.data!.isNotEmpty
-                              ? Image.memory(Uint8List.fromList(
-                                      user.users![index].imageMini!.data!.data!))
-                                  .image
-                              : const AssetImage('assets/image/user.jpg')),
+                      backgroundImage: user
+                              .users![index].imageMini!.data!.data!.isNotEmpty
+                          ? Image.memory(Uint8List.fromList(
+                                  user.users![index].imageMini!.data!.data!))
+                              .image
+                          : const AssetImage('assets/image/user.jpg')),
                 ),
                 const SizedBox(
                   width: 10,
                 ),
                 Expanded(
                   child: InkWell(
-                    onTap: () => Navigator.push(context_1, MaterialPageRoute(builder: (context_1)=>UserProfileScreen(id: user.users![index].sId!))),
+                    onTap: () => Navigator.push(
+                        context_1,
+                        MaterialPageRoute(
+                            builder: (context_1) => UserProfileScreen(
+                                id: user.users![index].sId!))),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

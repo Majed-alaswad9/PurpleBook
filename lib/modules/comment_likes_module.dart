@@ -12,13 +12,6 @@ class CommentLikesModule {
     }
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (users != null) {
-      data['users'] = users!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
 }
 
 class Users {
@@ -45,17 +38,6 @@ class Users {
     friendState = json['friendState'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (imageMini != null) {
-      data['imageMini'] = imageMini!.toJson();
-    }
-    data['_id'] = sId;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    data['friendState'] = friendState;
-    return data;
-  }
 }
 
 class ImageMini {
@@ -69,14 +51,6 @@ class ImageMini {
     contentType = json['contentType'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    data['contentType'] = contentType;
-    return data;
-  }
 }
 
 class Data {
@@ -88,12 +62,5 @@ class Data {
   Data.fromJson(Map<String, dynamic> json) {
     type = json['type'];
     data = json['data'].cast<int>();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['type'] = type;
-    data['data'] = this.data;
-    return data;
   }
 }

@@ -20,6 +20,7 @@ class ViewListImage extends StatelessWidget {
             onPressed: () async {
               final res =
                   await ImageGallerySaver.saveImage(Uint8List.fromList(image));
+              // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context)
                   .showSnackBar(SnackBar(content: Text('$res')));
             },

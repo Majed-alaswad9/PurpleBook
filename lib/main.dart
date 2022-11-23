@@ -1,21 +1,16 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
-import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:purplebook/components/test.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/cubit/state.dart';
-import 'package:purplebook/login_sigin/signin_screen.dart';
 import 'package:purplebook/network/remote/dio_helper.dart';
-import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
-import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
 
 import 'bloc_provider.dart';
 import 'components/end_points.dart';
-import 'login_sigin/login_screen.dart';
+import 'login_signup/login_screen.dart';
 import 'network/local/cach_helper.dart';
 
 void main() async {
@@ -65,7 +60,8 @@ class MyApp extends StatelessWidget {
                       fontSize: 25,
                       fontWeight: FontWeight.bold),
                   headline5: const TextStyle(color: Colors.black),
-                  caption: const TextStyle(color: Colors.grey,height: 1.5,fontSize: 14),
+                  caption: const TextStyle(
+                      color: Colors.grey, height: 1.5, fontSize: 14),
                   headline4: const TextStyle(
                       color: Colors.black,
                       fontSize: 28,
@@ -97,7 +93,8 @@ class MyApp extends StatelessWidget {
               listTileTheme: const ListTileThemeData(
                   iconColor: Colors.white, textColor: Colors.white),
               textTheme: TextTheme(
-                  caption: const TextStyle(color: Colors.grey,height: 1.5,fontSize: 14),
+                  caption: const TextStyle(
+                      color: Colors.grey, height: 1.5, fontSize: 14),
                   bodyText1: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,

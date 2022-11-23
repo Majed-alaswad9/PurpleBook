@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:purplebook/components/const.dart';
-import 'package:purplebook/cubit/cubit.dart';
-import 'package:purplebook/login_sigin/cubit/bloc_cubit.dart';
-import 'package:purplebook/login_sigin/cubit/bloc_state.dart';
-import 'package:purplebook/login_sigin/signin_screen.dart';
+import 'package:purplebook/login_signup/cubit/bloc_state.dart';
+import 'package:purplebook/login_signup/signup_screen.dart';
 import 'package:purplebook/network/local/cach_helper.dart';
 import '../components/end_points.dart';
 import '../purple_book/purple_book_screen.dart';
+import 'cubit/bloc_cubit.dart';
 
+// ignore: must_be_immutable
 class LoginScreen extends StatelessWidget {
   LoginScreen({Key? key}) : super(key: key);
   var emailController = TextEditingController();
@@ -19,6 +18,7 @@ class LoginScreen extends StatelessWidget {
   var passController = TextEditingController();
 
   var formKey = GlobalKey<FormState>();
+  Map? userData;
 
   @override
   Widget build(BuildContext context) {
@@ -224,7 +224,7 @@ class LoginScreen extends StatelessWidget {
                                         ),
                                       )
                                     ],
-                                  )
+                                  ),
                                 ],
                               ),
                             ),

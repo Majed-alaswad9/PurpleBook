@@ -29,7 +29,7 @@ class AppInfo extends StatelessWidget {
               height: 10,
             ),
             Text(
-              'Version 1.0.0',
+              'Version 1.0.3',
               style: TextStyle(fontSize: 15, color: Colors.grey.shade300),
             ),
             const SizedBox(
@@ -57,7 +57,8 @@ class AppInfo extends StatelessWidget {
                 TextButton(
                     onPressed: () async {
                       const toEmail = 'alaswadmajed389@gmail.com';
-                      final url = Uri.parse('mailto:$toEmail?subject=tell us how we can help');
+                      final url = Uri.parse(
+                          'mailto:$toEmail?subject=tell us how we can help');
 
                       await launchUrl(url);
                     },
@@ -66,19 +67,21 @@ class AppInfo extends StatelessWidget {
                 TextButton(
                     onPressed: () async {
                       const toEmail = 'islamnaasani@gmail.com';
-                      final url = Uri.parse('mailto:$toEmail?subject=tell us how we can help');
+                      final url = Uri.parse(
+                          'mailto:$toEmail?subject=tell us how we can help');
                       await launchUrl(url);
                     },
-                    child: const Text('Islam Nassani',
+                    child: const Text('Islam Naasani',
                         style: TextStyle(color: Colors.blue))),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
                   'Source code: ',
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: Colors.white, fontSize: 17),
                 ),
                 TextButton(
                     onPressed: () async {

@@ -8,14 +8,6 @@ class ViewPostModule {
   ViewPostModule.fromJson(Map<String, dynamic> json) {
     post = json['post'] != null ? Post.fromJson(json['post']) : null;
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (post != null) {
-      data['post'] = post!.toJson();
-    }
-    return data;
-  }
 }
 
 class Post {
@@ -29,39 +21,22 @@ class Post {
 
   Post(
       {this.sId,
-        this.content,
-        this.image,
-        this.createdAt,
-        this.author,
-        this.likedByUser,
-        this.likesCount});
+      this.content,
+      this.image,
+      this.createdAt,
+      this.author,
+      this.likedByUser,
+      this.likesCount});
 
   var unescape = HtmlUnescape();
   Post.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     content = unescape.convert(json['content']);
     image = json['image'] != null ? Image.fromJson(json['image']) : null;
-    createdAt = DateTime.parse( json['createdAt']);
-    author =
-    json['author'] != null ? Author.fromJson(json['author']) : null;
+    createdAt = DateTime.parse(json['createdAt']);
+    author = json['author'] != null ? Author.fromJson(json['author']) : null;
     likedByUser = json['likedByUser'];
     likesCount = json['likesCount'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['content'] = content;
-    if (image != null) {
-      data['image'] = image!.toJson();
-    }
-    data['createdAt'] = createdAt;
-    if (author != null) {
-      data['author'] = author!.toJson();
-    }
-    data['likedByUser'] = likedByUser;
-    data['likesCount'] = likesCount;
-    return data;
   }
 }
 
@@ -74,13 +49,6 @@ class Image {
   Image.fromJson(Map<String, dynamic> json) {
     data = json['data'];
     contentType = json['contentType'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data =  <String, dynamic>{};
-    data['data'] = this.data;
-    data['contentType'] = contentType;
-    return data;
   }
 }
 
@@ -96,19 +64,7 @@ class Author {
     sId = json['_id'];
     firstName = json['firstName'];
     lastName = json['lastName'];
-    imageMini = json['imageMini'] != null
-        ? Image.fromJson(json['imageMini'])
-        : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    if (imageMini != null) {
-      data['imageMini'] = imageMini!.toJson();
-    }
-    return data;
+    imageMini =
+        json['imageMini'] != null ? Image.fromJson(json['imageMini']) : null;
   }
 }

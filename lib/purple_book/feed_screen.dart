@@ -8,7 +8,7 @@ import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/cubit/cubit.dart';
-import 'package:purplebook/modules/feed_moduel.dart';
+import 'package:purplebook/modules/feed_module.dart';
 import 'package:purplebook/modules/likes_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
@@ -22,7 +22,7 @@ import '../components/end_points.dart';
 
 // ignore: must_be_immutable
 class FeedScreen extends StatefulWidget {
-  FeedScreen({Key? key}) : super(key: key);
+  const FeedScreen({Key? key}) : super(key: key);
 
   @override
   State<FeedScreen> createState() => _FeedScreenState();
@@ -30,37 +30,7 @@ class FeedScreen extends StatefulWidget {
 
 class _FeedScreenState extends State<FeedScreen> {
   var keyScaffold = GlobalKey<ScaffoldState>();
-
   var contentController = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-
-  mockFetch() async {
-    if (PurpleBookCubit.get(context).isEndFeed) return;
-
-    await Future.delayed(Duration(milliseconds: 300));
-    setState(() {
-      PurpleBookCubit.get(context).getMoreFeed();
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    // mockFetch();
-    _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-          _scrollController.position.maxScrollExtent) {
-        print('end scroll');
-        // mockFetch();
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,56 +56,53 @@ class _FeedScreenState extends State<FeedScreen> {
                     ),
                   ),
                 ),
-              if (connected)
-                BlocProvider(
-                  create: (context) => PurpleBookCubit()
-                    ..getFeed()
-                    ..getUserProfile(id: userId!)
-                    ..getNotificationsFromAnyScreen()
-                    ..getFriendRequestFromAnyScreen(),
-                  child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
-                    listener: (context, state) {
-                      if (state is PostDeleteSuccessState) {
-                        showMsg(
-                            msg: 'Deleted Successfully',
-                            color: ColorMsg.inCorrect);
-                      } else if (state is PostDeleteErrorState) {
-                        showMsg(msg: 'Deleted Failed', color: ColorMsg.error);
-                      }
+              BlocProvider(
+                create: (context) => PurpleBookCubit()
+                  ..getFeed()
+                  ..getUserProfile(id: userId!)
+                  ..getNotificationsFromAnyScreen()
+                  ..getFriendRequestFromAnyScreen(),
+                child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
+                  listener: (context, state) {
+                    if (state is PostDeleteSuccessState) {
+                      showMsg(
+                          msg: 'Deleted Successfully',
+                          color: ColorMsg.inCorrect);
+                    } else if (state is PostDeleteErrorState) {
+                      showMsg(msg: 'Deleted Failed', color: ColorMsg.error);
+                    }
 
-                      if (state is SendRequestSuccessState) {
-                        showMsg(
-                            msg: 'Sent Successfully',
-                            color: ColorMsg.inCorrect);
-                      } else if (state is SendRequestErrorState) {
-                        showMsg(msg: 'Sent Failed', color: ColorMsg.error);
-                      }
+                    if (state is SendFriendRequestSuccessState) {
+                      showMsg(
+                          msg: 'Sent Successfully', color: ColorMsg.inCorrect);
+                    } else if (state is SendFriendRequestErrorState) {
+                      showMsg(msg: 'Sent Failed', color: ColorMsg.error);
+                    }
 
-                      if (state is CancelSendRequestSuccessState) {
-                        showMsg(
-                            msg: 'Cancel Successfully',
-                            color: ColorMsg.inCorrect);
-                      } else if (state is CancelSendRequestErrorState) {
-                        showMsg(msg: 'Cancel Failed', color: ColorMsg.error);
-                      }
+                    if (state is CancelSendFriendRequestSuccessState) {
+                      showMsg(
+                          msg: 'Cancel Successfully',
+                          color: ColorMsg.inCorrect);
+                    } else if (state is CancelSendFriendRequestErrorState) {
+                      showMsg(msg: 'Cancel Failed', color: ColorMsg.error);
+                    }
 
-                      if (state is AcceptFriendRequestSuccessState) {
-                        showMsg(
-                            msg: 'Accept request Successfully',
-                            color: ColorMsg.inCorrect);
-                      } else if (state is AcceptFriendRequestErrorState) {
-                        showMsg(
-                            msg: 'Accept request Failed',
-                            color: ColorMsg.error);
-                      }
-                    },
-                    builder: (context, state) {
-                      var cubit = PurpleBookCubit.get(context);
-                      return ConditionalBuilder(
+                    if (state is AcceptFriendRequestSuccessState) {
+                      showMsg(
+                          msg: 'Accept request Successfully',
+                          color: ColorMsg.inCorrect);
+                    } else if (state is AcceptFriendRequestErrorState) {
+                      showMsg(
+                          msg: 'Accept request Failed', color: ColorMsg.error);
+                    }
+                  },
+                  builder: (context, state) {
+                    var cubit = PurpleBookCubit.get(context);
+                    return SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      child: ConditionalBuilder(
                           condition: cubit.feedModule != null,
-                          builder: (context) => SingleChildScrollView(
-                              physics: const BouncingScrollPhysics(),
-                              child: ConditionalBuilder(
+                          builder: (context) => ConditionalBuilder(
                                 builder: (context) => Column(
                                   children: [
                                     if (state is PostDeleteLoadingState)
@@ -159,9 +126,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                     if (!cubit.isEndFeed)
                                       ConditionalBuilder(
                                         condition:
-                                        state is! GetMoreFeedLoadingState,
+                                            state is! GetMoreFeedLoadingState,
                                         fallback: (context) => Padding(
-                                          padding: const EdgeInsets.all( 8.0),
+                                          padding: const EdgeInsets.all(8.0),
                                           child: Center(
                                             child: CircularProgressIndicator(
                                               color: HexColor("#6823D0"),
@@ -174,8 +141,9 @@ class _FeedScreenState extends State<FeedScreen> {
                                             width: double.infinity,
                                             decoration: BoxDecoration(
                                                 color: HexColor("#6823D0"),
-                                                borderRadius: const BorderRadius.all(
-                                                    Radius.circular(20))),
+                                                borderRadius:
+                                                    const BorderRadius.all(
+                                                        Radius.circular(20))),
                                             child: TextButton(
                                               onPressed: () {
                                                 cubit.getMoreFeed();
@@ -183,7 +151,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                               child: const Text(
                                                 'Show More',
                                                 style: TextStyle(
-                                                    color: Colors.white, fontSize: 20),
+                                                    color: Colors.white,
+                                                    fontSize: 20),
                                               ),
                                             ),
                                           ),
@@ -204,11 +173,12 @@ class _FeedScreenState extends State<FeedScreen> {
                                             fontWeight: FontWeight.w600)),
                                   ),
                                 ),
-                              )),
-                          fallback: (context) => buildFoodShimmer());
-                    },
-                  ),
-                )
+                              ),
+                          fallback: (context) => buildFoodShimmer()),
+                    );
+                  },
+                ),
+              )
             ],
           );
         },
@@ -216,7 +186,7 @@ class _FeedScreenState extends State<FeedScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: const <Widget>[
               Text(
-                'There are no bottons to push :)',
+                'There are no buttons to push :)',
               ),
               Text(
                 'Just turn off your internet.',
@@ -224,7 +194,7 @@ class _FeedScreenState extends State<FeedScreen> {
             ]));
   }
 
-  Widget buildPost(conteext, FeedModule feed, index) => Card(
+  Widget buildPost(contexts, FeedModule feed, index) => Card(
       elevation: 10,
       clipBehavior: Clip.antiAliasWithSaveLayer,
       margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -238,9 +208,9 @@ class _FeedScreenState extends State<FeedScreen> {
                 InkWell(
                   onTap: () {
                     Navigator.push(
-                        conteext,
+                        contexts,
                         MaterialPageRoute(
-                            builder: (conteext) => UserProfileScreen(
+                            builder: (contexts) => UserProfileScreen(
                                 id: feed.posts![index].author!.sId!)));
                   },
                   child: CircleAvatar(
@@ -258,16 +228,16 @@ class _FeedScreenState extends State<FeedScreen> {
                 Expanded(
                   child: InkWell(
                     onTap: () => Navigator.push(
-                        conteext,
+                        contexts,
                         MaterialPageRoute(
-                            builder: (conteext) => UserProfileScreen(
+                            builder: (contexts) => UserProfileScreen(
                                 id: feed.posts![index].author!.sId!))),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                             '${feed.posts![index].author!.firstName} ${feed.posts![index].author!.lastName}',
-                            style: Theme.of(conteext).textTheme.headline6),
+                            style: Theme.of(contexts).textTheme.headline6),
                         const SizedBox(
                           height: 10,
                         ),
@@ -277,27 +247,27 @@ class _FeedScreenState extends State<FeedScreen> {
                             60)
                           Text(
                               '${DateTime.now().difference(feed.posts![index].createdAt!).inMinutes} minutes ago',
-                              style: Theme.of(conteext).textTheme.caption)
+                              style: Theme.of(contexts).textTheme.caption)
                         else if (DateTime.now()
                                 .difference(feed.posts![index].createdAt!)
                                 .inHours <
                             24)
                           Text(
                               '${DateTime.now().difference(feed.posts![index].createdAt!).inHours} hours ago',
-                              style: Theme.of(conteext).textTheme.caption)
+                              style: Theme.of(contexts).textTheme.caption)
                         else if (DateTime.now()
                                 .difference(feed.posts![index].createdAt!)
                                 .inDays <
                             7)
                           Text(
                               '${DateTime.now().difference(feed.posts![index].createdAt!).inDays} days ago',
-                              style: Theme.of(conteext).textTheme.caption)
+                              style: Theme.of(contexts).textTheme.caption)
                         else
                           Text(
                               '${feed.posts![index].createdAt!.year}-'
                               '${feed.posts![index].createdAt!.month}-'
                               '${feed.posts![index].createdAt!.day}',
-                              style: Theme.of(conteext).textTheme.caption)
+                              style: Theme.of(contexts).textTheme.caption)
                       ],
                     ),
                   ),
@@ -306,50 +276,41 @@ class _FeedScreenState extends State<FeedScreen> {
                   PopupMenuButton(
                       icon: Icon(
                         Icons.more_vert,
-                        color: MainCubit.get(conteext).isDark
+                        color: MainCubit.get(contexts).isDark
                             ? Colors.white
                             : Colors.black,
                       ),
                       onSelected: (value) {
                         if (value == Constants.edit) {
                           Navigator.push(
-                              conteext,
+                              contexts,
                               MaterialPageRoute(
-                                  builder: (conteext) => EditPostScreen(
+                                  builder: (contexts) => EditPostScreen(
                                         id: feed.posts![index].sId!,
                                         content: feed.posts![index].content!,
                                       )));
                         } else if (Constants.delete == value) {
                           showDialog<String>(
-                              context: conteext,
+                              context: contexts,
                               builder: (BuildContext context) => AlertDialog(
-                                      title: const Text('Delete'),
+                                      title: const Text('Delete Post'),
                                       elevation: 10,
                                       content: const Text(
                                           'Are you sure you want to delete this post?'),
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: const Text(
-                                            'Cancel',
-                                            style:
-                                                TextStyle(color: Colors.black),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(conteext)
-                                                .deletePost(
-                                                    id: feed
-                                                        .posts![index].sId!);
-                                            Navigator.pop(context, 'OK');
-                                          },
-                                          child: const Text('OK',
-                                              style:
-                                                  TextStyle(color: Colors.red)),
-                                        ),
+                                        textButton(
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel'),
+                                            label: 'cancel'),
+                                        textButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(contexts)
+                                                  .deletePost(
+                                                      id: feed
+                                                          .posts![index].sId!);
+                                              Navigator.pop(context, 'OK');
+                                            },
+                                            label: 'OK')
                                       ]));
                         }
                       },
@@ -375,28 +336,28 @@ class _FeedScreenState extends State<FeedScreen> {
               InkWell(
                 onTap: () {
                   Navigator.push(
-                      conteext,
+                      contexts,
                       MaterialPageRoute(
                           builder: (context) => ViewPostScreen(
                                 id: feed.posts![index].sId!,
-                                addComent: false,
+                                addComment: false,
                                 isFocus: false,
                               )));
                 },
                 child: Text(
                   feed.posts![index].content!,
-                  style: Theme.of(conteext).textTheme.headline5,
+                  style: Theme.of(contexts).textTheme.headline5,
                 ),
               )
             else
               InkWell(
                 onTap: () {
                   Navigator.push(
-                      conteext,
+                      contexts,
                       MaterialPageRoute(
                           builder: (context) => ViewPostScreen(
                                 id: feed.posts![index].sId!,
-                                addComent: false,
+                                addComment: false,
                                 isFocus: false,
                               )));
                 },
@@ -405,7 +366,7 @@ class _FeedScreenState extends State<FeedScreen> {
                   style: {
                     "body": Style(
                         fontSize: const FontSize(20.0),
-                        color: MainCubit.get(conteext).isDark
+                        color: MainCubit.get(contexts).isDark
                             ? Colors.white
                             : Colors.black),
                   },
@@ -418,7 +379,7 @@ class _FeedScreenState extends State<FeedScreen> {
               InkWell(
                 onTap: () {
                   Navigator.push(
-                      conteext,
+                      contexts,
                       MaterialPageRoute(
                           builder: (context) => ViewStringImage(
                               image: feed.posts![index].image!.data!)));
@@ -439,7 +400,7 @@ class _FeedScreenState extends State<FeedScreen> {
               padding: const EdgeInsets.symmetric(vertical: 5.0),
               child: Row(
                 children: [
-                  if (PurpleBookCubit.get(conteext).likesCount![index] != 0)
+                  if (PurpleBookCubit.get(contexts).likesCount![index] != 0)
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -449,17 +410,17 @@ class _FeedScreenState extends State<FeedScreen> {
                             showMsg(
                                 msg: 'Just a second',
                                 color: ColorMsg.inCorrect);
-                            PurpleBookCubit.get(conteext)
+                            PurpleBookCubit.get(contexts)
                                 .getLikesPost(id: feed.posts![index].sId!)
                                 .then((value) {
                               showModalBottomSheet(
-                                context: conteext,
+                                context: contexts,
                                 isScrollControlled: true,
                                 shape: const RoundedRectangleBorder(
                                     borderRadius: BorderRadius.vertical(
                                         top: Radius.circular(20))),
                                 builder: (context) => ConditionalBuilder(
-                                  condition: PurpleBookCubit.get(conteext)
+                                  condition: PurpleBookCubit.get(contexts)
                                       .likeModule!
                                       .users!
                                       .isNotEmpty,
@@ -469,15 +430,15 @@ class _FeedScreenState extends State<FeedScreen> {
                                           const NeverScrollableScrollPhysics(),
                                       itemBuilder: (context, index) =>
                                           buildBottomSheet(
-                                              PurpleBookCubit.get(conteext)
+                                              PurpleBookCubit.get(contexts)
                                                   .likeModule!,
                                               index,
-                                              conteext),
+                                              contexts),
                                       separatorBuilder: (context, index) =>
                                           const SizedBox(
                                             height: 10,
                                           ),
-                                      itemCount: PurpleBookCubit.get(conteext)
+                                      itemCount: PurpleBookCubit.get(contexts)
                                           .likeModule!
                                           .users!
                                           .length),
@@ -501,8 +462,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                 width: 5,
                               ),
                               Text(
-                                '${PurpleBookCubit.get(conteext).likesCount![index]} like',
-                                style: Theme.of(conteext)
+                                '${PurpleBookCubit.get(contexts).likesCount![index]} like',
+                                style: Theme.of(contexts)
                                     .textTheme
                                     .caption!
                                     .copyWith(color: Colors.grey, fontSize: 15),
@@ -521,11 +482,11 @@ class _FeedScreenState extends State<FeedScreen> {
                           child: InkWell(
                             onTap: () {
                               Navigator.push(
-                                  conteext,
+                                  contexts,
                                   MaterialPageRoute(
-                                      builder: (conteext) => ViewPostScreen(
+                                      builder: (contexts) => ViewPostScreen(
                                             id: feed.posts![index].sId!,
-                                            addComent: false,
+                                            addComment: false,
                                             isFocus: false,
                                           )));
                             },
@@ -542,7 +503,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                 ),
                                 Text(
                                   '${feed.posts![index].commentsCount} comment',
-                                  style: Theme.of(conteext)
+                                  style: Theme.of(contexts)
                                       .textTheme
                                       .caption!
                                       .copyWith(
@@ -574,23 +535,23 @@ class _FeedScreenState extends State<FeedScreen> {
                       padding: const EdgeInsets.all(10),
                       height: 40,
                       decoration: BoxDecoration(
-                          color: MainCubit.get(conteext).isDark
+                          color: MainCubit.get(contexts).isDark
                               ? Colors.grey.shade500
                               : Colors.grey.shade200,
                           borderRadius:
                               const BorderRadius.all(Radius.circular(15))),
                       child: Text(
                         'Write Comment...',
-                        style: Theme.of(conteext).textTheme.subtitle1,
+                        style: Theme.of(contexts).textTheme.subtitle1,
                       ),
                     ),
                     onTap: () {
                       Navigator.push(
-                          conteext,
+                          contexts,
                           MaterialPageRoute(
-                              builder: (conteext) => ViewPostScreen(
+                              builder: (contexts) => ViewPostScreen(
                                     id: feed.posts![index].sId!,
-                                    addComent: true,
+                                    addComment: true,
                                     isFocus: false,
                                   )));
                     },
@@ -606,7 +567,7 @@ class _FeedScreenState extends State<FeedScreen> {
                       Icon(
                         Icons.thumb_up,
                         size: 20,
-                        color: PurpleBookCubit.get(conteext).isLikePost![index]
+                        color: PurpleBookCubit.get(contexts).isLikePost![index]
                             ? HexColor("#6823D0")
                             : Colors.grey,
                       ),
@@ -617,17 +578,16 @@ class _FeedScreenState extends State<FeedScreen> {
                           style: TextStyle(
                             fontSize: 15,
                             color:
-                                PurpleBookCubit.get(conteext).isLikePost![index]
+                                PurpleBookCubit.get(contexts).isLikePost![index]
                                     ? HexColor("#6823D0")
                                     : Colors.grey,
                           ))
                     ],
                   ),
                   onTap: () {
-                    PurpleBookCubit.get(conteext)
+                    PurpleBookCubit.get(contexts)
                         .likePost(id: feed.posts![index].sId!, index: index);
-                    PurpleBookCubit.get(conteext).changeColorIcon(index);
-                    // PurpleBookCubit.get(conteext).getFeed();
+                    PurpleBookCubit.get(contexts).changeColorIcon(index);
                   },
                 )
               ],
@@ -692,28 +652,19 @@ class _FeedScreenState extends State<FeedScreen> {
                                           'Are you sure you want to sent request to ${user.users![index].firstName} ${user.users![index].lastName} ?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .sendRequestFriend(
-                                                    id: user
-                                                        .users![index].sId!);
-                                            Navigator.pop(context, 'OK');
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel'),
+                                            label: 'cancel'),
+                                        textButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .sendRequestFriend(
+                                                      id: user
+                                                          .users![index].sId!);
+                                              Navigator.pop(context, 'OK');
+                                            },
+                                            label: 'OK')
                                       ]));
                         },
                         color: HexColor("#6823D0"),
@@ -735,29 +686,21 @@ class _FeedScreenState extends State<FeedScreen> {
                                           'Are you sure you want to remove ${user.users![index].firstName} ${user.users![index].lastName} from your list friends?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .cancelFriend(
-                                                    receiveId:
-                                                        user.users![index].sId!)
-                                                .then((value) => Navigator.pop(
-                                                    context, 'OK'));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel'),
+                                            label: 'cancel'),
+                                        textButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .cancelFriend(
+                                                      receiveId: user
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context, 'OK'));
+                                            },
+                                            label: 'OK')
                                       ]));
                         },
                         color: Colors.grey.shade300,
@@ -781,29 +724,21 @@ class _FeedScreenState extends State<FeedScreen> {
                                           'Are you sure you want to cancel request sent?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .cancelSendRequestFriend(
-                                                    receiveId:
-                                                        user.users![index].sId!)
-                                                .then((value) =>
-                                                    Navigator.pop(context_1));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel'),
+                                            label: 'cancel'),
+                                        textButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .cancelSendRequestFriend(
+                                                      receiveId: user
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context, 'OK'));
+                                            },
+                                            label: 'OK')
                                       ]));
                         },
                         color: HexColor("#6823D0"),
@@ -826,28 +761,20 @@ class _FeedScreenState extends State<FeedScreen> {
                                           'Are you sure you want to Accept request?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .acceptFriendRequest(
-                                                    id: user.users![index].sId!)
-                                                .then((value) =>
-                                                    Navigator.pop(context_1));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            onPressed: (() => Navigator.pop(
+                                                context, 'cancel')),
+                                            label: 'cancel'),
+                                        textButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .acceptFriendRequest(
+                                                      id: user
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(context_1));
+                                            },
+                                            label: 'OK')
                                       ]));
                         },
                         color: HexColor("#6823D0"),

@@ -1,13 +1,8 @@
-import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:purplebook/components/end_points.dart';
-import 'package:purplebook/login_sigin/cubit/bloc_cubit.dart';
-import 'package:purplebook/login_sigin/pick_image.dart';
-import 'package:purplebook/purple_book/purple_book_screen.dart';
+import 'package:purplebook/login_signup/cubit/bloc_cubit.dart';
+import 'package:purplebook/login_signup/pick_image.dart';
 
 import 'cubit/bloc_state.dart';
 
@@ -22,19 +17,11 @@ class SignInScreen extends StatelessWidget {
   var formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
-    return OfflineBuilder(
-      connectivityBuilder: (
-        BuildContext context,
-        ConnectivityResult connectivity,
-        Widget child,
-      ) {
-        final bool connected = connectivity != ConnectivityResult.none;
         return BlocProvider(
           create: (context) => LoginSignUpCubit(),
           child: BlocConsumer<LoginSignUpCubit, LoginSignupState>(
             listener: (context, state) {},
             builder: (context, state) {
-              var cubit = LoginSignUpCubit.get(context);
               return Scaffold(
                 appBar: AppBar(
                   backgroundColor: HexColor("#6823D0"),
@@ -212,18 +199,6 @@ class SignInScreen extends StatelessWidget {
             },
           ),
         );
-      },
-      child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const <Widget>[
-            Text(
-              'There are no bottons to push :)',
-            ),
-            Text(
-              'Just turn off your internet.',
-            )
-          ]),
-    );
   }
 
   String? validateEmail(String? value) {

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:purplebook/components/const.dart';
 import 'package:purplebook/network/local/cach_helper.dart';
 
 import '../components/end_points.dart';
@@ -11,6 +10,7 @@ import '../purple_book/purple_book_screen.dart';
 import 'cubit/bloc_cubit.dart';
 import 'cubit/bloc_state.dart';
 
+// ignore: must_be_immutable
 class PickImage extends StatelessWidget {
   final String firstName;
   final String lastName;

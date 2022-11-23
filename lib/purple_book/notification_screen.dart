@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:purplebook/components/const.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
@@ -41,7 +42,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 textColor: Colors.white,
                 fontSize: 16.0);
           }
-
           return BlocProvider(
             create: (context) => PurpleBookCubit()
               ..getNotifications()
@@ -52,34 +52,72 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   var cubit = PurpleBookCubit.get(context);
                   return SingleChildScrollView(
                     physics: const BouncingScrollPhysics(),
-                    child: ConditionalBuilder(
-                      condition: cubit.notificationsModule != null,
-                      builder: (context) => ConditionalBuilder(
-                        condition: cubit
-                            .notificationsModule!.notifications!.isNotEmpty,
-                        builder: (context) => ListView.separated(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemBuilder: (context, index) =>
-                              buildNotification(index, context),
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 1),
-                          itemCount:
-                              cubit.notificationsModule!.notifications!.length,
-                        ),
-                        fallback: (context) => Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical:
-                                  MediaQuery.of(context).size.height / 2.5),
-                          child: Center(
-                            child: Text(
-                              'No Notification for now (•_•)',
-                              style: Theme.of(context).textTheme.headline6,
+                    child: Column(
+                      children: [
+                        ConditionalBuilder(
+                          condition: cubit.notificationsModule != null,
+                          builder: (context) => ConditionalBuilder(
+                            condition: cubit
+                                .notificationsModule!.notifications!.isNotEmpty,
+                            builder: (context) => ListView.separated(
+                              physics: const NeverScrollableScrollPhysics(),
+                              shrinkWrap: true,
+                              itemBuilder: (context, index) =>
+                                  buildNotification(index, context),
+                              separatorBuilder: (context, index) =>
+                                  const SizedBox(height: 1),
+                              itemCount: cubit
+                                  .notificationsModule!.notifications!.length,
+                            ),
+                            fallback: (context) => Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical:
+                                      MediaQuery.of(context).size.height / 2.5),
+                              child: Center(
+                                child: Text(
+                                  'No Notification for now (•_•)',
+                                  style: Theme.of(context).textTheme.headline6,
+                                ),
+                              ),
                             ),
                           ),
+                          fallback: (context) =>
+                              Center(child: buildFoodShimmer()),
                         ),
-                      ),
-                      fallback: (context) => Center(child: buildFoodShimmer()),
+                        // if (!cubit.isEndNotification)
+                        //   ConditionalBuilder(
+                        //     condition:
+                        //         state is! GetMoreNotificationsLoadingState,
+                        //     fallback: (context) => Padding(
+                        //       padding: const EdgeInsets.all(8.0),
+                        //       child: Center(
+                        //         child: CircularProgressIndicator(
+                        //           color: HexColor("#6823D0"),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //     builder: (context) => Padding(
+                        //       padding: const EdgeInsets.all(8.0),
+                        //       child: Container(
+                        //         width: double.infinity,
+                        //         decoration: BoxDecoration(
+                        //             color: HexColor("#6823D0"),
+                        //             borderRadius: const BorderRadius.all(
+                        //                 Radius.circular(20))),
+                        //         child: TextButton(
+                        //           onPressed: () {
+                        //             cubit.getMoreNotifications();
+                        //           },
+                        //           child: const Text(
+                        //             'Show More',
+                        //             style: TextStyle(
+                        //                 color: Colors.white, fontSize: 20),
+                        //           ),
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   )
+                      ],
                     ),
                   );
                 }),
@@ -202,7 +240,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                         .notifications![index]
                                         .links![0]
                                         .linkId!,
-                                    addComent: false,
+                                    addComment: false,
                                     isFocus: false,
                                   )));
                     } else if (PurpleBookCubit.get(context_1)
@@ -220,7 +258,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                                         .notifications![index]
                                         .links![1]
                                         .linkId!,
-                                    addComent: false,
+                                    addComment: false,
                                     isFocus: true,
                                     idComment: PurpleBookCubit.get(context_1)
                                         .notificationsModule!

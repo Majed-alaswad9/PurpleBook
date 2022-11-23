@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:hexcolor/hexcolor.dart';
@@ -23,6 +22,7 @@ class ViewStringImage extends StatelessWidget {
             onPressed: () async {
               await ImageGallerySaver.saveImage(
                   base64Decode(image).buffer.asUint8List());
+              // ignore: use_build_context_synchronously
               ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(content: Text('✅ Saved Successfully')));
             },

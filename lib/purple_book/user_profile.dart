@@ -25,7 +25,7 @@ import '../modules/likes_module.dart';
 class UserProfileScreen extends StatefulWidget {
   final String id;
 
-  UserProfileScreen({Key? key, required this.id}) : super(key: key);
+  const UserProfileScreen({Key? key, required this.id}) : super(key: key);
 
   @override
   State<UserProfileScreen> createState() => _UserProfileScreenState();
@@ -39,7 +39,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   final pageController = PageController(initialPage: 0);
 
   int indexWidget = 0;
-  var _dropDowmValue;
 
   @override
   Widget build(BuildContext context) {
@@ -49,21 +48,21 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
         ..getUserPosts(userId: widget.id),
       child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
         listener: (context, state) {
-          if (state is SendRequestSuccessState) {
+          if (state is SendFriendRequestSuccessState) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('✅ request Successfully'),
             ));
-          } else if (state is SendRequestErrorState) {
+          } else if (state is SendFriendRequestErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('❌ request Failed'),
             ));
           }
 
-          if (state is CancelSendRequestSuccessState) {
+          if (state is CancelSendFriendRequestSuccessState) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('✅ Cancel request Successfully'),
             ));
-          } else if (state is CancelSendRequestErrorState) {
+          } else if (state is CancelSendFriendRequestErrorState) {
             ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
               content: Text('❌ Cancel request Failed'),
             ));
@@ -355,7 +354,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         : Colors.white,
                                     child: MaterialButton(
                                       onPressed: () {
-                                        cubit.getUSerFriends(id: widget.id);
+                                        cubit.getUserFriends(id: widget.id);
                                         indexWidget = 2;
                                       },
                                       child: Text(
@@ -518,7 +517,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           ConditionalBuilder(
                             builder: (context) => userComments(
                                 context, PurpleBookCubit.get(context)),
-                            condition: cubit.userComments != null && cubit.likeCommentCount!.isNotEmpty,
+                            condition: cubit.userComments != null &&
+                                cubit.likeCommentCount!.isNotEmpty,
                             fallback: (context) => Center(
                               child: CircularProgressIndicator(
                                   color: HexColor("#6823D0")),
@@ -612,7 +612,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 builder: (context) => ViewPostScreen(
                                       id: cubit.userComments!.comments![index]
                                           .post!.sId!,
-                                      addComent: false,
+                                      addComment: false,
                                       isFocus: false,
                                     )));
                       },
@@ -765,7 +765,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   //build Widget user posts
   Widget userPosts(context) => ConditionalBuilder(
-        condition: PurpleBookCubit.get(context).userPost!.posts!.isNotEmpty,
+        condition: PurpleBookCubit.get(context).userPost!.posts!.isNotEmpty &&
+            PurpleBookCubit.get(context).likesUserCount!.isNotEmpty,
         builder: (context) => ListView.separated(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -878,7 +879,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                       .cancelFriend(
                                                           receiveId: widget.id)
                                                       .then((value) {
-                                                    cubit.getUSerFriends(
+                                                    cubit.getUserFriends(
                                                         id: cubit
                                                             .userFriends!
                                                             .friends![index]
@@ -912,7 +913,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         id: cubit
                                             .userFriends!.friends![index].sId!)
                                     .then((value) {
-                                  cubit.getUSerFriends(id: widget.id);
+                                  cubit.getUserFriends(id: widget.id);
                                 });
                               },
                               color: HexColor("#6823D0"),
@@ -959,7 +960,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                               .friends![index]
                                                               .sId)
                                                       .then((value) {
-                                                    cubit.getUSerFriends(
+                                                    cubit.getUserFriends(
                                                         id: widget.id);
                                                     Navigator.pop(
                                                         context, 'OK');
@@ -989,7 +990,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               },
                               color: Colors.blueGrey,
                               child: const Text(
-                                'Confrim',
+                                'Confirm',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),
@@ -1057,120 +1058,135 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 : Colors.black,
                           ),
                           onSelected: (value) {
-                        if (value == Constants.edit) {
-                          editPostController.text =
-                              parseFragment(user.posts![index].content!).text!;
-                          showDialog<String>(
-                              context: context_1,
-                              builder: (BuildContext context) => AlertDialog(
-                                      title: const Text('Edit'),
-                                      content: TextFormField(
-                                        controller: editPostController,
-                                        maxLines: 100,
-                                        minLines: 1,
-                                        keyboardType: TextInputType.multiline,
-                                        decoration: InputDecoration(
-                                            label: const Text('Edit post'),
-                                            labelStyle: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                            border: const OutlineInputBorder(),
-                                            enabledBorder:
-                                                const OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: Colors.grey),
-                                              borderRadius: BorderRadius.all(
-                                                  Radius.circular(10.0)),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(
-                                                  color: HexColor("#6823D0")),
-                                              borderRadius:
-                                                  const BorderRadius.all(
-                                                      Radius.circular(10.0)),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.all(10)),
-                                      ),
-                                      elevation: 10,
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                            if (value == Constants.edit) {
+                              editPostController.text =
+                                  parseFragment(user.posts![index].content!)
+                                      .text!;
+                              showDialog<String>(
+                                  context: context_1,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                          title: const Text('Edit'),
+                                          content: TextFormField(
+                                            controller: editPostController,
+                                            maxLines: 100,
+                                            minLines: 1,
+                                            keyboardType:
+                                                TextInputType.multiline,
+                                            decoration: InputDecoration(
+                                                label: const Text('Edit post'),
+                                                labelStyle: TextStyle(
+                                                    color: HexColor("#6823D0")),
+                                                border:
+                                                    const OutlineInputBorder(),
+                                                enabledBorder:
+                                                    const OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color: Colors.grey),
+                                                  borderRadius:
+                                                      BorderRadius.all(
+                                                          Radius.circular(
+                                                              10.0)),
+                                                ),
+                                                focusedBorder:
+                                                    OutlineInputBorder(
+                                                  borderSide: BorderSide(
+                                                      color:
+                                                          HexColor("#6823D0")),
+                                                  borderRadius:
+                                                      const BorderRadius.all(
+                                                          Radius.circular(
+                                                              10.0)),
+                                                ),
+                                                contentPadding:
+                                                    const EdgeInsets.all(10)),
                                           ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .editUserPosts(
-                                              edit: editPostController.text,
-                                              id: user.posts![index].sId!,
-                                              userId:
-                                                  PurpleBookCubit.get(context_1)
+                                          elevation: 10,
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(
+                                                    context, 'Cancel');
+                                              },
+                                              child: Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                    color: HexColor("#6823D0")),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                PurpleBookCubit.get(context_1)
+                                                    .editUserPosts(
+                                                  edit: editPostController.text,
+                                                  id: user.posts![index].sId!,
+                                                  userId: PurpleBookCubit.get(
+                                                          context_1)
                                                       .userProfile!
                                                       .user!
                                                       .sId!,
-                                            );
-                                            Navigator.pop(context, 'OK');
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
-                                      ]));
-                        } else if (Constants.delete == value) {
-                          showDialog<String>(
-                              context: context_1,
-                              builder: (BuildContext context) => AlertDialog(
-                                      title: const Text('Delete'),
-                                      elevation: 10,
-                                      content: const Text(
-                                          'Are you sure you want to delete this post?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: const Text(
-                                            'Cancel',
-                                            style:
-                                                TextStyle(color: Colors.black),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .deletePost(
-                                                    id: user.posts![index].sId!)
-                                                .then((value) => PurpleBookCubit
-                                                        .get(context_1)
-                                                    .getUserPosts(
-                                                        userId:
-                                                            PurpleBookCubit.get(
-                                                                    context_1)
+                                                );
+                                                Navigator.pop(context, 'OK');
+                                              },
+                                              child: Text('OK',
+                                                  style: TextStyle(
+                                                      color:
+                                                          HexColor("#6823D0"))),
+                                            ),
+                                          ]));
+                            } else if (Constants.delete == value) {
+                              showDialog<String>(
+                                  context: context_1,
+                                  builder: (BuildContext context) =>
+                                      AlertDialog(
+                                          title: const Text('Delete'),
+                                          elevation: 10,
+                                          content: const Text(
+                                              'Are you sure you want to delete this post?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(
+                                                    context, 'Cancel');
+                                              },
+                                              child: const Text(
+                                                'Cancel',
+                                                style: TextStyle(
+                                                    color: Colors.black),
+                                              ),
+                                            ),
+                                            TextButton(
+                                              onPressed: () {
+                                                PurpleBookCubit.get(context_1)
+                                                    .deletePost(
+                                                        id: user
+                                                            .posts![index].sId!)
+                                                    .then((value) => PurpleBookCubit
+                                                            .get(context_1)
+                                                        .getUserPosts(
+                                                            userId: PurpleBookCubit
+                                                                    .get(
+                                                                        context_1)
                                                                 .userProfile!
                                                                 .user!
                                                                 .sId!));
-                                            Navigator.pop(context, 'Yes');
-                                          },
-                                          child: const Text('Yes',
-                                              style:
-                                                  TextStyle(color: Colors.red)),
-                                        ),
-                                      ]));
-                        }
-                      }, itemBuilder: (BuildContext context) {
-                        return Constants.chose.map((e) {
-                          return PopupMenuItem<String>(
-                            value: e,
-                            child: Text(e),
-                          );
-                        }).toList();
-                      })
+                                                Navigator.pop(context, 'Yes');
+                                              },
+                                              child: const Text('Yes',
+                                                  style: TextStyle(
+                                                      color: Colors.red)),
+                                            ),
+                                          ]));
+                            }
+                          },
+                          itemBuilder: (BuildContext context) {
+                            return Constants.chose.map((e) {
+                              return PopupMenuItem<String>(
+                                value: e,
+                                child: Text(e),
+                              );
+                            }).toList();
+                          })
                   ],
                 ),
                 Padding(
@@ -1181,29 +1197,29 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     color: Colors.grey,
                   ),
                 ),
-                if(user.posts![index].content!.contains('<'))
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context_1,
-                        MaterialPageRoute(
-                            builder: (context) => ViewPostScreen(
-                                  id: user.posts![index].sId!,
-                                  addComent: false,
-                                  isFocus: false,
-                                )));
-                  },
-                  child: Html(
-                    data: user.posts![index].content!,
-                    style: {
-                      "body": Style(
-                          fontSize: const FontSize(20.0),
-                          color: MainCubit.get(context_1).isDark
-                              ? Colors.white
-                              : Colors.black),
+                if (user.posts![index].content!.contains('<'))
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context_1,
+                          MaterialPageRoute(
+                              builder: (context) => ViewPostScreen(
+                                    id: user.posts![index].sId!,
+                                    addComment: false,
+                                    isFocus: false,
+                                  )));
                     },
-                  ),
-                )
+                    child: Html(
+                      data: user.posts![index].content!,
+                      style: {
+                        "body": Style(
+                            fontSize: const FontSize(20.0),
+                            color: MainCubit.get(context_1).isDark
+                                ? Colors.white
+                                : Colors.black),
+                      },
+                    ),
+                  )
                 else
                   InkWell(
                     onTap: () {
@@ -1211,15 +1227,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           context_1,
                           MaterialPageRoute(
                               builder: (context) => ViewPostScreen(
-                                id: user.posts![index].sId!,
-                                addComent: false,
-                                isFocus: false,
-                              )));
+                                    id: user.posts![index].sId!,
+                                    addComment: false,
+                                    isFocus: false,
+                                  )));
                     },
-                    child: Text(
-                      user.posts![index].content!,
-                      style: Theme.of(context_1).textTheme.headline5
-                    ),
+                    child: Text(user.posts![index].content!,
+                        style: Theme.of(context_1).textTheme.headline5),
                   ),
                 const SizedBox(
                   height: 10,
@@ -1343,7 +1357,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           builder: (context_1) =>
                                               ViewPostScreen(
                                                 id: user.posts![index].sId!,
-                                                addComent: false,
+                                                addComment: false,
                                                 isFocus: false,
                                               )));
                                 },
@@ -1404,7 +1418,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   builder: (context_1) => ViewPostScreen(
                                         id: user.posts![index].sId!,
                                         isFocus: false,
-                                        addComent: true,
+                                        addComment: true,
                                       )));
                         },
                       ),

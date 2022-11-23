@@ -14,8 +14,7 @@ import 'package:purplebook/purple_book/user_profile.dart';
 class EditPostScreen extends StatelessWidget {
   final String id;
   final String content;
-  EditPostScreen(
-      {Key? key, required this.id, required this.content})
+  EditPostScreen({Key? key, required this.id, required this.content})
       : super(key: key);
   var editPostController = TextEditingController();
   @override
@@ -112,8 +111,9 @@ class EditPostScreen extends StatelessWidget {
                                           '${cubit.postView!.post!.createdAt!.year}-'
                                           '${cubit.postView!.post!.createdAt!.month}-'
                                           '${cubit.postView!.post!.createdAt!.day}',
-                                          style: const TextStyle(
-                                              height: 1.3, color: Colors.grey))
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .caption)
                                     ],
                                   ),
                                 ),
@@ -134,11 +134,17 @@ class EditPostScreen extends StatelessWidget {
                             keyboardType: TextInputType.multiline,
                             maxLines: null,
                             maxLength: null,
+                            textAlign: TextAlign.right,
+                            decoration:
+                                const InputDecoration(border: InputBorder.none),
+                          ),
+                          const SizedBox(
+                            height: 15,
                           ),
                           if (cubit.postView!.post!.image!.data!.isNotEmpty)
                             Container(
                               width: double.infinity,
-                              height: 200,
+                              height: 350,
                               decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(5),
                                   image: DecorationImage(

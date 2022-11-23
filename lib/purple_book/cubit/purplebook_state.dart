@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:purplebook/modules/feed_moduel.dart';
+import 'package:purplebook/modules/error_module.dart';
+import 'package:purplebook/modules/feed_module.dart';
 
 abstract class PurpleBookState {}
 
@@ -40,7 +41,11 @@ class EditPostLoadingState extends PurpleBookState {}
 
 class EditPostSuccessState extends PurpleBookState {}
 
-class EditPostErrorState extends PurpleBookState {}
+class EditPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  EditPostErrorState(this.error);
+}
 
 class ViewPostLoadingState extends PurpleBookState {}
 
@@ -68,7 +73,7 @@ class DeleteLikePostSuccessState extends PurpleBookState {}
 
 class DeleteLikePostErrorState extends PurpleBookState {}
 
-class ChangeLikePostState extends PurpleBookState{}
+class ChangeLikePostState extends PurpleBookState {}
 
 class GetPostImageSuccessState extends PurpleBookState {}
 
@@ -82,13 +87,21 @@ class AddNewPostLoadingState extends PurpleBookState {}
 
 class AddNewPostSuccessState extends PurpleBookState {}
 
-class AddNewPostErrorState extends PurpleBookState {}
+class AddNewPostErrorState extends PurpleBookState {
+  final ErrorModule error;
+
+  AddNewPostErrorState(this.error);
+}
 
 class PostDeleteLoadingState extends PurpleBookState {}
 
 class PostDeleteSuccessState extends PurpleBookState {}
 
-class PostDeleteErrorState extends PurpleBookState {}
+class PostDeleteErrorState extends PurpleBookState {
+  final DioError error;
+
+  PostDeleteErrorState(this.error);
+}
 
 class DeletePhotoPostState extends PurpleBookState {}
 
@@ -140,13 +153,21 @@ class DeleteCommentPostLoadingState extends PurpleBookState {}
 
 class DeleteCommentPostSuccessState extends PurpleBookState {}
 
-class DeleteCommentPostErrorState extends PurpleBookState {}
+class DeleteCommentPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  DeleteCommentPostErrorState(this.error);
+}
 
 class AddCommentPostLoadingState extends PurpleBookState {}
 
 class AddCommentPostSuccessState extends PurpleBookState {}
 
-class AddCommentPostErrorState extends PurpleBookState {}
+class AddCommentPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  AddCommentPostErrorState(this.error);
+}
 
 class EditCommentPostLoadingState extends PurpleBookState {}
 
@@ -222,25 +243,41 @@ class UpdateUserProfileLoadingState extends PurpleBookState {}
 
 class UpdateUserProfileSuccessState extends PurpleBookState {}
 
-class UpdateUserProfileErrorState extends PurpleBookState {}
+class UpdateUserProfileErrorState extends PurpleBookState {
+  final ErrorModule error;
 
-class SendRequestLoadingState extends PurpleBookState {}
+  UpdateUserProfileErrorState(this.error);
+}
 
-class SendRequestSuccessState extends PurpleBookState {}
+class SendFriendRequestLoadingState extends PurpleBookState {}
 
-class SendRequestErrorState extends PurpleBookState {}
+class SendFriendRequestSuccessState extends PurpleBookState {}
 
-class CancelSendRequestLoadingState extends PurpleBookState {}
+class SendFriendRequestErrorState extends PurpleBookState {
+  final DioError error;
 
-class CancelSendRequestSuccessState extends PurpleBookState {}
+  SendFriendRequestErrorState(this.error);
+}
 
-class CancelSendRequestErrorState extends PurpleBookState {}
+class CancelSendFriendRequestLoadingState extends PurpleBookState {}
+
+class CancelSendFriendRequestSuccessState extends PurpleBookState {}
+
+class CancelSendFriendRequestErrorState extends PurpleBookState {
+  final DioError error;
+
+  CancelSendFriendRequestErrorState(this.error);
+}
 
 class CancelFriendLoadingState extends PurpleBookState {}
 
 class CancelFriendSuccessState extends PurpleBookState {}
 
-class CancelFriendErrorState extends PurpleBookState {}
+class CancelFriendErrorState extends PurpleBookState {
+  final DioError error;
+
+  CancelFriendErrorState(this.error);
+}
 
 class DeleteUserLoadingState extends PurpleBookState {}
 
@@ -270,7 +307,11 @@ class AcceptFriendRequestLoadingState extends PurpleBookState {}
 
 class AcceptFriendRequestSuccessState extends PurpleBookState {}
 
-class AcceptFriendRequestErrorState extends PurpleBookState {}
+class AcceptFriendRequestErrorState extends PurpleBookState {
+  final DioError error;
+
+  AcceptFriendRequestErrorState(this.error);
+}
 
 class RemoveFriendRequestLoadingState extends PurpleBookState {}
 
@@ -296,8 +337,14 @@ class GetNotificationsSuccessState extends PurpleBookState {}
 
 class GetNotificationsErrorState extends PurpleBookState {}
 
-class GetNotifFromAnyScreenLoadingState extends PurpleBookState {}
+class GetMoreNotificationsLoadingState extends PurpleBookState {}
 
-class GetNotifFromAnyScreenSuccessState extends PurpleBookState {}
+class GetMoreNotificationsSuccessState extends PurpleBookState {}
 
-class GetNotifFromAnyScreenErrorState extends PurpleBookState {}
+class GetMoreNotificationsErrorState extends PurpleBookState {}
+
+class GetNotifyFromAnyScreenLoadingState extends PurpleBookState {}
+
+class GetNotifyFromAnyScreenSuccessState extends PurpleBookState {}
+
+class GetNotifyFromAnyScreenErrorState extends PurpleBookState {}

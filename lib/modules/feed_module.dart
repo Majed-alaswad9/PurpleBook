@@ -13,14 +13,6 @@ class FeedModule {
       });
     }
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (posts != null) {
-      data['posts'] = posts!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
 }
 
 class Posts {
@@ -54,23 +46,6 @@ class Posts {
     likesCount = json['likesCount'];
     commentsCount = json['commentsCount'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['content'] = content;
-    if (image != null) {
-      data['image'] = image!.toJson();
-    }
-    data['createdAt'] = createdAt;
-    if (author != null) {
-      data['author'] = author!.toJson();
-    }
-    data['likedByUser'] = likedByUser;
-    data['likesCount'] = likesCount;
-    data['commentsCount'] = commentsCount;
-    return data;
-  }
 }
 
 class ImageModule {
@@ -82,13 +57,6 @@ class ImageModule {
   ImageModule.fromJson(Map<String, dynamic> json) {
     data = json['data'];
     contentType = json['contentType'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['data'] = this.data;
-    data['contentType'] = contentType;
-    return data;
   }
 }
 
@@ -107,16 +75,5 @@ class Author {
     imageMini = json['imageMini'] != null
         ? ImageModule.fromJson(json['imageMini'])
         : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    if (imageMini != null) {
-      data['imageMini'] = imageMini!.toJson();
-    }
-    return data;
   }
 }

@@ -11,14 +11,6 @@ class FriendsRequestModule {
       });
     }
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (friendRequests != null) {
-      data['friendRequests'] = friendRequests!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
 }
 
 class FriendRequests {
@@ -32,16 +24,6 @@ class FriendRequests {
     user = json['user'] != null ? User.fromJson(json['user']) : null;
     viewed = json['viewed'];
     sId = json['_id'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (user != null) {
-      data['user'] = user!.toJson();
-    }
-    data['viewed'] = viewed;
-    data['_id'] = sId;
-    return data;
   }
 }
 
@@ -61,17 +43,6 @@ class User {
     firstName = json['firstName'];
     lastName = json['lastName'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (imageMini != null) {
-      data['imageMini'] = imageMini!.toJson();
-    }
-    data['_id'] = sId;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    return data;
-  }
 }
 
 class ImageMini {
@@ -84,15 +55,6 @@ class ImageMini {
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
     contentType = json['contentType'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    data['contentType'] = contentType;
-    return data;
-  }
 }
 
 class Data {
@@ -104,12 +66,5 @@ class Data {
   Data.fromJson(Map<String, dynamic> json) {
     type = json['type'];
     data = json['data'].cast<int>();
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['type'] = type;
-    data['data'] = this.data;
-    return data;
   }
 }

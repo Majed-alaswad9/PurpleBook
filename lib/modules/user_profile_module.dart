@@ -6,14 +6,6 @@ class UserProfileModule {
   UserProfileModule.fromJson(Map<String, dynamic> json) {
     user = json['user'] != null ? User.fromJson(json['user']) : null;
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (user != null) {
-      data['user'] = user!.toJson();
-    }
-    return data;
-  }
 }
 
 class User {
@@ -26,11 +18,11 @@ class User {
 
   User(
       {this.imageFull,
-        this.sId,
-        this.firstName,
-        this.lastName,
-        this.createdAt,
-        this.friendState});
+      this.sId,
+      this.firstName,
+      this.lastName,
+      this.createdAt,
+      this.friendState});
 
   User.fromJson(Map<String, dynamic> json) {
     imageFull = json['imageFull'] != null
@@ -41,19 +33,6 @@ class User {
     lastName = json['lastName'];
     createdAt = json['createdAt'];
     friendState = json['friendState'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (imageFull != null) {
-      data['imageFull'] = imageFull!.toJson();
-    }
-    data['_id'] = sId;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    data['createdAt'] = createdAt;
-    data['friendState'] = friendState;
-    return data;
   }
 }
 
@@ -67,15 +46,6 @@ class ImageFull {
     data = json['data'] != null ? Data.fromJson(json['data']) : null;
     contentType = json['contentType'];
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (this.data != null) {
-      data['data'] = this.data!.toJson();
-    }
-    data['contentType'] = contentType;
-    return data;
-  }
 }
 
 class Data {
@@ -86,13 +56,6 @@ class Data {
 
   Data.fromJson(Map<String, dynamic> json) {
     type = json['type'];
-    data = json['data'].cast<int>() ;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['type'] = type;
-    data['data'] = this.data;
-    return data;
+    data = json['data'].cast<int>();
   }
 }

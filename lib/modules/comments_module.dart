@@ -13,14 +13,6 @@ class CommentsModule {
       });
     }
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (comments != null) {
-      data['comments'] = comments!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
 }
 
 class Comments {
@@ -50,18 +42,6 @@ class Comments {
     likedByUser = json['likedByUser'];
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['content'] = content;
-    data['createdAt'] = createdAt;
-    data['likesCount'] = likesCount;
-    if (author != null) {
-      data['author'] = author!.toJson();
-    }
-    data['likedByUser'] = likedByUser;
-    return data;
-  }
 }
 
 class Author {
@@ -80,17 +60,6 @@ class Author {
         ? ImageMini.fromJson(json['imageMini'])
         : null;
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['firstName'] = firstName;
-    data['lastName'] = lastName;
-    if (imageMini != null) {
-      data['imageMini'] = imageMini!.toJson();
-    }
-    return data;
-  }
 }
 
 class ImageMini {
@@ -102,12 +71,5 @@ class ImageMini {
   ImageMini.fromJson(Map<String, dynamic> json) {
     data = json['data'];
     contentType = json['contentType'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['data'] = this.data;
-    data['contentType'] = contentType;
-    return data;
   }
 }

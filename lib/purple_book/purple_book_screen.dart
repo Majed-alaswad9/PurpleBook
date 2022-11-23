@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/cubit/cubit.dart';
-import 'package:purplebook/login_sigin/login_screen.dart';
+import 'package:purplebook/login_signup/login_screen.dart';
 import 'package:purplebook/network/local/cach_helper.dart';
 import 'package:purplebook/purple_book/app_info.dart';
 import 'package:purplebook/purple_book/new_post_screen.dart';
@@ -87,7 +87,7 @@ class PurpleBookScreen extends StatelessWidget {
                         children: <Widget>[
                           const Icon(Icons.people),
                           if (PurpleBookCubit.get(context)
-                                  .friendeRequestCount !=
+                                  .friendsRequestCount !=
                               0)
                             Positioned(
                               right: 0,
@@ -103,7 +103,7 @@ class PurpleBookScreen extends StatelessWidget {
                                   minHeight: 12,
                                 ),
                                 child: Text(
-                                  '${PurpleBookCubit.get(context).friendeRequestCount}',
+                                  '${PurpleBookCubit.get(context).friendsRequestCount}',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 8,
@@ -116,7 +116,7 @@ class PurpleBookScreen extends StatelessWidget {
                       ),
                     ),
                     BottomNavigationBarItem(
-                      label: 'Notificatio',
+                      label: 'Notification',
                       icon: Stack(
                         children: <Widget>[
                           const Icon(Icons.notifications),
@@ -241,7 +241,7 @@ class NavigationDrawer extends StatelessWidget {
               children: [
                 const Text('Friends'),
                 const Spacer(),
-                if (PurpleBookCubit.get(context).friendeRequestCount != 0)
+                if (PurpleBookCubit.get(context).friendsRequestCount != 0)
                   Container(
                     padding: const EdgeInsets.all(1),
                     decoration: BoxDecoration(
@@ -255,7 +255,7 @@ class NavigationDrawer extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        '${PurpleBookCubit.get(context).friendeRequestCount}',
+                        '${PurpleBookCubit.get(context).friendsRequestCount}',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 13,

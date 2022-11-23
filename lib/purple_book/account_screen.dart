@@ -10,7 +10,6 @@ import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:purplebook/cubit/cubit.dart';
-import 'package:purplebook/login_sigin/login_screen.dart';
 import 'package:purplebook/modules/comment_likes_module.dart';
 import 'package:purplebook/modules/user_comments_module.dart';
 import 'package:purplebook/modules/user_friends_module.dart';
@@ -24,6 +23,7 @@ import 'package:purplebook/purple_book/view_post_screen.dart';
 
 import '../components/const.dart';
 import '../components/end_points.dart';
+import '../login_signup/login_screen.dart';
 import '../modules/likes_module.dart';
 
 // ignore: must_be_immutable
@@ -64,14 +64,19 @@ class AccountScreen extends StatelessWidget {
                 ..getUserPosts(userId: userId!),
               child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
                 listener: (context, state) {
+                  //* edit user profile
                   if (state is UpdateUserProfileSuccessState) {
-                    showMsg(
-                        msg: '✅ Update Successfully',
-                        color: ColorMsg.inCorrect);
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      content: Text('✅ Update Successfully'),
+                    ));
                   } else if (state is UpdateUserProfileErrorState) {
-                    showMsg(msg: '❌ Update Failed', color: ColorMsg.error);
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Text('Error ${state.error.errors![0].msg}'),
+                    ));
                   }
 
+                  //* Delete user account
                   if (state is DeleteUserSuccessState) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                         content: Text('✅ Delete Account Successfully')));
@@ -99,15 +104,6 @@ class AccountScreen extends StatelessWidget {
                       content: Text('✅ Editing Successfully'),
                     ));
                   } else if (state is EditUserPostErrorState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('❌ Editing Failed'),
-                    ));
-                  }
-                  if (state is UpdateUserProfileSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('✅ Editing Successfully'),
-                    ));
-                  } else if (state is UpdateUserProfileErrorState) {
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text('❌ Editing Failed'),
                     ));
@@ -299,114 +295,66 @@ class AccountScreen extends StatelessWidget {
                                                 .userProfile!.user!.lastName!;
                                             showDialog<String>(
                                                 context: context,
-                                                builder:
-                                                    (BuildContext context_2) =>
-                                                        AlertDialog(
-                                                            title: const Text(
-                                                                'Edit Name'),
-                                                            elevation: 10,
-                                                            content: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              children: [
-                                                                TextFormField(
-                                                                  controller:
-                                                                      firstNameController,
-                                                                  maxLines: 2,
-                                                                  minLines: 1,
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .multiline,
-                                                                  decoration: InputDecoration(
-                                                                      label: const Text('First Name'),
-                                                                      labelStyle: TextStyle(color: HexColor("#6823D0")),
-                                                                      hintStyle: Theme.of(context).textTheme.subtitle2,
-                                                                      border: const OutlineInputBorder(),
-                                                                      enabledBorder: const OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(color: Colors.grey),
-                                                                        borderRadius:
-                                                                            BorderRadius.all(Radius.circular(10.0)),
-                                                                      ),
-                                                                      focusedBorder: OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(color: HexColor("#6823D0")),
-                                                                        borderRadius:
-                                                                            const BorderRadius.all(Radius.circular(10.0)),
-                                                                      ),
-                                                                      contentPadding: const EdgeInsets.all(10)),
-                                                                ),
-                                                                const SizedBox(
-                                                                  height: 15,
-                                                                ),
-                                                                TextFormField(
-                                                                  controller:
-                                                                      lastNameController,
-                                                                  maxLines: 2,
-                                                                  minLines: 1,
-                                                                  keyboardType:
-                                                                      TextInputType
-                                                                          .multiline,
-                                                                  decoration: InputDecoration(
-                                                                      label: const Text('Last Name'),
-                                                                      labelStyle: TextStyle(color: HexColor("#6823D0")),
-                                                                      hintStyle: Theme.of(context).textTheme.subtitle2,
-                                                                      border: const OutlineInputBorder(),
-                                                                      enabledBorder: const OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(color: Colors.grey),
-                                                                        borderRadius:
-                                                                            BorderRadius.all(Radius.circular(10.0)),
-                                                                      ),
-                                                                      focusedBorder: OutlineInputBorder(
-                                                                        borderSide:
-                                                                            BorderSide(color: HexColor("#6823D0")),
-                                                                        borderRadius:
-                                                                            const BorderRadius.all(Radius.circular(10.0)),
-                                                                      ),
-                                                                      contentPadding: const EdgeInsets.all(10)),
-                                                                ),
-                                                              ],
+                                                builder: (BuildContext
+                                                        context_2) =>
+                                                    AlertDialog(
+                                                        title: const Text(
+                                                            'Edit Name'),
+                                                        elevation: 10,
+                                                        content: Column(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            textForm(
+                                                              controller:
+                                                                  firstNameController,
+                                                              label:
+                                                                  'First Name',
+                                                              maxLines: 2,
+                                                              minLines: 1,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .multiline,
                                                             ),
-                                                            actions: [
-                                                              TextButton(
-                                                                onPressed: () {
+                                                            const SizedBox(
+                                                              height: 15,
+                                                            ),
+                                                            textForm(
+                                                              controller:
+                                                                  lastNameController,
+                                                              label:
+                                                                  'Last Name',
+                                                              maxLines: 2,
+                                                              minLines: 1,
+                                                              keyboardType:
+                                                                  TextInputType
+                                                                      .multiline,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        actions: [
+                                                          textButton(
+                                                              label: 'cancel',
+                                                              onPressed: () =>
                                                                   Navigator.pop(
-                                                                      context_2,
-                                                                      'Cancel');
-                                                                },
-                                                                child:
-                                                                    const Text(
-                                                                  'Cancel',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .black),
-                                                                ),
-                                                              ),
-                                                              TextButton(
-                                                                onPressed: () {
-                                                                  cubit.editUserProfile(
-                                                                      id:
-                                                                          userId!,
-                                                                      firstName:
-                                                                          firstNameController
-                                                                              .text,
-                                                                      lastName:
-                                                                          lastNameController
-                                                                              .text);
-                                                                  Navigator.pop(
-                                                                      context_2,
-                                                                      'Update');
-                                                                },
-                                                                child: Text(
-                                                                  'OK',
-                                                                  style: TextStyle(
-                                                                      color: HexColor(
-                                                                          "#6823D0")),
-                                                                ),
-                                                              )
-                                                            ]));
+                                                                      context,
+                                                                      'cancel')),
+                                                          textButton(
+                                                              label: 'Update',
+                                                              onPressed: () {
+                                                                cubit.editUserProfile(
+                                                                    id: userId!,
+                                                                    firstName:
+                                                                        firstNameController
+                                                                            .text,
+                                                                    lastName:
+                                                                        lastNameController
+                                                                            .text);
+                                                                Navigator.pop(
+                                                                    context_2,
+                                                                    'Update');
+                                                              })
+                                                        ]));
                                           },
                                           icon: const Icon(
                                             Icons.edit,
@@ -449,33 +397,21 @@ class AccountScreen extends StatelessWidget {
                                                               'Are you sure yoo delete your account'),
                                                           elevation: 10,
                                                           actions: [
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                Navigator.pop(
-                                                                    context,
-                                                                    'Cancel');
-                                                              },
-                                                              child: Text(
-                                                                'Cancel',
-                                                                style: TextStyle(
-                                                                    color: HexColor(
-                                                                        "#6823D0")),
-                                                              ),
-                                                            ),
-                                                            TextButton(
-                                                              onPressed: () {
-                                                                cubit
-                                                                    .deleteUser();
-                                                                Navigator.pop(
-                                                                    context,
-                                                                    'Yes');
-                                                              },
-                                                              child: const Text(
-                                                                  'Yes',
-                                                                  style: TextStyle(
-                                                                      color: Colors
-                                                                          .red)),
-                                                            ),
+                                                            textButton(
+                                                                label: 'cancel',
+                                                                onPressed: () =>
+                                                                    Navigator.pop(
+                                                                        context,
+                                                                        'cancel')),
+                                                            textButton(
+                                                                label: 'Yes',
+                                                                onPressed: () {
+                                                                  cubit
+                                                                      .deleteUser();
+                                                                  Navigator.pop(
+                                                                      context,
+                                                                      'Yes');
+                                                                })
                                                           ]));
                                             },
                                             child: const Text(
@@ -562,7 +498,7 @@ class AccountScreen extends StatelessWidget {
                                                   : Colors.white,
                                               child: MaterialButton(
                                                 onPressed: () {
-                                                  cubit.getUSerFriends(
+                                                  cubit.getUserFriends(
                                                       id: userId!);
                                                   cubit.indexWidget = 2;
                                                 },
@@ -594,56 +530,28 @@ class AccountScreen extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: DropdownButton(
-                                      style: TextStyle(
-                                          color: MainCubit.get(context).isDark
-                                              ? Colors.white
-                                              : Colors.black),
-                                      items: [
-                                        DropdownMenuItem(
-                                          value: "date",
-                                          child: Text(
-                                            'date',
-                                            style: TextStyle(
-                                                color: MainCubit.get(context)
-                                                        .isDark
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                          ),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: "Most liked",
-                                          child: Text(
-                                            'Most Liked',
-                                            style: TextStyle(
-                                                color: MainCubit.get(context)
-                                                        .isDark
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                          ),
-                                        ),
-                                      ],
-                                      dropdownColor:
-                                          MainCubit.get(context).isDark
-                                              ? HexColor("#242F3D")
-                                              : Colors.white,
-                                      value: cubit.dropDownValue,
-                                      onChanged: (value) {
-                                        cubit.dropDownValue = value!;
-                                        if (value == 'date') {
-                                          cubit.getUserPosts(
-                                              userId: userId!, sort: 'date');
-                                        } else {
-                                          cubit.getUserPosts(
-                                              userId: userId!, sort: 'likes');
-                                        }
-                                      }),
-                                ),
-
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: dropDown(
+                                        context: context,
+                                        dropDownValue: cubit.dropDownValue,
+                                        text1: 'date',
+                                        value1: 'date',
+                                        text2: 'Most Likes',
+                                        value2: 'Likes',
+                                        change: (value) {
+                                          cubit.dropDownValue = value!;
+                                          if (value == 'date') {
+                                            cubit.getUserPosts(
+                                                userId: userId!, sort: 'date');
+                                          } else {
+                                            cubit.getUserPosts(
+                                                userId: userId!, sort: 'likes');
+                                          }
+                                        })),
                                 ConditionalBuilder(
                                   builder: (context) => userPosts(context),
-                                  condition: cubit.userPost != null && cubit.likesUserCount!.isNotEmpty,
+                                  condition: cubit.userPost != null &&
+                                      cubit.likesUserCount!.isNotEmpty,
                                   fallback: (context) => Center(
                                     child: CircularProgressIndicator(
                                         color: HexColor("#6823D0")),
@@ -689,59 +597,31 @@ class AccountScreen extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.all(10.0),
-                                  child: DropdownButton(
-                                      style: TextStyle(
-                                          color: MainCubit.get(context).isDark
-                                              ? Colors.white
-                                              : Colors.black),
-                                      items: [
-                                        DropdownMenuItem(
-                                          value: "date",
-                                          child: Text(
-                                            'date',
-                                            style: TextStyle(
-                                                color: MainCubit.get(context)
-                                                        .isDark
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                          ),
-                                        ),
-                                        DropdownMenuItem(
-                                          value: "Most liked",
-                                          child: Text(
-                                            'Most Liked',
-                                            style: TextStyle(
-                                                color: MainCubit.get(context)
-                                                        .isDark
-                                                    ? Colors.white
-                                                    : Colors.black),
-                                          ),
-                                        ),
-                                      ],
-                                      dropdownColor:
-                                          MainCubit.get(context).isDark
-                                              ? HexColor("#242F3D")
-                                              : Colors.white,
-                                      value: cubit.dropDownValue,
-                                      onChanged: (value) {
-                                        cubit.dropDownValue = value!;
-                                        if (value == 'date') {
-                                          cubit.getUserComments(
-                                              id: userId!, sort: 'date');
-                                        } else {
-                                          cubit.getUserComments(
-                                              id: userId!, sort: 'likes');
-                                        }
-                                      }),
-                                ),
-
+                                    padding: const EdgeInsets.all(10.0),
+                                    child: dropDown(
+                                        context: context,
+                                        dropDownValue: cubit.dropDownValue,
+                                        text1: 'date',
+                                        value1: 'date',
+                                        text2: 'Most Likes',
+                                        value2: 'Most Likes',
+                                        change: (value) {
+                                          cubit.dropDownValue = value!;
+                                          if (value == 'date') {
+                                            cubit.getUserComments(
+                                                id: userId!, sort: 'date');
+                                          } else {
+                                            cubit.getUserComments(
+                                                id: userId!, sort: 'likes');
+                                          }
+                                        })),
                                 ConditionalBuilder(
                                   builder: (context) => userComments(
                                       context,
                                       PurpleBookCubit.get(context)
                                           .userComments),
-                                  condition: cubit.userComments != null && cubit.likeCommentCount!.isNotEmpty,
+                                  condition: cubit.userComments != null &&
+                                      cubit.likeCommentCount!.isNotEmpty,
                                   fallback: (context) => Center(
                                     child: CircularProgressIndicator(
                                         color: HexColor("#6823D0")),
@@ -806,7 +686,7 @@ class AccountScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: const <Widget>[
             Text(
-              'There are no bottons to push :)',
+              'There are no buttons to push :)',
             ),
             Text(
               'Just turn off your internet.',
@@ -842,7 +722,7 @@ class AccountScreen extends StatelessWidget {
                                         ViewPostScreen.focusComment(
                                           id: comment
                                               .comments![index].post!.sId!,
-                                          addComent: false,
+                                          addComment: false,
                                           isFocus: true,
                                           idComment:
                                               comment.comments![index].sId,
@@ -1007,7 +887,7 @@ class AccountScreen extends StatelessWidget {
       );
 
   //* build Widget user friends
-  Widget userFriend(context, UserFriendsModule? friend) => ConditionalBuilder(
+  Widget userFriend(contexts, UserFriendsModule? friend) => ConditionalBuilder(
       condition: friend!.friends!.isNotEmpty,
       builder: (context) => ListView.separated(
             shrinkWrap: true,
@@ -1066,32 +946,25 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to remove ${friend.friends![index].firstName} ${friend.friends![index].lastName} from friends list?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context)
-                                                .cancelFriend(
-                                                    receiveId: friend
-                                                        .friends![index].sId!)
-                                                .then((value) {
-                                              PurpleBookCubit.get(context)
-                                                  .getUSerFriends(id: userId!);
-                                              Navigator.pop(context, 'OK');
-                                            });
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            context: context,
+                                            label: 'Cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'Cancel')),
+                                        textButton(
+                                            onPressed: () {
+                                              PurpleBookCubit.get(contexts)
+                                                  .cancelFriend(
+                                                      receiveId: friend
+                                                          .friends![index].sId!)
+                                                  .then((value) {
+                                                PurpleBookCubit.get(contexts)
+                                                    .getUserFriends(
+                                                        id: userId!);
+                                                Navigator.pop(context, 'OK');
+                                              });
+                                            },
+                                            label: 'OK')
                                       ]));
                         },
                         color: Colors.grey.shade300,
@@ -1174,66 +1047,37 @@ class AccountScreen extends StatelessWidget {
                             showDialog<String>(
                                 context: context_1,
                                 builder: (BuildContext context) => AlertDialog(
-                                        title: const Text('Edit'),
-                                        content: TextFormField(
-                                          controller: editPostController,
-                                          maxLines: 100,
-                                          minLines: 1,
-                                          keyboardType: TextInputType.multiline,
-                                          decoration: InputDecoration(
-                                              label: const Text('Edit post'),
-                                              labelStyle: TextStyle(
-                                                  color: HexColor("#6823D0")),
-                                              border:
-                                                  const OutlineInputBorder(),
-                                              enabledBorder:
-                                                  const OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: Colors.grey),
-                                                borderRadius: BorderRadius.all(
-                                                    Radius.circular(10.0)),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderSide: BorderSide(
-                                                    color: HexColor("#6823D0")),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(10.0)),
-                                              ),
-                                              contentPadding:
-                                                  const EdgeInsets.all(10)),
-                                        ),
+                                        title: const Text('Edit Post'),
+                                        content: textForm(
+                                            controller: editPostController,
+                                            label: 'Edit',
+                                            maxLines: 100,
+                                            minLines: 1,
+                                            keyboardType:
+                                                TextInputType.multiline),
                                         elevation: 10,
                                         actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context, 'Cancel');
-                                            },
-                                            child: Text(
-                                              'Cancel',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0")),
-                                            ),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              PurpleBookCubit.get(context_1)
-                                                  .editUserPosts(
-                                                edit: editPostController.text,
-                                                id: user.posts![index].sId!,
-                                                userId: PurpleBookCubit.get(
-                                                        context_1)
-                                                    .userProfile!
-                                                    .user!
-                                                    .sId!,
-                                              );
-                                              Navigator.pop(context, 'OK');
-                                            },
-                                            child: Text('OK',
-                                                style: TextStyle(
-                                                    color:
-                                                        HexColor("#6823D0"))),
-                                          ),
+                                          textButton(
+                                              context: context,
+                                              label: 'Cancel',
+                                              onPressed: () => Navigator.pop(
+                                                  context, 'Cancel')),
+                                          textButton(
+                                              onPressed: () {
+                                                PurpleBookCubit.get(context_1)
+                                                    .editUserPosts(
+                                                  edit: editPostController.text,
+                                                  id: user.posts![index].sId!,
+                                                  userId: PurpleBookCubit.get(
+                                                          context_1)
+                                                      .userProfile!
+                                                      .user!
+                                                      .sId!,
+                                                );
+                                                Navigator.pop(context, 'OK');
+                                              },
+                                              context: context_1,
+                                              label: 'OK')
                                         ]));
                           } else if (Constants.delete == value) {
                             showDialog<String>(
@@ -1244,33 +1088,24 @@ class AccountScreen extends StatelessWidget {
                                         content: const Text(
                                             'Are you sure you want to delete this post?'),
                                         actions: [
-                                          TextButton(
-                                            onPressed: () {
-                                              Navigator.pop(context, 'Cancel');
-                                            },
-                                            child: const Text(
-                                              'Cancel',
-                                              style: TextStyle(
-                                                  color: Colors.black),
-                                            ),
-                                          ),
-                                          TextButton(
-                                            onPressed: () {
-                                              PurpleBookCubit.get(context_1)
-                                                  .deletePost(
-                                                      id: user
-                                                          .posts![index].sId!)
-                                                  .then((value) {
+                                          textButton(
+                                              onPressed: () => Navigator.pop(
+                                                  context, 'cancel'),
+                                              label: 'cancel'),
+                                          textButton(
+                                              onPressed: () {
                                                 PurpleBookCubit.get(context_1)
-                                                    .getUserPosts(
-                                                        userId: userId!);
-                                              });
-                                              Navigator.pop(context, 'OK');
-                                            },
-                                            child: const Text('OK',
-                                                style: TextStyle(
-                                                    color: Colors.red)),
-                                          ),
+                                                    .deletePost(
+                                                        id: user
+                                                            .posts![index].sId!)
+                                                    .then((value) {
+                                                  PurpleBookCubit.get(context_1)
+                                                      .getUserPosts(
+                                                          userId: userId!);
+                                                });
+                                                Navigator.pop(context, 'OK');
+                                              },
+                                              label: 'OK')
                                         ]));
                           }
                         },
@@ -1292,29 +1127,29 @@ class AccountScreen extends StatelessWidget {
                     color: Colors.grey,
                   ),
                 ),
-                if(user.posts![index].content!.contains('<'))
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                        context_1,
-                        MaterialPageRoute(
-                            builder: (context) => ViewPostScreen(
-                                  id: user.posts![index].sId!,
-                                  addComent: false,
-                                  isFocus: false,
-                                )));
-                  },
-                  child: Html(
-                    data: user.posts![index].content!,
-                    style: {
-                      "body": Style(
-                          fontSize: const FontSize(20.0),
-                          color: MainCubit.get(context_1).isDark
-                              ? Colors.white
-                              : Colors.black),
+                if (user.posts![index].content!.contains('<'))
+                  InkWell(
+                    onTap: () {
+                      Navigator.push(
+                          context_1,
+                          MaterialPageRoute(
+                              builder: (context) => ViewPostScreen(
+                                    id: user.posts![index].sId!,
+                                    addComment: false,
+                                    isFocus: false,
+                                  )));
                     },
-                  ),
-                )
+                    child: Html(
+                      data: user.posts![index].content!,
+                      style: {
+                        "body": Style(
+                            fontSize: const FontSize(20.0),
+                            color: MainCubit.get(context_1).isDark
+                                ? Colors.white
+                                : Colors.black),
+                      },
+                    ),
+                  )
                 else
                   InkWell(
                     onTap: () {
@@ -1322,13 +1157,13 @@ class AccountScreen extends StatelessWidget {
                           context_1,
                           MaterialPageRoute(
                               builder: (context) => ViewPostScreen(
-                                id: user.posts![index].sId!,
-                                addComent: false,
-                                isFocus: false,
-                              )));
+                                    id: user.posts![index].sId!,
+                                    addComment: false,
+                                    isFocus: false,
+                                  )));
                     },
                     child: Text(
-                       user.posts![index].content!,
+                      user.posts![index].content!,
                       style: Theme.of(context_1).textTheme.headline5,
                     ),
                   ),
@@ -1362,7 +1197,8 @@ class AccountScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       if (PurpleBookCubit.get(context_1)
-                          .likesUserCount![index] != 0)
+                              .likesUserCount![index] !=
+                          0)
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -1452,7 +1288,7 @@ class AccountScreen extends StatelessWidget {
                                               ViewPostScreen(
                                                 id: user.posts![index].sId!,
                                                 isFocus: false,
-                                                addComent: false,
+                                                addComment: false,
                                               )));
                                 },
                                 child: Row(
@@ -1515,7 +1351,7 @@ class AccountScreen extends StatelessWidget {
                               MaterialPageRoute(
                                   builder: (context_1) => ViewPostScreen(
                                         id: user.posts![index].sId!,
-                                        addComent: true,
+                                        addComment: true,
                                         isFocus: false,
                                       )));
                         },
@@ -1551,7 +1387,9 @@ class AccountScreen extends StatelessWidget {
                       ),
                       onTap: () {
                         PurpleBookCubit.get(context_1).likeUserPost(
-                            id: user.posts![index].sId!, index: index,userId: userId!);
+                            id: user.posts![index].sId!,
+                            index: index,
+                            userId: userId!);
                         PurpleBookCubit.get(context_1)
                             .changeLikePostUser(index);
                       },
@@ -1607,28 +1445,19 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to sent request to ${user.users![index].firstName} ${user.users![index].lastName} ?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .sendRequestFriend(
-                                                    id: user
-                                                        .users![index].sId!);
-                                            Navigator.pop(context, 'OK');
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .sendRequestFriend(
+                                                      id: user
+                                                          .users![index].sId!);
+                                              Navigator.pop(context, 'OK');
+                                            })
                                       ]));
                         },
                         color: HexColor("#6823D0"),
@@ -1650,29 +1479,21 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to remove ${user.users![index].firstName} ${user.users![index].lastName} from your list friends?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .cancelFriend(
-                                                    receiveId:
-                                                        user.users![index].sId!)
-                                                .then((value) => Navigator.pop(
-                                                    context, 'OK'));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .cancelFriend(
+                                                      receiveId: user
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context, 'OK'));
+                                            })
                                       ]));
                         },
                         color: Colors.grey.shade300,
@@ -1696,29 +1517,21 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to cancel request sent?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .cancelSendRequestFriend(
-                                                    receiveId:
-                                                        user.users![index].sId!)
-                                                .then((value) =>
-                                                    Navigator.pop(context_1));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .cancelSendRequestFriend(
+                                                      receiveId: user
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context_1, 'OK'));
+                                            })
                                       ]));
                         },
                         color: HexColor("#6823D0"),
@@ -1741,28 +1554,21 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to Accept request?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .acceptFriendRequest(
-                                                    id: user.users![index].sId!)
-                                                .then((value) =>
-                                                    Navigator.pop(context_1));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .acceptFriendRequest(
+                                                      id: user
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context_1, 'OK'));
+                                            })
                                       ]));
                         },
                         color: HexColor("#6823D0"),
@@ -1826,28 +1632,19 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to sent request to ${commentLike.users![index].firstName} ${commentLike.users![index].lastName} ?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .sendRequestFriend(
-                                                    id: commentLike
-                                                        .users![index].sId!);
-                                            Navigator.pop(context, 'OK');
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .sendRequestFriend(
+                                                      id: commentLike
+                                                          .users![index].sId!);
+                                              Navigator.pop(context, 'OK');
+                                            })
                                       ]));
                         },
                         color: HexColor("#6823D0"),
@@ -1869,29 +1666,21 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to remove ${commentLike.users![index].firstName} ${commentLike.users![index].lastName} from your list friends?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .cancelFriend(
-                                                    receiveId: commentLike
-                                                        .users![index].sId!)
-                                                .then((value) => Navigator.pop(
-                                                    context, 'OK'));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .cancelFriend(
+                                                      receiveId: commentLike
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context, 'OK'));
+                                            })
                                       ]));
                         },
                         color: Colors.grey.shade300,
@@ -1915,29 +1704,21 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to cancel request sent?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .cancelSendRequestFriend(
-                                                    receiveId: commentLike
-                                                        .users![index].sId!)
-                                                .then((value) =>
-                                                    Navigator.pop(context_1));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .cancelSendRequestFriend(
+                                                      receiveId: commentLike
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context_1, 'OK'));
+                                            })
                                       ]));
                         },
                         color: HexColor("#6823D0"),
@@ -1960,29 +1741,21 @@ class AccountScreen extends StatelessWidget {
                                           'Are you sure you want to Accept request?'),
                                       elevation: 10,
                                       actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context, 'Cancel');
-                                          },
-                                          child: Text(
-                                            'Cancel',
-                                            style: TextStyle(
-                                                color: HexColor("#6823D0")),
-                                          ),
-                                        ),
-                                        TextButton(
-                                          onPressed: () {
-                                            PurpleBookCubit.get(context_1)
-                                                .acceptFriendRequest(
-                                                    id: commentLike
-                                                        .users![index].sId!)
-                                                .then((value) =>
-                                                    Navigator.pop(context_1));
-                                          },
-                                          child: Text('OK',
-                                              style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
-                                        ),
+                                        textButton(
+                                            label: 'cancel',
+                                            onPressed: () => Navigator.pop(
+                                                context, 'cancel')),
+                                        textButton(
+                                            label: 'OK',
+                                            onPressed: () {
+                                              PurpleBookCubit.get(context_1)
+                                                  .acceptFriendRequest(
+                                                      id: commentLike
+                                                          .users![index].sId!)
+                                                  .then((value) =>
+                                                      Navigator.pop(
+                                                          context_1, 'OK'));
+                                            })
                                       ]));
                         },
                         color: HexColor("#6823D0"),

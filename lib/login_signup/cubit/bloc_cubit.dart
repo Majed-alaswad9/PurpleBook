@@ -4,9 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:purplebook/modules/login_error_module.dart';
+import 'package:purplebook/modules/error_module.dart';
 import 'package:purplebook/modules/login_module.dart';
-import 'package:purplebook/modules/signin_module.dart';
+import 'package:purplebook/modules/signup_module.dart';
 import 'package:purplebook/network/remote/dio_helper.dart';
 
 import '../../components/end_points.dart';
@@ -30,8 +30,8 @@ class LoginSignUpCubit extends Cubit<LoginSignupState> {
     emit(ChangeVisibilityState());
   }
 
-  LogInModule? loginModul;
-  LoginErrorModule? loginError;
+  LogInModule? loginModule;
+  ErrorModule? loginError;
   void userLogin({
     required String email,
     required String password,
@@ -41,11 +41,10 @@ class LoginSignUpCubit extends Cubit<LoginSignupState> {
       'email': email,
       'password': password,
     }).then((value) {
-      loginModul = LogInModule.fromJson(value.data);
-      emit(LoginSuccessState(loginModul!));
+      loginModule = LogInModule.fromJson(value.data);
+      emit(LoginSuccessState(loginModule!));
     }).catchError((error) {
-      loginError = LoginErrorModule.fromJson(error.response!.data);
-
+      loginError = ErrorModule.fromJson(error.response!.data);
       emit(LoginErrorState(loginError!));
     });
   }
@@ -71,7 +70,7 @@ class LoginSignUpCubit extends Cubit<LoginSignupState> {
       userLogin(email: email, password: password);
       emit(SignupSuccessState());
     }).catchError((error) {
-       loginError = LoginErrorModule.fromJson(error.response!.data);
+      loginError = ErrorModule.fromJson(error.response!.data);
       emit(SignupErrorState(loginError!));
     });
   }

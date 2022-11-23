@@ -62,19 +62,19 @@ class FriendsScreen extends StatelessWidget {
                 }
 
                 //* Add friend
-                if (state is SendRequestSuccessState) {
+                if (state is SendFriendRequestSuccessState) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('✅ Sent successfully')));
-                } else if (state is SendRequestErrorState) {
+                } else if (state is SendFriendRequestErrorState) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('❌ Sent Failed')));
                 }
 
                 //* cancel request
-                if (state is CancelSendRequestSuccessState) {
+                if (state is CancelSendFriendRequestSuccessState) {
                   ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
                       content: Text('✅ Cancel Sent successfully')));
-                } else if (state is CancelSendRequestErrorState) {
+                } else if (state is CancelSendFriendRequestErrorState) {
                   ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('❌ Cancel Sent Failed')));
                 }
@@ -94,10 +94,8 @@ class FriendsScreen extends StatelessWidget {
                           ),
                           padding: const EdgeInsets.all(10),
                           width: double.infinity,
-                          child: Text(
-                            'Friend requests',
-                            style: Theme.of(context).textTheme.bodyText2
-                          ),
+                          child: Text('Friend requests',
+                              style: Theme.of(context).textTheme.bodyText2),
                         ),
                         const SizedBox(
                           height: 20,
@@ -152,7 +150,7 @@ class FriendsScreen extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: const <Widget>[
               Text(
-                'There are no bottons to push :)',
+                'There are no buttons to push :)',
               ),
               Text(
                 'Just turn off your internet.',
@@ -298,7 +296,7 @@ class FriendsScreen extends StatelessWidget {
                                   },
                                   color: HexColor("#6823D0"),
                                   child: const Text(
-                                    'Confrim',
+                                    'Confirm',
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ),
@@ -372,7 +370,8 @@ class FriendsScreen extends StatelessWidget {
                                       0)
                                     Text(
                                       '${request.friendRecommendation![index].mutualFriends} mutual friends',
-                                      style: Theme.of(context_1).textTheme.caption,
+                                      style:
+                                          Theme.of(context_1).textTheme.caption,
                                     ),
                                 ],
                               ),
@@ -457,7 +456,7 @@ class FriendsScreen extends StatelessWidget {
                                 },
                                 color: Colors.grey.shade300,
                                 child: const Text(
-                                  'Confrim',
+                                  'Confirm',
                                   style: TextStyle(color: Colors.white),
                                 ),
                               ),

@@ -1,5 +1,3 @@
-import 'package:bloc/bloc.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:purplebook/cubit/state.dart';
@@ -17,13 +15,10 @@ class MainCubit extends Cubit<MainState> {
     if (fromShared != null) {
       isDark = fromShared;
       darkMode = fromShared ? Icons.dark_mode : Icons.light_mode;
-      print('from sharde $fromShared');
       emit(ChangeThemeModeState());
     } else {
-      print(isDark);
       isDark = !isDark;
       darkMode = isDark ? Icons.dark_mode : Icons.light_mode;
-      print('else $isDark');
       CachHelper.saveData(key: 'isDark', value: isDark).then((value) {
         emit(ChangeThemeModeState());
       });

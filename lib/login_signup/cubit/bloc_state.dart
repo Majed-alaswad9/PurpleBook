@@ -1,5 +1,4 @@
-import 'package:dio/dio.dart';
-import 'package:purplebook/modules/login_error_module.dart';
+import 'package:purplebook/modules/error_module.dart';
 import 'package:purplebook/modules/login_module.dart';
 
 abstract class LoginSignupState {}
@@ -15,7 +14,7 @@ class LoginSuccessState extends LoginSignupState {
 class LoginLoadState extends LoginSignupState {}
 
 class LoginErrorState extends LoginSignupState {
-  final LoginErrorModule error;
+  final ErrorModule error;
 
   LoginErrorState(this.error);
 }
@@ -25,7 +24,7 @@ class SignupSuccessState extends LoginSignupState {}
 class SignupLoadState extends LoginSignupState {}
 
 class SignupErrorState extends LoginSignupState {
-  final LoginErrorModule error;
+  final ErrorModule error;
   SignupErrorState(this.error);
 }
 

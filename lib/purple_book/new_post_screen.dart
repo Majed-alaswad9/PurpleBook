@@ -5,11 +5,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_offline/flutter_offline.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
-
-import '../components/const.dart';
 
 class NewPostScreen extends StatelessWidget {
   NewPostScreen({Key? key}) : super(key: key);
@@ -45,8 +44,9 @@ class NewPostScreen extends StatelessWidget {
               child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
                 listener: (context, state) {
                   if (state is AddNewPostSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('✅ Added Successfully')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        backgroundColor: HexColor("#6823D0"),
+                        content: const Text('✅ Added Successfully')));
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(
@@ -54,8 +54,10 @@ class NewPostScreen extends StatelessWidget {
                         (route) => false);
                   } else {
                     if (state is AddNewPostErrorState) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('❌ Added Failed')));
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          backgroundColor: Colors.red,
+                          content:
+                              Text('Error ${state.error.errors![0].msg}')));
                     }
                   }
                 },
@@ -99,16 +101,17 @@ class NewPostScreen extends StatelessWidget {
                             Padding(
                               padding: const EdgeInsets.all(8.0),
                               child: TextFormField(
-                                scrollPadding: EdgeInsets.all(10),
+                                scrollPadding: const EdgeInsets.all(10),
                                 autofocus: true,
-                                onChanged: (value) {
-                                  print(value);
-                                },
                                 controller: contentController,
                                 maxLines: 100,
                                 minLines: 1,
                                 keyboardType: TextInputType.multiline,
-                                decoration: const InputDecoration(
+                                decoration: InputDecoration(
+                                  hintStyle: TextStyle(
+                                      color: MainCubit.get(context).isDark
+                                          ? Colors.white
+                                          : Colors.black),
                                   hintText: 'What\'s on your mind? ',
                                   border: InputBorder.none,
                                 ),
@@ -196,7 +199,7 @@ class NewPostScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: const <Widget>[
             Text(
-              'There are no bottons to push :)',
+              'There are no buttons to push :)',
             ),
             Text(
               'Just turn off your internet.',

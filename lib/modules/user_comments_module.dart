@@ -13,17 +13,10 @@ class UserCommentsModule {
       });
     }
   }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (comments != null) {
-      data['comments'] = comments!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
 }
 
 var unescape = HtmlUnescape();
+
 class UserComments {
   String? sId;
   String? content;
@@ -32,14 +25,13 @@ class UserComments {
   bool? likedByUser;
   int? likesCount;
 
-
   UserComments(
       {this.sId,
-        this.content,
-        this.createdAt,
-        this.post,
-        this.likedByUser,
-        this.likesCount});
+      this.content,
+      this.createdAt,
+      this.post,
+      this.likedByUser,
+      this.likesCount});
 
   UserComments.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
@@ -48,19 +40,6 @@ class UserComments {
     post = json['post'] != null ? Post.fromJson(json['post']) : null;
     likedByUser = json['likedByUser'];
     likesCount = json['likesCount'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['content'] = content;
-    data['createdAt'] = createdAt;
-    if (post != null) {
-      data['post'] = post!.toJson();
-    }
-    data['likedByUser'] = likedByUser;
-    data['likesCount'] = likesCount;
-    return data;
   }
 }
 
@@ -75,14 +54,5 @@ class Post {
     sId = json['_id'];
     postAuthorFirstName = json['postAuthorFirstName'];
     contentPreview = unescape.convert(json['contentPreview']);
-  }
-
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['_id'] = sId;
-    data['postAuthorFirstName'] = postAuthorFirstName;
-    data['contentPreview'] = contentPreview;
-    return data;
   }
 }
