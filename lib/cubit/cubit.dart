@@ -9,16 +9,13 @@ class MainCubit extends Cubit<MainState> {
 
   static MainCubit get(context) => BlocProvider.of(context);
 
-  IconData darkMode = Icons.light_mode;
   bool isDark = false;
   void changeThemeMode({bool? fromShared}) {
     if (fromShared != null) {
       isDark = fromShared;
-      darkMode = fromShared ? Icons.dark_mode : Icons.light_mode;
       emit(ChangeThemeModeState());
     } else {
       isDark = !isDark;
-      darkMode = isDark ? Icons.dark_mode : Icons.light_mode;
       CachHelper.saveData(key: 'isDark', value: isDark).then((value) {
         emit(ChangeThemeModeState());
       });

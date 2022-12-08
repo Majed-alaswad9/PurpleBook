@@ -5,7 +5,6 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/modules/comment_likes_module.dart';
 import 'package:purplebook/modules/comments_module.dart';
@@ -13,6 +12,7 @@ import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/edit_post_screen.dart';
 import 'package:purplebook/purple_book/purple_book_screen.dart';
 import 'package:purplebook/purple_book/user_profile.dart';
+import 'package:purplebook/purple_book/view_single_comment.dart';
 import 'package:purplebook/purple_book/view_string_image.dart';
 import '../components/const.dart';
 import '../components/end_points.dart';
@@ -58,91 +58,86 @@ class ViewPostScreen extends StatelessWidget {
         listener: (context, state) {
           //* delete comments
           if (state is DeleteCommentPostSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('deleted Successfully')));
+            showSnackBar(
+                'deleted Successfully', context, const Color(0xFF6823D0));
           } else if (state is DeleteCommentPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           //* delete post
           if (state is PostDeleteSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ Delete successfully')));
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const PurpleBookScreen()),
-                (route) => false);
+            showSnackBar(
+                'Delete successfully', context, const Color(0xFF6823D0));
+            navigatorAndRemove(
+                context: context, widget: const PurpleBookScreen());
           } else if (state is PostDeleteErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           //* Edit post
           if (state is EditPostSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ Editing successfully')));
+            showSnackBar(
+                'Editing successfully', context, const Color(0xFF6823D0));
             PurpleBookCubit.get(context).viewPosts(id: id);
           } else if (state is EditPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           //* send friend request
           if (state is SendFriendRequestSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ Sent successfully')));
+            showSnackBar('Sent successfully', context, const Color(0xFF6823D0));
           } else if (state is SendFriendRequestErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           //* cancel friend
           if (state is CancelFriendSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ unFriend successfully')));
+            showSnackBar(
+                'unFriend successfully', context, const Color(0xFF6823D0));
           } else if (state is CancelFriendErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           //* cancel friend request
           if (state is CancelSendFriendRequestSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ Cancel sent successfully')));
+            showSnackBar(
+                'Cancel sent successfully', context, const Color(0xFF6823D0));
           } else if (state is CancelSendFriendRequestErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           //* accept friend request
           if (state is AcceptFriendRequestSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ Confrim successfully')));
+            showSnackBar(
+                'Confirm successfully', context, const Color(0xFF6823D0));
           } else if (state is AcceptFriendRequestErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           //* add comment
           if (state is AddCommentPostSuccessState) {
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ Add comment successfully')));
+            showSnackBar(
+                '✅ Add comment successfully', context, const Color(0xFF6823D0));
             contentController.text = '';
           } else if (state is AddCommentPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
 
           if (state is AddLikeCommentPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text(
-                    'Error ${state.error.response!.statusCode.toString()}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
           if (state is DeleteLikeCommentPostErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: Text('Error ${state.error.response!.statusCode}')));
+            showSnackBar('Error ${state.error.response!.statusCode}', context,
+                Colors.red);
           }
         },
         builder: (context_1, state) {
@@ -150,7 +145,7 @@ class ViewPostScreen extends StatelessWidget {
           return Scaffold(
             appBar: AppBar(
               title: const Text('View Post'),
-              backgroundColor: HexColor("#6823D0"),
+              backgroundColor: const Color(0xFF6823D0),
             ),
             body: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -232,6 +227,16 @@ class ViewPostScreen extends StatelessWidget {
                                                       .textTheme
                                                       .headline6),
                                               if (DateTime.now()
+                                                  .difference(
+                                                  cubit.postView!.post!.createdAt!)
+                                                  .inMinutes <
+                                                  60)
+                                                Text(
+                                                    '${DateTime.now().difference(cubit.postView!.post!.createdAt!).inMinutes} Minutes ago',
+                                                    style: Theme.of(context_1)
+                                                        .textTheme
+                                                        .caption)
+                                              else if (DateTime.now()
                                                       .difference(cubit
                                                           .postView!
                                                           .post!
@@ -430,7 +435,7 @@ class ViewPostScreen extends StatelessWidget {
                                             icon: const Icon(
                                                 Icons.thumb_up_alt_rounded),
                                             color: cubit.isLikeSinglePost!
-                                                ? HexColor("#6823D0")
+                                                ? const Color(0xFF6823D0)
                                                 : Colors.grey,
                                           ),
                                           const SizedBox(
@@ -504,22 +509,38 @@ class ViewPostScreen extends StatelessWidget {
                                 ],
                               ),
                             )),
-                        fallback: (context) => ListTile(
-                          leading: ShimmerWidget.circular(
-                            width: 64,
-                            height: 64,
-                            shapeBorder: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
-                          ),
-                          title: const ShimmerWidget.rectangular(height: 16),
-                          subtitle: const ShimmerWidget.rectangular(height: 16),
+                        fallback: (context) => Column(
+                          children: [
+                            ListTile(
+                              leading: ShimmerWidget.circular(
+                                width: 64,
+                                height: 64,
+                                shapeBorder: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                              ),
+                              title:
+                                  const ShimmerWidget.rectangular(height: 16),
+                              subtitle:
+                                  const ShimmerWidget.rectangular(height: 16),
+                            ),
+                            Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                              child: ShimmerWidget.circular(
+                                height: 200,
+                                width: double.infinity,
+                                shapeBorder: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(15)),
+                              ),
+                            )
+                          ],
                         ),
                       ),
                       if (state is AddCommentPostLoadingState)
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
                           child: LinearProgressIndicator(
-                            color: HexColor("#6823D0"),
+                            color: Color(0xFF6823D0),
                           ),
                         ),
                       const SizedBox(
@@ -532,7 +553,7 @@ class ViewPostScreen extends StatelessWidget {
                               borderRadius:
                                   const BorderRadius.all(Radius.circular(15)),
                               color: MainCubit.get(context).isDark
-                                  ? HexColor("#242F3D")
+                                  ? const Color(0xFF242F3D)
                                   : Colors.white),
                           child: TextFormField(
                             controller: contentController,
@@ -546,7 +567,7 @@ class ViewPostScreen extends StatelessWidget {
                             validator: validateContent,
                             decoration: InputDecoration(
                                 suffix: IconButton(
-                                  color: HexColor("#6823D0"),
+                                  color: const Color(0xFF6823D0),
                                   onPressed: () {
                                     if (formKey.currentState!.validate()) {
                                       cubit.addComment(
@@ -558,18 +579,18 @@ class ViewPostScreen extends StatelessWidget {
                                 ),
                                 label: const Text('Write comment'),
                                 labelStyle:
-                                    TextStyle(color: HexColor("#6823D0")),
+                                    const TextStyle(color: Color(0xFF6823D0)),
                                 border: const OutlineInputBorder(),
                                 enabledBorder: const OutlineInputBorder(
                                   borderSide: BorderSide(color: Colors.grey),
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(10.0)),
                                 ),
-                                focusedBorder: OutlineInputBorder(
+                                focusedBorder: const OutlineInputBorder(
                                   borderSide:
-                                      BorderSide(color: HexColor("#6823D0")),
-                                  borderRadius: const BorderRadius.all(
-                                      Radius.circular(10.0)),
+                                      BorderSide(color: Color(0xFF6823D0)),
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(10.0)),
                                 ),
                                 contentPadding: const EdgeInsets.all(10)),
                           ),
@@ -579,8 +600,8 @@ class ViewPostScreen extends StatelessWidget {
                         height: 20,
                       ),
                       if (state is DeleteCommentPostLoadingState)
-                        LinearProgressIndicator(
-                          color: HexColor("#6823D0"),
+                        const LinearProgressIndicator(
+                          color: Color(0xFF6823D0),
                           backgroundColor: Colors.white,
                         ),
                       Column(
@@ -616,7 +637,7 @@ class ViewPostScreen extends StatelessWidget {
                                   ),
                                 ],
                                 dropdownColor: MainCubit.get(context).isDark
-                                    ? HexColor("#242F3D")
+                                    ? const Color(0xFF242F3D)
                                     : Colors.white,
                                 value: cubit.dropDownValue,
                                 onChanged: (value) {
@@ -630,23 +651,21 @@ class ViewPostScreen extends StatelessWidget {
                           ),
                           ConditionalBuilder(
                               condition: cubit.comment != null &&
-                                  cubit.isLikeComment!.isNotEmpty,
+                                  cubit.isLikeComment != null,
                               builder: (context) => buildComments(
                                   PurpleBookCubit.get(context).comment!,
                                   context,
                                   id),
-                              fallback: (context) => const Center(
-                                  child: CircularProgressIndicator())),
+                              fallback: (context) => buildFoodShimmer()),
                           if (!cubit.isEndComments)
                             ConditionalBuilder(
                               condition:
                                   state is! GetMoreCommentPostLoadingState,
-                              fallback: (context) => Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 8.0),
+                              fallback: (context) => const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
                                 child: Center(
                                   child: CircularProgressIndicator(
-                                    color: HexColor("#6823D0"),
+                                    color: Color(0xFF6823D0),
                                   ),
                                 ),
                               ),
@@ -654,9 +673,9 @@ class ViewPostScreen extends StatelessWidget {
                                 padding: const EdgeInsets.all(8.0),
                                 child: Container(
                                   width: double.infinity,
-                                  decoration: BoxDecoration(
-                                      color: HexColor("#6823D0"),
-                                      borderRadius: const BorderRadius.all(
+                                  decoration: const BoxDecoration(
+                                      color: Color(0xFF6823D0),
+                                      borderRadius: BorderRadius.all(
                                           Radius.circular(20))),
                                   child: TextButton(
                                     onPressed: () {
@@ -725,6 +744,16 @@ class ViewPostScreen extends StatelessWidget {
                                           .textTheme
                                           .headline6),
                                   if (DateTime.now()
+                                      .difference(
+                                      user.comments![index].createdAt!)
+                                      .inMinutes <
+                                      60)
+                                    Text(
+                                        '${DateTime.now().difference(user.comments![index].createdAt!).inMinutes} Minutes ago',
+                                        style: Theme.of(context_1)
+                                            .textTheme
+                                            .caption)
+                                  else if (DateTime.now()
                                           .difference(
                                               user.comments![index].createdAt!)
                                           .inHours <
@@ -783,9 +812,10 @@ class ViewPostScreen extends StatelessWidget {
                                                     decoration: InputDecoration(
                                                         label: const Text(
                                                             'Write comment'),
-                                                        labelStyle: TextStyle(
-                                                            color: HexColor(
-                                                                "#6823D0")),
+                                                        labelStyle:
+                                                            const TextStyle(
+                                                                color: Color(
+                                                                    0xFF6823D0)),
                                                         hintStyle:
                                                             Theme.of(context)
                                                                 .textTheme
@@ -805,13 +835,12 @@ class ViewPostScreen extends StatelessWidget {
                                                                           10.0)),
                                                         ),
                                                         focusedBorder:
-                                                            OutlineInputBorder(
+                                                            const OutlineInputBorder(
                                                           borderSide: BorderSide(
-                                                              color: HexColor(
-                                                                  "#6823D0")),
+                                                              color: Color(
+                                                                  0xFF6823D0)),
                                                           borderRadius:
-                                                              const BorderRadius
-                                                                      .all(
+                                                              BorderRadius.all(
                                                                   Radius
                                                                       .circular(
                                                                           10.0)),
@@ -826,11 +855,11 @@ class ViewPostScreen extends StatelessWidget {
                                                         Navigator.pop(
                                                             context, 'Cancel');
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         'Cancel',
                                                         style: TextStyle(
-                                                            color: HexColor(
-                                                                "#6823D0")),
+                                                            color: Color(
+                                                                0xFF6823D0)),
                                                       ),
                                                     ),
                                                     TextButton(
@@ -851,10 +880,10 @@ class ViewPostScreen extends StatelessWidget {
                                                               context, 'OK');
                                                         });
                                                       },
-                                                      child: Text('OK',
+                                                      child: const Text('OK',
                                                           style: TextStyle(
-                                                              color: HexColor(
-                                                                  "#6823D0"))),
+                                                              color: Color(
+                                                                  0xFF6823D0))),
                                                     ),
                                                   ]));
                                     } else if (Constants.delete == value) {
@@ -876,7 +905,7 @@ class ViewPostScreen extends StatelessWidget {
                           ],
                         ),
                         Padding(
-                          padding: const EdgeInsets.all(10.0),
+                          padding: const EdgeInsets.symmetric(horizontal: 10.0,vertical: 15),
                           child: Container(
                             width: double.infinity,
                             height: 1,
@@ -884,19 +913,33 @@ class ViewPostScreen extends StatelessWidget {
                           ),
                         ),
                         if (user.comments![index].content!.contains('<'))
-                          Html(
-                            data: "${user.comments![index].content}",
-                            style: {
-                              "body": Style(
-                                  color: MainCubit.get(context_1).isDark
-                                      ? Colors.white
-                                      : Colors.black),
-                            },
+                          InkWell(
+                            onTap: () => navigatorPush(
+                                context: context_1,
+                                widget: ViewSingleCommentScreen(
+                                    idPost: id,
+                                    idComment: user.comments![index].sId!)),
+                            child: Html(
+                              data: "${user.comments![index].content}",
+                              style: {
+                                "body": Style(
+                                    color: MainCubit.get(context_1).isDark
+                                        ? Colors.white
+                                        : Colors.black),
+                              },
+                            ),
                           )
                         else
-                          Text(
-                            user.comments![index].content!,
-                            style: Theme.of(context_1).textTheme.headline5,
+                          InkWell(
+                            onTap: () => navigatorPush(
+                                context: context_1,
+                                widget: ViewSingleCommentScreen(
+                                    idPost: id,
+                                    idComment: user.comments![index].sId!)),
+                            child: Text(
+                              user.comments![index].content!,
+                              style: Theme.of(context_1).textTheme.headline5,
+                            ),
                           ),
                         const SizedBox(
                           height: 20,
@@ -918,13 +961,13 @@ class ViewPostScreen extends StatelessWidget {
                               icon: const Icon(Icons.thumb_up_alt_rounded),
                               color: PurpleBookCubit.get(context_1)
                                       .isLikeComment![index]
-                                  ? HexColor("#6823D0")
+                                  ? const Color(0xFF6823D0)
                                   : Colors.grey,
                             ),
-                            if (user.comments![index].likesCount != 0)
+                            if (PurpleBookCubit.get(context_1).likeCommentCount![index] != 0)
                               Expanded(
                                 child: InkWell(
-                                  splashColor: HexColor("#6823D0"),
+                                  splashColor: const Color(0xFF6823D0),
                                   onTap: () {
                                     showMsg(
                                         msg: 'Just a second',
@@ -953,7 +996,7 @@ class ViewPostScreen extends StatelessWidget {
                                             ));
                                   },
                                   child: Text(
-                                    '${PurpleBookCubit.get(context_1).comment!.comments![index].likesCount} like',
+                                    '${PurpleBookCubit.get(context_1).likeCommentCount![index]} like',
                                     style: Theme.of(context_1)
                                         .textTheme
                                         .caption!
@@ -1042,10 +1085,10 @@ class ViewPostScreen extends StatelessWidget {
                                             onPressed: () {
                                               Navigator.pop(context, 'Cancel');
                                             },
-                                            child: Text(
+                                            child: const Text(
                                               'Cancel',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0")),
+                                                  color: Color(0xFF6823D0)),
                                             ),
                                           ),
                                           TextButton(
@@ -1058,14 +1101,13 @@ class ViewPostScreen extends StatelessWidget {
                                                 Navigator.pop(context, 'OK');
                                               });
                                             },
-                                            child: Text('OK',
+                                            child: const Text('OK',
                                                 style: TextStyle(
-                                                    color:
-                                                        HexColor("#6823D0"))),
+                                                    color: Color(0xFF6823D0))),
                                           ),
                                         ]));
                           },
-                          color: HexColor("#6823D0"),
+                          color: const Color(0xFF6823D0),
                           child: const Text(
                             'Add Friend',
                             style: TextStyle(color: Colors.white),
@@ -1088,10 +1130,10 @@ class ViewPostScreen extends StatelessWidget {
                                             onPressed: () {
                                               Navigator.pop(context, 'Cancel');
                                             },
-                                            child: Text(
+                                            child: const Text(
                                               'Cancel',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0")),
+                                                  color: Color(0xFF6823D0)),
                                             ),
                                           ),
                                           TextButton(
@@ -1103,10 +1145,9 @@ class ViewPostScreen extends StatelessWidget {
                                                   .then((value) =>
                                                       Navigator.pop(context_1));
                                             },
-                                            child: Text('OK',
+                                            child: const Text('OK',
                                                 style: TextStyle(
-                                                    color:
-                                                        HexColor("#6823D0"))),
+                                                    color: Color(0xFF6823D0))),
                                           ),
                                         ]));
                           },
@@ -1135,10 +1176,10 @@ class ViewPostScreen extends StatelessWidget {
                                             onPressed: () {
                                               Navigator.pop(context, 'Cancel');
                                             },
-                                            child: Text(
+                                            child: const Text(
                                               'Cancel',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0")),
+                                                  color: Color(0xFF6823D0)),
                                             ),
                                           ),
                                           TextButton(
@@ -1150,14 +1191,13 @@ class ViewPostScreen extends StatelessWidget {
                                                   .then((value) =>
                                                       Navigator.pop(context_1));
                                             },
-                                            child: Text('OK',
+                                            child: const Text('OK',
                                                 style: TextStyle(
-                                                    color:
-                                                        HexColor("#6823D0"))),
+                                                    color: Color(0xFF6823D0))),
                                           ),
                                         ]));
                           },
-                          color: HexColor("#6823D0"),
+                          color: const Color(0xFF6823D0),
                           child: const Text(
                             'Cancel request',
                             style: TextStyle(color: Colors.white),
@@ -1181,10 +1221,10 @@ class ViewPostScreen extends StatelessWidget {
                                             onPressed: () {
                                               Navigator.pop(context, 'Cancel');
                                             },
-                                            child: Text(
+                                            child: const Text(
                                               'Cancel',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0")),
+                                                  color: Color(0xFF6823D0)),
                                             ),
                                           ),
                                           TextButton(
@@ -1196,14 +1236,13 @@ class ViewPostScreen extends StatelessWidget {
                                                   .then((value) =>
                                                       Navigator.pop(context_1));
                                             },
-                                            child: Text('OK',
+                                            child: const Text('OK',
                                                 style: TextStyle(
-                                                    color:
-                                                        HexColor("#6823D0"))),
+                                                    color: Color(0xFF6823D0))),
                                           ),
                                         ]));
                           },
-                          color: HexColor("#6823D0"),
+                          color: const Color(0xFF6823D0),
                           child: const Text(
                             'Accept request',
                             style: TextStyle(color: Colors.white),
@@ -1280,10 +1319,10 @@ class ViewPostScreen extends StatelessWidget {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1295,13 +1334,13 @@ class ViewPostScreen extends StatelessWidget {
                                               Navigator.pop(context, 'OK');
                                             });
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Add Friend',
                           style: TextStyle(color: Colors.white),
@@ -1324,10 +1363,10 @@ class ViewPostScreen extends StatelessWidget {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1339,9 +1378,9 @@ class ViewPostScreen extends StatelessWidget {
                                                 .then((value) => Navigator.pop(
                                                     context, 'OK'));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
@@ -1370,10 +1409,10 @@ class ViewPostScreen extends StatelessWidget {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1385,13 +1424,13 @@ class ViewPostScreen extends StatelessWidget {
                                                 .then((value) =>
                                                     Navigator.pop(context_1));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Cancel request',
                           style: TextStyle(color: Colors.white),
@@ -1415,10 +1454,10 @@ class ViewPostScreen extends StatelessWidget {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1429,13 +1468,13 @@ class ViewPostScreen extends StatelessWidget {
                                                 .then((value) =>
                                                     Navigator.pop(context_1));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Accept request',
                           style: TextStyle(color: Colors.white),

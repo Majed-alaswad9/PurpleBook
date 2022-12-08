@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_offline/flutter_offline.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/modules/feed_module.dart';
 import 'package:purplebook/modules/likes_module.dart';
@@ -65,35 +64,32 @@ class _FeedScreenState extends State<FeedScreen> {
                 child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
                   listener: (context, state) {
                     if (state is PostDeleteSuccessState) {
-                      showMsg(
-                          msg: 'Deleted Successfully',
-                          color: ColorMsg.inCorrect);
+                      showSnackBar('Deleted Successfully', context,
+                          const Color(0xFF6823D0));
                     } else if (state is PostDeleteErrorState) {
-                      showMsg(msg: 'Deleted Failed', color: ColorMsg.error);
+                      showSnackBar('Deleted Failed', context, ColorMsg.error);
                     }
 
                     if (state is SendFriendRequestSuccessState) {
-                      showMsg(
-                          msg: 'Sent Successfully', color: ColorMsg.inCorrect);
+                      showSnackBar('Sent Successfully', context,
+                          const Color(0xFF6823D0));
                     } else if (state is SendFriendRequestErrorState) {
-                      showMsg(msg: 'Sent Failed', color: ColorMsg.error);
+                      showSnackBar('Sent Failed', context, Colors.red);
                     }
 
                     if (state is CancelSendFriendRequestSuccessState) {
-                      showMsg(
-                          msg: 'Cancel Successfully',
-                          color: ColorMsg.inCorrect);
+                      showSnackBar('Cancel Successfully', context,
+                          const Color(0xFF6823D0));
                     } else if (state is CancelSendFriendRequestErrorState) {
-                      showMsg(msg: 'Cancel Failed', color: ColorMsg.error);
+                      showSnackBar('Cancel Failed', context, Colors.red);
                     }
 
                     if (state is AcceptFriendRequestSuccessState) {
-                      showMsg(
-                          msg: 'Accept request Successfully',
-                          color: ColorMsg.inCorrect);
+                      showSnackBar('Accept request Successfully', context,
+                          const Color(0xFF6823D0));
                     } else if (state is AcceptFriendRequestErrorState) {
-                      showMsg(
-                          msg: 'Accept request Failed', color: ColorMsg.error);
+                      showSnackBar(
+                          'Accept request Failed', context, Colors.red);
                     }
                   },
                   builder: (context, state) {
@@ -106,8 +102,8 @@ class _FeedScreenState extends State<FeedScreen> {
                                 builder: (context) => Column(
                                   children: [
                                     if (state is PostDeleteLoadingState)
-                                      LinearProgressIndicator(
-                                        color: HexColor("#6823D0"),
+                                      const LinearProgressIndicator(
+                                        color: Color(0xFF6823D0),
                                       ),
                                     ListView.separated(
                                         shrinkWrap: true,
@@ -127,11 +123,11 @@ class _FeedScreenState extends State<FeedScreen> {
                                       ConditionalBuilder(
                                         condition:
                                             state is! GetMoreFeedLoadingState,
-                                        fallback: (context) => Padding(
-                                          padding: const EdgeInsets.all(8.0),
+                                        fallback: (context) => const Padding(
+                                          padding: EdgeInsets.all(8.0),
                                           child: Center(
                                             child: CircularProgressIndicator(
-                                              color: HexColor("#6823D0"),
+                                              color: Color(0xFF6823D0),
                                             ),
                                           ),
                                         ),
@@ -139,11 +135,10 @@ class _FeedScreenState extends State<FeedScreen> {
                                           padding: const EdgeInsets.all(8.0),
                                           child: Container(
                                             width: double.infinity,
-                                            decoration: BoxDecoration(
-                                                color: HexColor("#6823D0"),
-                                                borderRadius:
-                                                    const BorderRadius.all(
-                                                        Radius.circular(20))),
+                                            decoration: const BoxDecoration(
+                                                color: Color(0xFF6823D0),
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(20))),
                                             child: TextButton(
                                               onPressed: () {
                                                 cubit.getMoreFeed();
@@ -174,7 +169,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                   ),
                                 ),
                               ),
-                          fallback: (context) => buildFoodShimmer()),
+                          fallback: (context) => buildFeedShimmer()),
                     );
                   },
                 ),
@@ -207,11 +202,10 @@ class _FeedScreenState extends State<FeedScreen> {
               children: [
                 InkWell(
                   onTap: () {
-                    Navigator.push(
-                        contexts,
-                        MaterialPageRoute(
-                            builder: (contexts) => UserProfileScreen(
-                                id: feed.posts![index].author!.sId!)));
+                    navigatorPush(
+                        context: contexts,
+                        widget: UserProfileScreen(
+                            id: feed.posts![index].author!.sId!));
                   },
                   child: CircleAvatar(
                       radius: 25,
@@ -227,11 +221,10 @@ class _FeedScreenState extends State<FeedScreen> {
                 ),
                 Expanded(
                   child: InkWell(
-                    onTap: () => Navigator.push(
-                        contexts,
-                        MaterialPageRoute(
-                            builder: (contexts) => UserProfileScreen(
-                                id: feed.posts![index].author!.sId!))),
+                    onTap: () => navigatorPush(
+                        context: contexts,
+                        widget: UserProfileScreen(
+                            id: feed.posts![index].author!.sId!)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -282,13 +275,12 @@ class _FeedScreenState extends State<FeedScreen> {
                       ),
                       onSelected: (value) {
                         if (value == Constants.edit) {
-                          Navigator.push(
-                              contexts,
-                              MaterialPageRoute(
-                                  builder: (contexts) => EditPostScreen(
-                                        id: feed.posts![index].sId!,
-                                        content: feed.posts![index].content!,
-                                      )));
+                          navigatorPush(
+                              context: contexts,
+                              widget: EditPostScreen(
+                                id: feed.posts![index].sId!,
+                                content: feed.posts![index].content!,
+                              ));
                         } else if (Constants.delete == value) {
                           showDialog<String>(
                               context: contexts,
@@ -335,14 +327,13 @@ class _FeedScreenState extends State<FeedScreen> {
             if (!feed.posts![index].content!.contains('<'))
               InkWell(
                 onTap: () {
-                  Navigator.push(
-                      contexts,
-                      MaterialPageRoute(
-                          builder: (context) => ViewPostScreen(
-                                id: feed.posts![index].sId!,
-                                addComment: false,
-                                isFocus: false,
-                              )));
+                  navigatorPush(
+                      context: contexts,
+                      widget: ViewPostScreen(
+                        id: feed.posts![index].sId!,
+                        addComment: false,
+                        isFocus: false,
+                      ));
                 },
                 child: Text(
                   feed.posts![index].content!,
@@ -352,14 +343,13 @@ class _FeedScreenState extends State<FeedScreen> {
             else
               InkWell(
                 onTap: () {
-                  Navigator.push(
-                      contexts,
-                      MaterialPageRoute(
-                          builder: (context) => ViewPostScreen(
-                                id: feed.posts![index].sId!,
-                                addComment: false,
-                                isFocus: false,
-                              )));
+                  navigatorPush(
+                      context: contexts,
+                      widget: ViewPostScreen(
+                        id: feed.posts![index].sId!,
+                        addComment: false,
+                        isFocus: false,
+                      ));
                 },
                 child: Html(
                   data: feed.posts![index].content!,
@@ -378,11 +368,10 @@ class _FeedScreenState extends State<FeedScreen> {
             if (feed.posts![index].image!.data!.isNotEmpty)
               InkWell(
                 onTap: () {
-                  Navigator.push(
-                      contexts,
-                      MaterialPageRoute(
-                          builder: (context) => ViewStringImage(
-                              image: feed.posts![index].image!.data!)));
+                  navigatorPush(
+                      context: contexts,
+                      widget: ViewStringImage(
+                          image: feed.posts![index].image!.data!));
                 },
                 child: Container(
                   width: double.infinity,
@@ -405,7 +394,7 @@ class _FeedScreenState extends State<FeedScreen> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 10.0),
                         child: InkWell(
-                          highlightColor: HexColor("#6823D0"),
+                          highlightColor: const Color(0xFF6823D0),
                           onTap: () {
                             showMsg(
                                 msg: 'Just a second',
@@ -451,24 +440,12 @@ class _FeedScreenState extends State<FeedScreen> {
                               );
                             });
                           },
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.thumb_up,
-                                size: 20,
-                                color: Colors.grey,
-                              ),
-                              const SizedBox(
-                                width: 5,
-                              ),
-                              Text(
-                                '${PurpleBookCubit.get(contexts).likesCount![index]} like',
-                                style: Theme.of(contexts)
-                                    .textTheme
-                                    .caption!
-                                    .copyWith(color: Colors.grey, fontSize: 15),
-                              )
-                            ],
+                          child: Text(
+                            '${PurpleBookCubit.get(contexts).likesCount![index]} like',
+                            style: Theme.of(contexts)
+                                .textTheme
+                                .caption!
+                                .copyWith(color: Colors.grey, fontSize: 15),
                           ),
                         ),
                       ),
@@ -481,14 +458,13 @@ class _FeedScreenState extends State<FeedScreen> {
                           height: 30,
                           child: InkWell(
                             onTap: () {
-                              Navigator.push(
-                                  contexts,
-                                  MaterialPageRoute(
-                                      builder: (contexts) => ViewPostScreen(
-                                            id: feed.posts![index].sId!,
-                                            addComment: false,
-                                            isFocus: false,
-                                          )));
+                              navigatorPush(
+                                  context: contexts,
+                                  widget: ViewPostScreen(
+                                    id: feed.posts![index].sId!,
+                                    addComment: false,
+                                    isFocus: false,
+                                  ));
                             },
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.end,
@@ -546,14 +522,13 @@ class _FeedScreenState extends State<FeedScreen> {
                       ),
                     ),
                     onTap: () {
-                      Navigator.push(
-                          contexts,
-                          MaterialPageRoute(
-                              builder: (contexts) => ViewPostScreen(
-                                    id: feed.posts![index].sId!,
-                                    addComment: true,
-                                    isFocus: false,
-                                  )));
+                      navigatorPush(
+                          context: contexts,
+                          widget: ViewPostScreen(
+                            id: feed.posts![index].sId!,
+                            addComment: true,
+                            isFocus: false,
+                          ));
                     },
                   ),
                 ),
@@ -568,7 +543,7 @@ class _FeedScreenState extends State<FeedScreen> {
                         Icons.thumb_up,
                         size: 20,
                         color: PurpleBookCubit.get(contexts).isLikePost![index]
-                            ? HexColor("#6823D0")
+                            ? const Color(0xFF6823D0)
                             : Colors.grey,
                       ),
                       const SizedBox(
@@ -579,7 +554,7 @@ class _FeedScreenState extends State<FeedScreen> {
                             fontSize: 15,
                             color:
                                 PurpleBookCubit.get(contexts).isLikePost![index]
-                                    ? HexColor("#6823D0")
+                                    ? const Color(0xFF6823D0)
                                     : Colors.grey,
                           ))
                     ],
@@ -604,11 +579,9 @@ class _FeedScreenState extends State<FeedScreen> {
             Row(
               children: [
                 InkWell(
-                  onTap: () => Navigator.push(
-                      context_1,
-                      MaterialPageRoute(
-                          builder: (context_1) =>
-                              UserProfileScreen(id: user.users![index].sId!))),
+                  onTap: () => navigatorPush(
+                      context: context_1,
+                      widget: UserProfileScreen(id: user.users![index].sId!)),
                   child: CircleAvatar(
                       radius: 25,
                       backgroundImage: user
@@ -623,11 +596,9 @@ class _FeedScreenState extends State<FeedScreen> {
                 ),
                 Expanded(
                   child: InkWell(
-                    onTap: () => Navigator.push(
-                        context_1,
-                        MaterialPageRoute(
-                            builder: (context_1) => UserProfileScreen(
-                                id: user.users![index].sId!))),
+                    onTap: () => navigatorPush(
+                        context: context_1,
+                        widget: UserProfileScreen(id: user.users![index].sId!)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -667,7 +638,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                             label: 'OK')
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Add Friend',
                           style: TextStyle(color: Colors.white),
@@ -741,7 +712,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                             label: 'OK')
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Cancel request',
                           style: TextStyle(color: Colors.white),
@@ -777,7 +748,7 @@ class _FeedScreenState extends State<FeedScreen> {
                                             label: 'OK')
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Accept request',
                           style: TextStyle(color: Colors.white),

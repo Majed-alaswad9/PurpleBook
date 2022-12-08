@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class AppInfo extends StatelessWidget {
@@ -10,7 +9,7 @@ class AppInfo extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('App info'),
-        backgroundColor: HexColor("#6823D0"),
+        backgroundColor: const Color(0xFF6823D0),
       ),
       body: Center(
         child: Container(

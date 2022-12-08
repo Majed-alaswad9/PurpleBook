@@ -5,8 +5,6 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_offline/flutter_offline.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/modules/friend_recommendation_module.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/user_profile.dart';
@@ -27,14 +25,7 @@ class FriendsScreen extends StatelessWidget {
         ) {
           final bool connected = connectivity != ConnectivityResult.none;
           if (!connected) {
-            Fluttertoast.showToast(
-                msg: 'You\'re offline',
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0);
+            showMsg(msg: 'You\'re offline', color: ColorMsg.error);
           }
           return BlocProvider(
             create: (context) => PurpleBookCubit()
@@ -235,11 +226,10 @@ class FriendsScreen extends StatelessWidget {
                                                         Navigator.pop(
                                                             context, 'No');
                                                       },
-                                                      child: Text(
+                                                      child: const Text(
                                                         'No',
                                                         style: TextStyle(
-                                                            color: HexColor(
-                                                                "#6823D0")),
+                                                            color: Color(0xFF6823D0)),
                                                       ),
                                                     ),
                                                     TextButton(
@@ -255,10 +245,9 @@ class FriendsScreen extends StatelessWidget {
                                                         Navigator.pop(
                                                             context, 'Yes');
                                                       },
-                                                      child: Text('Yes',
+                                                      child: const Text('Yes',
                                                           style: TextStyle(
-                                                              color: HexColor(
-                                                                  "#6823D0"))),
+                                                              color: Color(0xFF6823D0))),
                                                     ),
                                                   ]));
                                     } else if (!connected) {
@@ -294,7 +283,7 @@ class FriendsScreen extends StatelessWidget {
                                                   Text('You\'re offline')));
                                     }
                                   },
-                                  color: HexColor("#6823D0"),
+                                  color: const Color(0xFF6823D0),
                                   child: const Text(
                                     'Confirm',
                                     style: TextStyle(color: Colors.white),
@@ -402,7 +391,7 @@ class FriendsScreen extends StatelessWidget {
                                             content: Text('You\'re offline')));
                                   }
                                 },
-                                color: HexColor("#6823D0"),
+                                color: const Color(0xFF6823D0),
                                 child: const Text(
                                   'Add Friend',
                                   style: TextStyle(color: Colors.white),

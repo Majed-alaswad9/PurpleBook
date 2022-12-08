@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
@@ -40,7 +39,7 @@ class EditPostScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: const Text('edit Post'),
-            backgroundColor: HexColor("#6823D0"),
+            backgroundColor: const Color(0xFF6823D0),
             actions: [
               TextButton(
                 onPressed: () {
@@ -65,8 +64,8 @@ class EditPostScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (state is EditPostLoadingState)
-                            LinearProgressIndicator(
-                              color: HexColor("#6823D0"),
+                            const LinearProgressIndicator(
+                              color: Color(0xFF6823D0),
                             ),
                           InkWell(
                             onTap: () {
@@ -193,10 +192,10 @@ class EditPostScreen extends StatelessWidget {
                         ],
                       ),
                     ))),
-            fallback: (context) => Center(
+            fallback: (context) => const Center(
               child: Center(
                 child: CircularProgressIndicator(
-                  color: HexColor("#6823D0"),
+                  color: Color(0xFF6823D0),
                 ),
               ),
             ),

@@ -1,10 +1,10 @@
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:purplebook/network/local/cach_helper.dart';
 
+import '../components/const.dart';
 import '../components/end_points.dart';
 import '../purple_book/purple_book_screen.dart';
 import 'cubit/bloc_cubit.dart';
@@ -16,6 +16,7 @@ class PickImage extends StatelessWidget {
   final String lastName;
   final String email;
   final String password;
+
   PickImage(
       {super.key,
       required this.firstName,
@@ -40,25 +41,19 @@ class PickImage extends StatelessWidget {
               userId = state.logInModel.userId;
             });
 
-            ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('✅ Signup Successfully')));
-            Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => const PurpleBookScreen()),
-                (route) => false);
+            showSnackBar(
+                'Signup Successfully', context, const Color(0xFF6823D0));
+            navigatorAndRemove(
+                widget: const PurpleBookScreen(), context: context);
           } else if (state is SignupErrorState) {
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 3),
-                content: Text(state.error.errors![0].msg!)));
+            showSnackBar(state.error.errors![0].msg!, context, Colors.red);
           }
         },
         builder: (context, state) {
           var cubit = LoginSignUpCubit.get(context);
           return Scaffold(
             appBar: AppBar(
-              backgroundColor: HexColor("#6823D0"),
+              backgroundColor: const Color(0xFF6823D0),
               title: const Text('purplebook'),
             ),
             body: Center(
@@ -70,13 +65,13 @@ class PickImage extends StatelessWidget {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Pick image',
                           style: TextStyle(
                               fontSize: 40,
                               fontWeight: FontWeight.bold,
                               fontFamily: 'MsMadi',
-                              color: HexColor("#6823D0")),
+                              color: Color(0xFF6823D0)),
                         ),
                         const SizedBox(
                           height: 30,
@@ -112,7 +107,7 @@ class PickImage extends StatelessWidget {
                                       builder: (context_1) =>
                                           buildImagePicker(context));
                                 },
-                                color: HexColor("#6823D0"),
+                                color: const Color(0xFF6823D0),
                                 child: const Text(
                                   'Pick Image',
                                   style: TextStyle(
@@ -130,7 +125,7 @@ class PickImage extends StatelessWidget {
                                   onPressed: () {
                                     cubit.deletePhoto();
                                   },
-                                  color: HexColor("#6823D0"),
+                                  color: const Color(0xFF6823D0),
                                   child: const Text(
                                     'Cancel',
                                     style: TextStyle(
@@ -144,7 +139,7 @@ class PickImage extends StatelessWidget {
                           condition: state is! SignupLoadState,
                           builder: (context) => Container(
                             width: double.infinity,
-                            color: HexColor("#6823D0"),
+                            color: const Color(0xFF6823D0),
                             child: TextButton(
                               onPressed: () {
                                 cubit.userSignup(
@@ -160,10 +155,10 @@ class PickImage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          fallback: (context) => Center(
+                          fallback: (context) => const Center(
                             child: Center(
                               child: CircularProgressIndicator(
-                                color: HexColor("#6823D0"),
+                                color: Color(0xFF6823D0),
                               ),
                             ),
                           ),

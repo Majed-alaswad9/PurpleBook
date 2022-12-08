@@ -7,7 +7,6 @@ import 'package:conditional_builder_null_safety/conditional_builder_null_safety.
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
@@ -95,7 +94,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           return Scaffold(
             appBar: AppBar(
               title: const Text('Profile'),
-              backgroundColor: HexColor("#6823D0"),
+              backgroundColor: const Color(0xFF6823D0),
             ),
             body: ConditionalBuilder(
               condition: cubit.userProfile != null,
@@ -106,7 +105,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                     const Padding(padding: EdgeInsets.all(10)),
                     Container(
                       color: MainCubit.get(context).isDark
-                          ? HexColor("#242F3D")
+                          ? const Color(0xFF242F3D)
                           : Colors.grey.shade300,
                       padding: const EdgeInsets.symmetric(vertical: 10),
                       margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -147,7 +146,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             margin: const EdgeInsets.symmetric(horizontal: 10),
                             color: MainCubit.get(context).isDark
-                                ? HexColor("#242F3E")
+                                ? const Color(0xFF242F3E)
                                 : Colors.grey.shade300,
                             width: double.infinity,
                             child: Center(
@@ -175,11 +174,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                   Navigator.pop(
                                                       context, 'Cancel');
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   'Cancel',
                                                   style: TextStyle(
                                                       color:
-                                                          HexColor("#6823D0")),
+                                                      Color(0xFF6823D0)),
                                                 ),
                                               ),
                                               TextButton(
@@ -194,14 +193,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                         context, 'OK');
                                                   });
                                                 },
-                                                child: Text('OK',
+                                                child: const Text('OK',
                                                     style: TextStyle(
-                                                        color: HexColor(
-                                                            "#6823D0"))),
+                                                        color: Color(0xFF6823D0))),
                                               ),
                                             ]));
                               },
-                              color: HexColor("#6823D0"),
+                              color: const Color(0xFF6823D0),
                               child: const Text(
                                 'Friend',
                                 style: TextStyle(
@@ -220,7 +218,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   cubit.getUserProfile(id: widget.id);
                                 });
                               },
-                              color: HexColor("#6823D0"),
+                              color: const Color(0xFF6823D0),
                               child: const Text(
                                 'Not Friend',
                                 style: TextStyle(
@@ -248,11 +246,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                   Navigator.pop(
                                                       context, 'Cancel');
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   'Cancel',
                                                   style: TextStyle(
                                                       color:
-                                                          HexColor("#6823D0")),
+                                                      Color(0xFF6823D0)),
                                                 ),
                                               ),
                                               TextButton(
@@ -267,14 +265,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                         context, 'OK');
                                                   });
                                                 },
-                                                child: Text('OK',
+                                                child: const Text('OK',
                                                     style: TextStyle(
-                                                        color: HexColor(
-                                                            "#6823D0"))),
+                                                        color: Color(0xFF6823D0))),
                                               ),
                                             ]));
                               },
-                              color: HexColor("#6823D0"),
+                              color: const Color(0xFF6823D0),
                               child: const Text(
                                 'request sent',
                                 style: TextStyle(
@@ -288,7 +285,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             child: Container(
                               width: double.infinity,
                               height: 1.5,
-                              color: HexColor("#6823D0"),
+                              color: const Color(0xFF6823D0),
                             ),
                           ),
                           Padding(
@@ -302,7 +299,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         horizontal: 10),
                                     elevation: indexWidget == 0 ? 10 : 0,
                                     color: indexWidget == 0
-                                        ? HexColor("#6823D0")
+                                        ? const Color(0xFF6823D0)
                                         : Colors.white,
                                     child: MaterialButton(
                                       onPressed: () {
@@ -326,7 +323,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         horizontal: 10),
                                     elevation: indexWidget == 1 ? 10 : 0,
                                     color: indexWidget == 1
-                                        ? HexColor("#6823D0")
+                                        ? const Color(0xFF6823D0)
                                         : Colors.white,
                                     child: MaterialButton(
                                       onPressed: () {
@@ -350,7 +347,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                         horizontal: 10),
                                     elevation: indexWidget == 2 ? 10 : 0,
                                     color: indexWidget == 2
-                                        ? HexColor("#6823D0")
+                                        ? const Color(0xFF6823D0)
                                         : Colors.white,
                                     child: MaterialButton(
                                       onPressed: () {
@@ -411,7 +408,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   ),
                                 ],
                                 dropdownColor: MainCubit.get(context).isDark
-                                    ? HexColor("#242F3D")
+                                    ? const Color(0xFF242F3D)
                                     : Colors.white,
                                 value: cubit.dropDownValue,
                                 onChanged: (value) {
@@ -424,13 +421,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 }),
                           ),
                           if (state is GetUserPostLoadingState)
-                            LinearProgressIndicator(color: HexColor("#6823D0")),
+                            const LinearProgressIndicator(color: Color(0xFF6823D0)),
                           ConditionalBuilder(
                             builder: (context) => userPosts(context),
                             condition: cubit.userPost != null,
-                            fallback: (context) => Center(
+                            fallback: (context) => const Center(
                               child: CircularProgressIndicator(
-                                  color: HexColor("#6823D0")),
+                                  color: Color(0xFF6823D0)),
                             ),
                           ),
                           const SizedBox(
@@ -439,16 +436,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           if (!cubit.isEndUserPost)
                             ConditionalBuilder(
                               condition: state is! GetMoreUserPostLoadingState,
-                              fallback: (context) => Center(
+                              fallback: (context) => const Center(
                                 child: CircularProgressIndicator(
-                                  color: HexColor("#6823D0"),
+                                  color: Color(0xFF6823D0),
                                 ),
                               ),
                               builder: (context) => Container(
                                 width: double.infinity,
-                                decoration: BoxDecoration(
-                                    color: HexColor("#6823D0"),
-                                    borderRadius: const BorderRadius.all(
+                                decoration: const BoxDecoration(
+                                    color: Color(0xFF6823D0),
+                                    borderRadius: BorderRadius.all(
                                         Radius.circular(15))),
                                 child: TextButton(
                                   onPressed: () {
@@ -500,7 +497,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   ),
                                 ],
                                 dropdownColor: MainCubit.get(context).isDark
-                                    ? HexColor("#242F3D")
+                                    ? const Color(0xFF242F3D)
                                     : Colors.white,
                                 value: cubit.dropDownValue,
                                 onChanged: (value) {
@@ -519,9 +516,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 context, PurpleBookCubit.get(context)),
                             condition: cubit.userComments != null &&
                                 cubit.likeCommentCount!.isNotEmpty,
-                            fallback: (context) => Center(
+                            fallback: (context) => const Center(
                               child: CircularProgressIndicator(
-                                  color: HexColor("#6823D0")),
+                                  color: Color(0xFF6823D0)),
                             ),
                           ),
                           const SizedBox(
@@ -531,11 +528,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             ConditionalBuilder(
                               condition:
                                   state is! GetMoreUserCommentsLoadingState,
-                              fallback: (context) => Padding(
-                                padding: const EdgeInsets.all(8.0),
+                              fallback: (context) => const Padding(
+                                padding: EdgeInsets.all(8.0),
                                 child: Center(
                                   child: CircularProgressIndicator(
-                                    color: HexColor("#6823D0"),
+                                    color: Color(0xFF6823D0),
                                   ),
                                 ),
                               ),
@@ -545,9 +542,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 child: Container(
                                   width: double.infinity,
                                   margin: EdgeInsets.zero,
-                                  decoration: BoxDecoration(
-                                      color: HexColor("#6823D0"),
-                                      borderRadius: const BorderRadius.all(
+                                  decoration: const BoxDecoration(
+                                      color: Color(0xFF6823D0),
+                                      borderRadius: BorderRadius.all(
                                           Radius.circular(20))),
                                   child: TextButton(
                                     onPressed: () {
@@ -569,17 +566,17 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         builder: (context) =>
                             userFriend(context, PurpleBookCubit.get(context)),
                         condition: cubit.userFriends != null,
-                        fallback: (context) => Center(
+                        fallback: (context) => const Center(
                           child: CircularProgressIndicator(
-                              color: HexColor("#6823D0")),
+                              color: Color(0xFF6823D0)),
                         ),
                       )
                   ],
                 ),
               ),
-              fallback: (context) => Center(
+              fallback: (context) => const Center(
                   child: CircularProgressIndicator(
-                color: HexColor("#6823D0"),
+                color: Color(0xFF6823D0),
               )),
             ),
           );
@@ -685,7 +682,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   .userComments!
                                   .comments![index]
                                   .likedByUser!
-                              ? HexColor("#6823D0")
+                              ? const Color(0xFF6823D0)
                               : Colors.grey,
                         ),
                         const SizedBox(
@@ -866,11 +863,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                   Navigator.pop(
                                                       context, 'Cancel');
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   'Cancel',
                                                   style: TextStyle(
                                                       color:
-                                                          HexColor("#6823D0")),
+                                                      Color(0xFF6823D0)),
                                                 ),
                                               ),
                                               TextButton(
@@ -888,10 +885,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                         context, 'OK');
                                                   });
                                                 },
-                                                child: Text('OK',
+                                                child: const Text('OK',
                                                     style: TextStyle(
-                                                        color: HexColor(
-                                                            "#6823D0"))),
+                                                        color: Color(0xFF6823D0))),
                                               ),
                                             ]));
                               },
@@ -916,7 +912,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   cubit.getUserFriends(id: widget.id);
                                 });
                               },
-                              color: HexColor("#6823D0"),
+                              color: const Color(0xFF6823D0),
                               child: const Text(
                                 'Add Friend',
                                 style: TextStyle(color: Colors.white),
@@ -944,11 +940,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                   Navigator.pop(
                                                       context, 'Cancel');
                                                 },
-                                                child: Text(
+                                                child: const Text(
                                                   'Cancel',
                                                   style: TextStyle(
                                                       color:
-                                                          HexColor("#6823D0")),
+                                                      Color(0xFF6823D0)),
                                                 ),
                                               ),
                                               TextButton(
@@ -966,17 +962,16 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                         context, 'OK');
                                                   });
                                                 },
-                                                child: Text('OK',
+                                                child: const Text('OK',
                                                     style: TextStyle(
-                                                        color: HexColor(
-                                                            "#6823D0"))),
+                                                        color: Color(0xFF6823D0))),
                                               ),
                                             ]));
                               },
                               color: Colors.white,
-                              child: Text(
+                              child: const Text(
                                 'request sent',
-                                style: TextStyle(color: HexColor("#6823D0")),
+                                style: TextStyle(color: Color(0xFF6823D0)),
                               ),
                             ),
                           )
@@ -1073,14 +1068,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                             minLines: 1,
                                             keyboardType:
                                                 TextInputType.multiline,
-                                            decoration: InputDecoration(
-                                                label: const Text('Edit post'),
+                                            decoration: const InputDecoration(
+                                                label: Text('Edit post'),
                                                 labelStyle: TextStyle(
-                                                    color: HexColor("#6823D0")),
+                                                    color: Color(0xFF6823D0)),
                                                 border:
-                                                    const OutlineInputBorder(),
+                                                    OutlineInputBorder(),
                                                 enabledBorder:
-                                                    const OutlineInputBorder(
+                                                    OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color: Colors.grey),
                                                   borderRadius:
@@ -1092,14 +1087,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                     OutlineInputBorder(
                                                   borderSide: BorderSide(
                                                       color:
-                                                          HexColor("#6823D0")),
+                                                      Color(0xFF6823D0)),
                                                   borderRadius:
-                                                      const BorderRadius.all(
+                                                      BorderRadius.all(
                                                           Radius.circular(
                                                               10.0)),
                                                 ),
                                                 contentPadding:
-                                                    const EdgeInsets.all(10)),
+                                                    EdgeInsets.all(10)),
                                           ),
                                           elevation: 10,
                                           actions: [
@@ -1108,10 +1103,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 Navigator.pop(
                                                     context, 'Cancel');
                                               },
-                                              child: Text(
+                                              child: const Text(
                                                 'Cancel',
                                                 style: TextStyle(
-                                                    color: HexColor("#6823D0")),
+                                                    color: Color(0xFF6823D0)),
                                               ),
                                             ),
                                             TextButton(
@@ -1128,10 +1123,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 );
                                                 Navigator.pop(context, 'OK');
                                               },
-                                              child: Text('OK',
+                                              child: const Text('OK',
                                                   style: TextStyle(
                                                       color:
-                                                          HexColor("#6823D0"))),
+                                                      Color(0xFF6823D0))),
                                             ),
                                           ]));
                             } else if (Constants.delete == value) {
@@ -1271,7 +1266,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10.0),
                             child: InkWell(
-                              highlightColor: HexColor("#6823D0"),
+                              highlightColor: const Color(0xFF6823D0),
                               onTap: () {
                                 showMsg(
                                     msg: 'Just a second',
@@ -1435,7 +1430,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             size: 20,
                             color: PurpleBookCubit.get(context_1)
                                     .isLikeUserPost![index]
-                                ? HexColor("#6823D0")
+                                ? const Color(0xFF6823D0)
                                 : Colors.grey,
                           ),
                           const SizedBox(
@@ -1446,7 +1441,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 fontSize: 15,
                                 color: PurpleBookCubit.get(context_1)
                                         .isLikeUserPost![index]
-                                    ? HexColor("#6823D0")
+                                    ? const Color(0xFF6823D0)
                                     : Colors.grey,
                               ))
                         ],
@@ -1515,10 +1510,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1529,13 +1524,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                         .users![index].sId!);
                                             Navigator.pop(context, 'OK');
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Add Friend',
                           style: TextStyle(color: Colors.white),
@@ -1558,10 +1553,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1573,9 +1568,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 .then((value) => Navigator.pop(
                                                     context, 'OK'));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
@@ -1604,10 +1599,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1619,13 +1614,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 .then((value) =>
                                                     Navigator.pop(context_1));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Cancel request',
                           style: TextStyle(color: Colors.white),
@@ -1649,10 +1644,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1663,13 +1658,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 .then((value) =>
                                                     Navigator.pop(context_1));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Accept request',
                           style: TextStyle(color: Colors.white),
@@ -1733,10 +1728,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1747,13 +1742,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                         .users![index].sId!);
                                             Navigator.pop(context, 'OK');
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Add Friend',
                           style: TextStyle(color: Colors.white),
@@ -1776,10 +1771,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1791,9 +1786,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 .then((value) => Navigator.pop(
                                                     context, 'OK'));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
@@ -1822,10 +1817,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1837,13 +1832,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 .then((value) =>
                                                     Navigator.pop(context_1));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Cancel request',
                           style: TextStyle(color: Colors.white),
@@ -1867,10 +1862,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                           onPressed: () {
                                             Navigator.pop(context, 'Cancel');
                                           },
-                                          child: Text(
+                                          child: const Text(
                                             'Cancel',
                                             style: TextStyle(
-                                                color: HexColor("#6823D0")),
+                                                color: Color(0xFF6823D0)),
                                           ),
                                         ),
                                         TextButton(
@@ -1882,13 +1877,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                                 .then((value) =>
                                                     Navigator.pop(context_1));
                                           },
-                                          child: Text('OK',
+                                          child: const Text('OK',
                                               style: TextStyle(
-                                                  color: HexColor("#6823D0"))),
+                                                  color: Color(0xFF6823D0))),
                                         ),
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Accept request',
                           style: TextStyle(color: Colors.white),

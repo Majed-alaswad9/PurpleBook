@@ -1,11 +1,10 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_offline/flutter_offline.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:purplebook/components/const.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
@@ -33,14 +32,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           final bool connected = connectivity != ConnectivityResult.none;
 
           if (!connected) {
-            Fluttertoast.showToast(
-                msg: 'You\'re offline',
-                toastLength: Toast.LENGTH_LONG,
-                gravity: ToastGravity.BOTTOM,
-                timeInSecForIosWeb: 1,
-                backgroundColor: Colors.red,
-                textColor: Colors.white,
-                fontSize: 16.0);
+            showMsg(msg: 'You\'re offline', color: ColorMsg.error);
           }
           return BlocProvider(
             create: (context) => PurpleBookCubit()
@@ -92,7 +84,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         //       padding: const EdgeInsets.all(8.0),
                         //       child: Center(
                         //         child: CircularProgressIndicator(
-                        //           color: HexColor("#6823D0"),
+                        //           color: Color(0xFF6823D0),
                         //         ),
                         //       ),
                         //     ),
@@ -101,7 +93,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         //       child: Container(
                         //         width: double.infinity,
                         //         decoration: BoxDecoration(
-                        //             color: HexColor("#6823D0"),
+                        //             color: Color(0xFF6823D0),
                         //             borderRadius: const BorderRadius.all(
                         //                 Radius.circular(20))),
                         //         child: TextButton(
@@ -191,15 +183,12 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           .notifications![index]
                           .image!
                           .data!
-                          .data!
                           .isNotEmpty
-                      ? Image.memory(Uint8List.fromList(
-                              PurpleBookCubit.get(context_1)
-                                  .notificationsModule!
-                                  .notifications![index]
-                                  .image!
-                                  .data!
-                                  .data!))
+                      ? Image.memory(base64Decode(PurpleBookCubit.get(context_1)
+                              .notificationsModule!
+                              .notifications![index]
+                              .image!
+                              .data!))
                           .image
                       : const AssetImage('assets/image/user.jpg'),
                 ),

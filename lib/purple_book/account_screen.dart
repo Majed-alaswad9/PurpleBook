@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_offline/flutter_offline.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:html/parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:purplebook/cubit/cubit.dart';
@@ -66,57 +65,44 @@ class AccountScreen extends StatelessWidget {
                 listener: (context, state) {
                   //* edit user profile
                   if (state is UpdateUserProfileSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('✅ Update Successfully'),
-                    ));
+                    showSnackBar('Update Successfully', context,
+                        const Color(0xFF6823D0));
                   } else if (state is UpdateUserProfileErrorState) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      backgroundColor: Colors.red,
-                      content: Text('Error ${state.error.errors![0].msg}'),
-                    ));
+                    showSnackBar('Error ${state.error.errors![0].msg}', context,
+                        Colors.red);
                   }
 
                   //* Delete user account
                   if (state is DeleteUserSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('✅ Delete Account Successfully')));
+                    showSnackBar('Delete Account Successfully', context,
+                        const Color(0xFF6823D0));
                     Navigator.pushAndRemoveUntil(
                         context,
                         MaterialPageRoute(builder: (context) => LoginScreen()),
                         (route) => false);
                   } else if (state is DeleteUserErrorState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                        content: Text('❌ Delete Account Failed')));
+                    showSnackBar('Delete Account Failed', context, Colors.red);
                   }
 
                   if (state is PostDeleteSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('✅ Deleted Successfully'),
-                    ));
+                    showSnackBar('Deleted Successfully', context,
+                        const Color(0xFF6823D0));
                   } else if (state is PostDeleteErrorState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('❌ Deleted Failed'),
-                    ));
+                    showSnackBar('Deleted Failed', context, Colors.red);
                   }
 
                   if (state is EditUserPostSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('✅ Editing Successfully'),
-                    ));
+                    showSnackBar('Editing Successfully', context,
+                        const Color(0xFF6823D0));
                   } else if (state is EditUserPostErrorState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('❌ Editing Failed'),
-                    ));
+                    showSnackBar('Editing Failed', context, Colors.red);
                   }
 
                   if (state is CancelFriendSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('✅ Cancel Successfully'),
-                    ));
+                    showSnackBar('Cancel Successfully', context,
+                        const Color(0xFF6823D0));
                   } else if (state is CancelFriendErrorState) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                      content: Text('❌ Cancel Failed'),
-                    ));
+                    showSnackBar('Cancel Failed', context, Colors.red);
                   }
                 },
                 builder: (context, state) {
@@ -129,14 +115,14 @@ class AccountScreen extends StatelessWidget {
                         children: [
                           const Padding(padding: EdgeInsets.all(10)),
                           if (state is UpdateUserProfileLoadingState)
-                            LinearProgressIndicator(
-                              color: HexColor("#6823D0"),
+                            const LinearProgressIndicator(
+                              color: Color(0xFF6823D0),
                             ),
                           Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
                             margin: const EdgeInsets.symmetric(horizontal: 10),
                             color: MainCubit.get(context).isDark
-                                ? HexColor("#242F3D")
+                                ? const Color(0xFF242F3D)
                                 : Colors.grey.shade300,
                             child: Column(
                               children: [
@@ -145,7 +131,8 @@ class AccountScreen extends StatelessWidget {
                                     alignment: AlignmentDirectional.bottomEnd,
                                     children: [
                                       CircleAvatar(
-                                        backgroundColor: HexColor("#6823D0"),
+                                        backgroundColor:
+                                            const Color(0xFF6823D0),
                                         radius: 90,
                                         child: InkWell(
                                           onTap: () {
@@ -190,7 +177,8 @@ class AccountScreen extends StatelessWidget {
                                         ),
                                       ),
                                       CircleAvatar(
-                                        backgroundColor: HexColor("#6823D0"),
+                                        backgroundColor:
+                                            const Color(0xFF6823D0),
                                         radius: 25,
                                         child: IconButton(
                                             onPressed: () {
@@ -224,7 +212,7 @@ class AccountScreen extends StatelessWidget {
                                           margin: const EdgeInsets.symmetric(
                                               horizontal: 10),
                                           elevation: 7,
-                                          color: HexColor("#6823D0"),
+                                          color: const Color(0xFF6823D0),
                                           child: MaterialButton(
                                             onPressed: () {
                                               firstNameController.text = cubit
@@ -254,7 +242,7 @@ class AccountScreen extends StatelessWidget {
                                           margin: const EdgeInsets.symmetric(
                                               horizontal: 10),
                                           elevation: 7,
-                                          color: HexColor("#6823D0"),
+                                          color: const Color(0xFF6823D0),
                                           child: MaterialButton(
                                             onPressed: () {
                                               cubit.deletePhotoProfile();
@@ -286,7 +274,8 @@ class AccountScreen extends StatelessWidget {
                                     ),
                                     CircleAvatar(
                                         radius: 15,
-                                        backgroundColor: HexColor("#6823D0"),
+                                        backgroundColor:
+                                            const Color(0xFF6823D0),
                                         child: IconButton(
                                           onPressed: () {
                                             firstNameController.text = cubit
@@ -371,7 +360,7 @@ class AccountScreen extends StatelessWidget {
                                   child: Container(
                                     width: double.infinity,
                                     height: 1.5,
-                                    color: HexColor("#6823D0"),
+                                    color: const Color(0xFF6823D0),
                                   ),
                                 ),
                                 Padding(
@@ -381,44 +370,48 @@ class AccountScreen extends StatelessWidget {
                                     children: [
                                       Padding(
                                         padding: const EdgeInsets.all(10.0),
-                                        child: Container(
-                                          color: Colors.red,
+                                        child: SizedBox(
                                           width: double.infinity,
-                                          child: MaterialButton(
-                                            onPressed: () {
-                                              showDialog<String>(
-                                                  context: context,
-                                                  builder: (BuildContext
-                                                          context) =>
-                                                      AlertDialog(
-                                                          title: const Text(
-                                                              'Delete account'),
-                                                          content: const Text(
-                                                              'Are you sure yoo delete your account'),
-                                                          elevation: 10,
-                                                          actions: [
-                                                            textButton(
-                                                                label: 'cancel',
-                                                                onPressed: () =>
+                                          child: Card(
+                                            color: Colors.red,
+                                            child: MaterialButton(
+                                              onPressed: () {
+                                                showDialog<String>(
+                                                    context: context,
+                                                    builder: (BuildContext
+                                                            context) =>
+                                                        AlertDialog(
+                                                            title: const Text(
+                                                                'Delete account'),
+                                                            content: const Text(
+                                                                'Are you sure yoo delete your account'),
+                                                            elevation: 10,
+                                                            actions: [
+                                                              textButton(
+                                                                  label:
+                                                                      'cancel',
+                                                                  onPressed: () =>
+                                                                      Navigator.pop(
+                                                                          context,
+                                                                          'cancel')),
+                                                              textButton(
+                                                                  label: 'Yes',
+                                                                  onPressed:
+                                                                      () {
+                                                                    cubit
+                                                                        .deleteUser();
                                                                     Navigator.pop(
                                                                         context,
-                                                                        'cancel')),
-                                                            textButton(
-                                                                label: 'Yes',
-                                                                onPressed: () {
-                                                                  cubit
-                                                                      .deleteUser();
-                                                                  Navigator.pop(
-                                                                      context,
-                                                                      'Yes');
-                                                                })
-                                                          ]));
-                                            },
-                                            child: const Text(
-                                              'Delete Account',
-                                              style: TextStyle(
-                                                  fontSize: 20,
-                                                  color: Colors.white),
+                                                                        'Yes');
+                                                                  })
+                                                            ]));
+                                              },
+                                              child: const Text(
+                                                'Delete Account',
+                                                style: TextStyle(
+                                                    fontSize: 20,
+                                                    color: Colors.white),
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -436,7 +429,7 @@ class AccountScreen extends StatelessWidget {
                                                   ? 10
                                                   : 0,
                                               color: cubit.indexWidget == 0
-                                                  ? HexColor("#6823D0")
+                                                  ? const Color(0xFF6823D0)
                                                   : Colors.white,
                                               child: MaterialButton(
                                                 onPressed: () {
@@ -465,7 +458,7 @@ class AccountScreen extends StatelessWidget {
                                                   ? 10
                                                   : 0,
                                               color: cubit.indexWidget == 1
-                                                  ? HexColor("#6823D0")
+                                                  ? const Color(0xFF6823D0)
                                                   : Colors.white,
                                               child: MaterialButton(
                                                 onPressed: () {
@@ -494,7 +487,7 @@ class AccountScreen extends StatelessWidget {
                                                   ? 10
                                                   : 0,
                                               color: cubit.indexWidget == 2
-                                                  ? HexColor("#6823D0")
+                                                  ? const Color(0xFF6823D0)
                                                   : Colors.white,
                                               child: MaterialButton(
                                                 onPressed: () {
@@ -552,38 +545,41 @@ class AccountScreen extends StatelessWidget {
                                   builder: (context) => userPosts(context),
                                   condition: cubit.userPost != null &&
                                       cubit.likesUserCount!.isNotEmpty,
-                                  fallback: (context) => Center(
+                                  fallback: (context) => const Center(
                                     child: CircularProgressIndicator(
-                                        color: HexColor("#6823D0")),
+                                        color: Color(0xFF6823D0)),
                                   ),
                                 ),
                                 const SizedBox(
                                   height: 10,
                                 ),
                                 if (!cubit.isEndUserPost)
-                                  ConditionalBuilder(
-                                    condition:
-                                        state is! GetMoreUserPostLoadingState,
-                                    fallback: (context) =>
-                                        CircularProgressIndicator(
-                                      color: HexColor("#6823D0"),
-                                    ),
-                                    builder: (context) => Container(
-                                      width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          color: HexColor("#6823D0"),
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(15))),
-                                      child: TextButton(
-                                        onPressed: () {
-                                          cubit.getMoreUserPosts(
-                                              userId: userId!);
-                                        },
-                                        child: const Text(
-                                          'Show More',
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 20,
+                                  Padding(
+                                    padding: const EdgeInsets.all(8.0),
+                                    child: ConditionalBuilder(
+                                      condition:
+                                          state is! GetMoreUserPostLoadingState,
+                                      fallback: (context) =>
+                                          const CircularProgressIndicator(
+                                        color: Color(0xFF6823D0),
+                                      ),
+                                      builder: (context) => Container(
+                                        width: double.infinity,
+                                        decoration: const BoxDecoration(
+                                            color: Color(0xFF6823D0),
+                                            borderRadius: BorderRadius.all(
+                                                Radius.circular(15))),
+                                        child: TextButton(
+                                          onPressed: () {
+                                            cubit.getMoreUserPosts(
+                                                userId: userId!);
+                                          },
+                                          child: const Text(
+                                            'Show More',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -622,9 +618,9 @@ class AccountScreen extends StatelessWidget {
                                           .userComments),
                                   condition: cubit.userComments != null &&
                                       cubit.likeCommentCount!.isNotEmpty,
-                                  fallback: (context) => Center(
+                                  fallback: (context) => const Center(
                                     child: CircularProgressIndicator(
-                                        color: HexColor("#6823D0")),
+                                        color: Color(0xFF6823D0)),
                                   ),
                                 ),
                                 const SizedBox(
@@ -634,16 +630,16 @@ class AccountScreen extends StatelessWidget {
                                   ConditionalBuilder(
                                     condition: state
                                         is! GetMoreUserCommentsLoadingState,
-                                    fallback: (context) => Center(
+                                    fallback: (context) => const Center(
                                       child: CircularProgressIndicator(
-                                        color: HexColor("#6823D0"),
+                                        color: Color(0xFF6823D0),
                                       ),
                                     ),
                                     builder: (context) => Container(
                                       width: double.infinity,
-                                      decoration: BoxDecoration(
-                                          color: HexColor("#6823D0"),
-                                          borderRadius: const BorderRadius.all(
+                                      decoration: const BoxDecoration(
+                                          color: Color(0xFF6823D0),
+                                          borderRadius: BorderRadius.all(
                                               Radius.circular(20))),
                                       child: TextButton(
                                         onPressed: () {
@@ -671,9 +667,9 @@ class AccountScreen extends StatelessWidget {
                         ],
                       ),
                     ),
-                    fallback: (context) => Center(
+                    fallback: (context) => const Center(
                         child: CircularProgressIndicator(
-                      color: HexColor("#6823D0"),
+                      color: Color(0xFF6823D0),
                     )),
                   );
                 },
@@ -788,10 +784,10 @@ class AccountScreen extends StatelessWidget {
                                 PurpleBookCubit.get(context)
                                     .changeLikeComment(index);
                               },
-                              icon: const Icon(Icons.thumb_up_alt_outlined),
+                              icon: const Icon(Icons.thumb_up_alt_rounded),
                               color: PurpleBookCubit.get(context)
                                       .isLikeComment![index]
-                                  ? HexColor("#6823D0")
+                                  ? const Color(0xFF6823D0)
                                   : Colors.grey,
                             ),
                             const SizedBox(
@@ -1182,7 +1178,7 @@ class AccountScreen extends StatelessWidget {
                     },
                     child: Container(
                       width: double.infinity,
-                      height: 200,
+                      height: 350,
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(5),
                           image: DecorationImage(
@@ -1203,7 +1199,7 @@ class AccountScreen extends StatelessWidget {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 10.0),
                             child: InkWell(
-                              highlightColor: HexColor("#6823D0"),
+                              highlightColor: const Color(0xFF6823D0),
                               onTap: () {
                                 showMsg(
                                     msg: 'Just a second',
@@ -1250,25 +1246,12 @@ class AccountScreen extends StatelessWidget {
                                   );
                                 });
                               },
-                              child: Row(
-                                children: [
-                                  const Icon(
-                                    Icons.thumb_up,
-                                    size: 20,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Text(
-                                    '${PurpleBookCubit.get(context_1).likesUserCount![index]} like',
-                                    style: Theme.of(context_1)
-                                        .textTheme
-                                        .caption!
-                                        .copyWith(
-                                            color: Colors.grey, fontSize: 15),
-                                  )
-                                ],
+                              child: Text(
+                                '${PurpleBookCubit.get(context_1).likesUserCount![index]} like',
+                                style: Theme.of(context_1)
+                                    .textTheme
+                                    .caption!
+                                    .copyWith(color: Colors.grey, fontSize: 15),
                               ),
                             ),
                           ),
@@ -1369,7 +1352,7 @@ class AccountScreen extends StatelessWidget {
                             size: 20,
                             color: PurpleBookCubit.get(context_1)
                                     .isLikeUserPost![index]
-                                ? HexColor("#6823D0")
+                                ? const Color(0xFF6823D0)
                                 : Colors.grey,
                           ),
                           const SizedBox(
@@ -1380,7 +1363,7 @@ class AccountScreen extends StatelessWidget {
                                 fontSize: 15,
                                 color: PurpleBookCubit.get(context_1)
                                         .isLikeUserPost![index]
-                                    ? HexColor("#6823D0")
+                                    ? const Color(0xFF6823D0)
                                     : Colors.grey,
                               ))
                         ],
@@ -1460,7 +1443,7 @@ class AccountScreen extends StatelessWidget {
                                             })
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Add Friend',
                           style: TextStyle(color: Colors.white),
@@ -1534,7 +1517,7 @@ class AccountScreen extends StatelessWidget {
                                             })
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Cancel request',
                           style: TextStyle(color: Colors.white),
@@ -1571,7 +1554,7 @@ class AccountScreen extends StatelessWidget {
                                             })
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Accept request',
                           style: TextStyle(color: Colors.white),
@@ -1647,7 +1630,7 @@ class AccountScreen extends StatelessWidget {
                                             })
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Add Friend',
                           style: TextStyle(color: Colors.white),
@@ -1721,7 +1704,7 @@ class AccountScreen extends StatelessWidget {
                                             })
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Cancel request',
                           style: TextStyle(color: Colors.white),
@@ -1758,7 +1741,7 @@ class AccountScreen extends StatelessWidget {
                                             })
                                       ]));
                         },
-                        color: HexColor("#6823D0"),
+                        color: const Color(0xFF6823D0),
                         child: const Text(
                           'Accept request',
                           style: TextStyle(color: Colors.white),

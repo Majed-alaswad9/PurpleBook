@@ -53,6 +53,14 @@ class ViewPostSuccessState extends PurpleBookState {}
 
 class ViewPostErrorState extends PurpleBookState {}
 
+class ViewSingleCommentLoadingState extends PurpleBookState {}
+
+class ViewSingleCommentSuccessState extends PurpleBookState {}
+
+class ViewSingleCommentErrorState extends PurpleBookState {}
+
+class ChangeLikeSingleCommentState extends PurpleBookState {}
+
 class AddLikeSinglePostLoadingState extends PurpleBookState {}
 
 class AddLikeSinglePostSuccessState extends PurpleBookState {}
@@ -147,6 +155,23 @@ class DeleteLikeCommentPostErrorState extends PurpleBookState {
   final DioError error;
 
   DeleteLikeCommentPostErrorState(this.error);
+}
+class LikeSingleCommentPostLoadingState extends PurpleBookState {}
+
+class AddLikeSingleCommentPostSuccessState extends PurpleBookState {}
+
+class AddLikeSingleCommentPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  AddLikeSingleCommentPostErrorState(this.error);
+}
+
+class DeleteLikeSingleCommentPostSuccessState extends PurpleBookState {}
+
+class DeleteLikeSingleCommentPostErrorState extends PurpleBookState {
+  final DioError error;
+
+  DeleteLikeSingleCommentPostErrorState(this.error);
 }
 
 class DeleteCommentPostLoadingState extends PurpleBookState {}

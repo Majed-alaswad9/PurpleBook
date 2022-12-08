@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:purplebook/components/const.dart';
 
 class ViewStringImage extends StatelessWidget {
   final String image;
@@ -12,7 +12,7 @@ class ViewStringImage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: HexColor("#6823D0"),
+        backgroundColor: const Color(0xFF6823D0),
         actions: [
           TextButton(
             child: const Text(
@@ -23,8 +23,7 @@ class ViewStringImage extends StatelessWidget {
               await ImageGallerySaver.saveImage(
                   base64Decode(image).buffer.asUint8List());
               // ignore: use_build_context_synchronously
-              ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('✅ Saved Successfully')));
+              showSnackBar('Saved Successfully', context, const Color(0xFF6823D0));
             },
           )
         ],

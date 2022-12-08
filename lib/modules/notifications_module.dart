@@ -18,8 +18,8 @@ class NotificationsModule {
 var unescape = HtmlUnescape();
 
 class Notifications {
-  Image? image;
   String? sId;
+  Image? image;
   List<Links>? links;
   String? content;
   bool? viewed;
@@ -27,8 +27,8 @@ class Notifications {
   int? iV;
 
   Notifications(
-      {this.image,
-      this.sId,
+      {this.sId,
+      this.image,
       this.links,
       this.content,
       this.viewed,
@@ -36,8 +36,8 @@ class Notifications {
       this.iV});
 
   Notifications.fromJson(Map<String, dynamic> json) {
-    image = json['image'] != null ? Image.fromJson(json['image']) : null;
     sId = json['_id'];
+    image = json['image'] != null ? Image.fromJson(json['image']) : null;
     if (json['links'] != null) {
       links = <Links>[];
       json['links'].forEach((v) {
@@ -52,26 +52,14 @@ class Notifications {
 }
 
 class Image {
-  Data? data;
+  String? data;
   String? contentType;
 
   Image({this.data, this.contentType});
 
   Image.fromJson(Map<String, dynamic> json) {
-    data = json['data'] != null ? Data.fromJson(json['data']) : null;
+    data = json['data'];
     contentType = json['contentType'];
-  }
-}
-
-class Data {
-  String? type;
-  List<int>? data;
-
-  Data({this.type, this.data});
-
-  Data.fromJson(Map<String, dynamic> json) {
-    type = json['type'];
-    data = json['data'].cast<int>();
   }
 }
 

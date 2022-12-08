@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../cubit/cubit.dart';
 
+//* flutter toast
 void showMsg({required String? msg, required ColorMsg? color}) =>
     Fluttertoast.showToast(
         msg: msg!,
@@ -27,18 +27,26 @@ Color chose(ColorMsg msg) {
       color = Colors.green;
       break;
     case ColorMsg.inCorrect:
-      color = HexColor("#6823D0");
+      color = const Color(0xFF6823D0);
       break;
   }
   return color;
 }
 
+void navigatorAndRemove({widget, context}) => Navigator.pushAndRemoveUntil(
+    context, MaterialPageRoute(builder: (context) => widget), (route) => false);
+
+void navigatorPush({context, widget}) =>
+    Navigator.push(context, MaterialPageRoute(builder: (context_1) => widget));
+
+//* for showDialog
 class Constants {
   static const String edit = 'edit';
   static const String delete = 'delete';
   static const List<String> chose = [edit, delete];
 }
 
+//* shimmer
 class ShimmerWidget extends StatelessWidget {
   final double width;
   final double height;
@@ -71,6 +79,15 @@ class ShimmerWidget extends StatelessWidget {
   }
 }
 
+void showSnackBar(String msg, context, color) {
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      backgroundColor: color,
+      content: Text(msg),
+    ));
+  });
+}
+
 Widget buildFoodShimmer() => SingleChildScrollView(
       child: ListView.builder(
         physics: const NeverScrollableScrollPhysics(),
@@ -85,14 +102,51 @@ Widget buildFoodShimmer() => SingleChildScrollView(
           title: const ShimmerWidget.rectangular(height: 16),
           subtitle: const ShimmerWidget.rectangular(height: 14),
         ),
+        itemCount: 5,
+      ),
+    );
+
+Widget buildFeedShimmer() => SingleChildScrollView(
+      child: ListView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        itemBuilder: (context, index) => Column(
+          children: [
+            ListTile(
+              leading: ShimmerWidget.circular(
+                width: 64,
+                height: 64,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+              ),
+              title: const ShimmerWidget.rectangular(height: 16),
+              subtitle: const ShimmerWidget.rectangular(height: 16),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: ShimmerWidget.circular(
+                height: 200,
+                width: double.infinity,
+                shapeBorder: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15)),
+              ),
+            )
+          ],
+        ),
         itemCount: 10,
       ),
     );
 
+//* TextFormField
 Widget textForm(
         {TextEditingController? controller,
         String? label,
         String? hint,
+        FormFieldValidator<String>? validate,
+        Widget? prefixIcon,
         int? maxLines,
         int? minLines,
         TextInputType? keyboardType}) =>
@@ -100,22 +154,26 @@ Widget textForm(
       controller: controller,
       maxLines: maxLines,
       minLines: minLines,
+      validator: validate,
       keyboardType: keyboardType,
       decoration: InputDecoration(
           label: Text(label!),
-          labelStyle: TextStyle(color: HexColor("#6823D0")),
+          hintText: hint,
+          prefixIcon: prefixIcon,
+          labelStyle: const TextStyle(color: Color(0xFF6823D0)),
           border: const OutlineInputBorder(),
           enabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.grey),
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: HexColor("#6823D0")),
-            borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+          focusedBorder: const OutlineInputBorder(
+            borderSide: BorderSide(color: Color(0xFF6823D0)),
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
           ),
           contentPadding: const EdgeInsets.all(10)),
     );
 
+//* TextButton
 Widget textButton(
         {BuildContext? context,
         required String label,
@@ -124,10 +182,11 @@ Widget textButton(
       onPressed: onPressed,
       child: Text(
         label,
-        style: TextStyle(color: HexColor("#6823D0")),
+        style: TextStyle(color: Color(0xFF6823D0)),
       ),
     );
 
+//* dropDownButton
 Widget dropDown(
         {required BuildContext context,
         String? value1,
@@ -161,7 +220,8 @@ Widget dropDown(
             ),
           ),
         ],
-        dropdownColor:
-            MainCubit.get(context).isDark ? HexColor("#242F3D") : Colors.white,
+        dropdownColor: MainCubit.get(context).isDark
+            ? const Color(0xFF242F3D)
+            : Colors.white,
         value: dropDownValue,
         onChanged: change);

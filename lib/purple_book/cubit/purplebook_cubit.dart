@@ -18,6 +18,7 @@ import 'package:purplebook/modules/user_friends_module.dart';
 import 'package:purplebook/modules/user_posts_module.dart';
 import 'package:purplebook/modules/user_profile_module.dart';
 import 'package:purplebook/modules/view_post_module.dart';
+import 'package:purplebook/modules/view_single_comment_module.dart';
 import 'package:purplebook/network/remote/dio_helper.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
 import 'package:purplebook/purple_book/feed_screen.dart';
@@ -128,6 +129,33 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     }).catchError((error) {
       emit(ViewPostErrorState());
     });
+  }
+
+  bool? isLike;
+  int? countLike;
+  ViewSingleCommentModule? viewComment;
+  void viewSingleComment({required String idPost, required String idComment}) {
+    emit(ViewSingleCommentLoadingState());
+    DioHelper.getData(url: '$posts$idPost$comments$idComment', token: token)
+        .then((value) {
+      viewComment = ViewSingleCommentModule.fromJson(value.data);
+      isLike = viewComment!.comment!.likedByUser;
+      countLike = viewComment!.comment!.likesCount;
+      emit(ViewSingleCommentSuccessState());
+    }).catchError((error) {
+      emit(ViewSingleCommentErrorState());
+    });
+  }
+
+  void changeLikeSingleComment() {
+    if (isLike!) {
+      isLike = !isLike!;
+      countLike = countLike! - 1;
+    } else {
+      isLike = !isLike!;
+      countLike = countLike! + 1;
+    }
+    emit(ChangeLikeSingleCommentState());
   }
 
   bool? isLikeSinglePost;
@@ -323,11 +351,9 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
   }
 
   Future<void> likeComment(
-      {required String postId,
-      required String commentId,
-      required int index}) async {
+      {required String postId, required String commentId, int? index}) async {
     emit(LikeCommentPostLoadingState());
-    if (!isLikeComment![index]) {
+    if (!isLikeComment![index!]) {
       return await DioHelper.postData(
               url: '$posts$postId$comments$commentId$likePost_2', token: token)
           .then((value) {
@@ -343,6 +369,29 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
         emit(DeleteLikeCommentPostSuccessState());
       }).catchError((error) {
         emit(DeleteLikeCommentPostErrorState(error));
+      });
+    }
+  }
+
+  void likeSingleComment(
+      {required String postId, required String commentId}) async {
+    emit(LikeSingleCommentPostLoadingState());
+    if (!isLike!) {
+      return await DioHelper.postData(
+              url: '$posts$postId$comments$commentId$likePost_2', token: token)
+          .then((value) {
+        emit(AddLikeSingleCommentPostSuccessState());
+      }).catchError((error) {
+        emit(AddLikeSingleCommentPostErrorState(error));
+      });
+    } else {
+      return await DioHelper.deleteData(
+              url: '$posts$postId$comments_2/$commentId$likePost_2',
+              token: token)
+          .then((value) {
+        emit(DeleteLikeSingleCommentPostSuccessState());
+      }).catchError((error) {
+        emit(DeleteLikeSingleCommentPostErrorState(error));
       });
     }
   }
@@ -720,7 +769,6 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(ViewedFriendRequestLoadingState());
     DioHelper.patchData(url: '$users$userId$friendRequests/', token: token)
         .then((value) {
-      getFriendRequest();
       emit(ViewedFriendRequestSuccessState());
     }).catchError((error) {
       emit(ViewedFriendRequestErrorState());
@@ -744,36 +792,37 @@ class PurpleBookCubit extends Cubit<PurpleBookState> {
     emit(GetNotificationsLoadingState());
     DioHelper.getData(url: notifications, token: token).then((value) {
       notificationsModule = NotificationsModule.fromJson(value.data);
-      skipNotifications += 7;
+
       emit(GetNotificationsSuccessState());
     }).catchError((error) {
+      print(error.toString());
       emit(GetNotificationsErrorState());
     });
   }
 
-  void getMoreNotifications() {
-    notificationsCount = 0;
-    emit(GetMoreNotificationsLoadingState());
-    DioHelper.getData(
-            url: '$notifications?limit=7&skip=$skipNotifications', token: token)
-        .then((value) {
-      if (value.data['notifications'] != null) {
-        isEndNotification = false;
-        value.data['notifications'].forEach((v) {
-          if (v != null) {
-            notificationsModule!.notifications!.add(Notifications.fromJson(v));
-          }
-        });
-        if (value.data['notifications'].length < 6) isEndNotification = true;
-      } else {
-        isEndNotification = true;
-      }
-      skipNotifications += 7;
-      emit(GetMoreNotificationsSuccessState());
-    }).catchError((error) {
-      emit(GetMoreNotificationsErrorState());
-    });
-  }
+  // void getMoreNotifications() {
+  //   notificationsCount = 0;
+  //   emit(GetMoreNotificationsLoadingState());
+  //   DioHelper.getData(
+  //           url: '$notifications?limit=7&skip=$skipNotifications', token: token)
+  //       .then((value) {
+  //     if (value.data['notifications'] != null) {
+  //       isEndNotification = false;
+  //       value.data['notifications'].forEach((v) {
+  //         if (v != null) {
+  //           notificationsModule!.notifications!.add(Notifications.fromJson(v));
+  //         }
+  //       });
+  //       if (value.data['notifications'].length < 6) isEndNotification = true;
+  //     } else {
+  //       isEndNotification = true;
+  //     }
+  //     skipNotifications += 7;
+  //     emit(GetMoreNotificationsSuccessState());
+  //   }).catchError((error) {
+  //     emit(GetMoreNotificationsErrorState());
+  //   });
+  // }
 
   void getNotificationsFromAnyScreen() {
     notificationsCount = 0;

@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:conditional_builder_null_safety/conditional_builder_null_safety.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/login_signup/login_screen.dart';
 import 'package:purplebook/network/local/cach_helper.dart';
@@ -39,7 +38,7 @@ class PurpleBookScreen extends StatelessWidget {
             },
             child: Scaffold(
                 appBar: AppBar(
-                  backgroundColor: HexColor("#6823D0"),
+                  backgroundColor: const Color(0xFF6823D0),
                   title: Text(PurpleBookCubit.get(context)
                       .bar[PurpleBookCubit.get(context).indexBottom]),
                   actions: [
@@ -61,7 +60,7 @@ class PurpleBookScreen extends StatelessWidget {
                               MaterialPageRoute(
                                   builder: (context) => NewPostScreen()));
                         },
-                        backgroundColor: HexColor("#6823D0"),
+                        backgroundColor: const Color(0xFF6823D0),
                         child: const Icon(Icons.add),
                       )
                     : null,
@@ -75,7 +74,7 @@ class PurpleBookScreen extends StatelessWidget {
                   },
                   currentIndex: PurpleBookCubit.get(context)
                       .indexBottom, // cubit.indexBottom,
-                  selectedItemColor: HexColor("#6823D0"),
+                  selectedItemColor: const Color(0xFF6823D0),
                   unselectedItemColor: Colors.grey,
 
                   items: [
@@ -179,11 +178,11 @@ class NavigationDrawer extends StatelessWidget {
     return ConditionalBuilder(
       condition: PurpleBookCubit.get(context_1).userProfile != null,
       builder: (context) => Container(
-        decoration: BoxDecoration(
+        decoration: const BoxDecoration(
             gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [HexColor("#6823D0"), Colors.blueAccent])),
+                colors: [Color(0xFF6823D0), Colors.blueAccent])),
         padding: EdgeInsets.only(
             top: 24 + MediaQuery.of(context_1).padding.top, bottom: 50),
         child: Column(children: [
@@ -217,7 +216,7 @@ class NavigationDrawer extends StatelessWidget {
       fallback: (context) => Container(
           padding: EdgeInsets.only(
               top: 24 + MediaQuery.of(context_1).padding.top, bottom: 50),
-          child: LinearProgressIndicator(color: HexColor("#6823D0"))),
+          child: const LinearProgressIndicator(color: Color(0xFF6823D0))),
     );
   }
 
@@ -325,18 +324,18 @@ class NavigationDrawer extends StatelessWidget {
               showDialog<String>(
                   context: context,
                   builder: (BuildContext context) => AlertDialog(
-                          title: const Text('Delete friend request'),
-                          content: const Text(
-                              'Are you sure you want to Delete this request?'),
+                          title: const Text('LogOut'),
+                          content:
+                              const Text('Are you sure you want to Logout?'),
                           elevation: 10,
                           actions: [
                             TextButton(
                               onPressed: () {
                                 Navigator.pop(context, 'No');
                               },
-                              child: Text(
+                              child: const Text(
                                 'No',
-                                style: TextStyle(color: HexColor("#6823D0")),
+                                style: TextStyle(color: Color(0xFF6823D0)),
                               ),
                             ),
                             TextButton(
@@ -345,6 +344,7 @@ class NavigationDrawer extends StatelessWidget {
                                     .then((value) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
+                                          backgroundColor: Color(0xFF6823D0),
                                           content:
                                               Text('Logout Successfully')));
                                   Navigator.pushAndRemoveUntil(
@@ -355,13 +355,14 @@ class NavigationDrawer extends StatelessWidget {
                                 }).catchError((error) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                       const SnackBar(
+                                          backgroundColor: Colors.red,
                                           content:
                                               Text('Logout Successfully')));
                                 });
                                 Navigator.pop(context, 'Yes');
                               },
-                              child: Text('Yes',
-                                  style: TextStyle(color: HexColor("#6823D0"))),
+                              child: const Text('Yes',
+                                  style: TextStyle(color: Color(0xFF6823D0))),
                             ),
                           ]));
             },

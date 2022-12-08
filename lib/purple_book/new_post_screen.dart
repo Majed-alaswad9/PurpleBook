@@ -3,8 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_offline/flutter_offline.dart';
-import 'package:hexcolor/hexcolor.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:purplebook/components/const.dart';
 import 'package:purplebook/cubit/cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_cubit.dart';
 import 'package:purplebook/purple_book/cubit/purplebook_state.dart';
@@ -44,27 +44,18 @@ class NewPostScreen extends StatelessWidget {
               child: BlocConsumer<PurpleBookCubit, PurpleBookState>(
                 listener: (context, state) {
                   if (state is AddNewPostSuccessState) {
-                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                        backgroundColor: HexColor("#6823D0"),
-                        content: const Text('✅ Added Successfully')));
-                    Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const PurpleBookScreen()),
-                        (route) => false);
+                    showSnackBar('Added Successfully', context, const Color(0xFF6823D0));
+                    navigatorAndRemove(context: context,widget: const PurpleBookScreen());
                   } else {
                     if (state is AddNewPostErrorState) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          backgroundColor: Colors.red,
-                          content:
-                              Text('Error ${state.error.errors![0].msg}')));
+                      showSnackBar('Error ${state.error.errors![0].msg}', context, Colors.red);
                     }
                   }
                 },
                 builder: (context, state) {
                   return Scaffold(
                     appBar: AppBar(
-                      backgroundColor: HexColor("#6823D0"),
+                      backgroundColor: const Color(0xFF6823D0),
                       title: const Text('New Post'),
                       actions: [
                         TextButton(
@@ -91,8 +82,8 @@ class NewPostScreen extends StatelessWidget {
                         child: Column(
                           children: [
                             if (state is AddNewPostLoadingState)
-                              LinearProgressIndicator(
-                                color: HexColor("#6823D0"),
+                              const LinearProgressIndicator(
+                                color: Color(0xFF6823D0),
                                 backgroundColor: Colors.white,
                               ),
                             const SizedBox(
@@ -161,7 +152,7 @@ class NewPostScreen extends StatelessWidget {
                                         PurpleBookCubit.get(context)
                                             .imagePost(ImageSource.camera);
                                       },
-                                      color: HexColor("#6823D0"),
+                                      color: const Color(0xFF6823D0),
                                       child: const Text(
                                         'Camera',
                                         style: TextStyle(color: Colors.white),
@@ -177,7 +168,7 @@ class NewPostScreen extends StatelessWidget {
                                       PurpleBookCubit.get(context)
                                           .imagePost(ImageSource.gallery);
                                     },
-                                    color: HexColor("#6823D0"),
+                                    color: const Color(0xFF6823D0),
                                     child: const Text('Gallery',
                                         style: TextStyle(color: Colors.white)),
                                   )),
