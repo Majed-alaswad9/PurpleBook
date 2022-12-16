@@ -185,12 +185,13 @@ class LoginScreen extends StatelessWidget {
                           ),
                           TextButton(
                               onPressed: () async {
-                                final result = await FacebookAuth.i.login(
-                                    permissions: ["public_profile", "email"]);
+                                final result =
+                                    await FacebookAuth.instance.login();
                                 if (result.status == LoginStatus.success) {
                                   print(result.accessToken);
                                 } else {
                                   print(result.status.toString());
+                                  print(result.message.toString());
                                 }
                               },
                               child: Text('FaceBook'))
